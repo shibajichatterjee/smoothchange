@@ -2,6 +2,7 @@ package com.rest.smoothchange.implementation.strategy.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 
 public class ImplementationStrategyRequestDto {
@@ -9,9 +10,9 @@ public class ImplementationStrategyRequestDto {
 	private String activity;
 
 	private String strategicObjective;
-
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date startDate;
-
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date endDate;
 
 	private String expectedResult;

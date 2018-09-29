@@ -17,7 +17,7 @@ import com.rest.framework.entity.AbstractPersistentObject;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
 
 @Entity
-@Table(name = "IMPACT_ANALYSIS")
+@Table(name = "IMPLEMENTATION_STRATEGY")
 public class ImplementationStrategy extends AbstractPersistentObject{
 	
 	private static final long serialVersionUID = 1L;
