@@ -5,17 +5,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.rest.smoothchange.support.plan.service.SupportPlanService;
+import com.rest.smoothchange.support.plan.items.service.SupportPlanItemsService;
 
 
 
 @RestController
-@RequestMapping(value = "/supportplan")
+@RequestMapping(value = "/supportplanitem")
 @Transactional
 public class SupportPlanItemsController {
 
 	@Autowired
-	private SupportPlanService supportPlanService; 
+	private SupportPlanItemsService supportPlanItemService; 
 
 
 	

@@ -12,7 +12,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 import com.rest.framework.entity.AbstractIdentifierObject;
-import com.rest.smoothchange.support.plan.entity.SupportPlan;
+import com.rest.smoothchange.project.background.entity.ProjectBackground;
 import com.rest.smoothchange.util.SupportedStackHolderStatus;
 
 @Entity
@@ -21,9 +21,9 @@ public class SupportPlanItems extends AbstractIdentifierObject{
 	
 	private static final long serialVersionUID = 1L;
 
-	@JoinColumn(name="support_plan_id")
+	@JoinColumn(name="project_id")
 	@ManyToOne
-	public SupportPlan supportPlan;
+	public ProjectBackground projectBackground;
 	
 	
 	@Column(name="support_activity")
@@ -40,13 +40,16 @@ public class SupportPlanItems extends AbstractIdentifierObject{
 	
 	@Column(name="comments")
 	private String  comments;
+	
+	
+	
 
-	public SupportPlan getSupportPlan() {
-		return supportPlan;
+	public ProjectBackground getProjectBackground() {
+		return projectBackground;
 	}
 
-	public void setSupportPlan(SupportPlan supportPlan) {
-		this.supportPlan = supportPlan;
+	public void setProjectBackground(ProjectBackground projectBackground) {
+		this.projectBackground = projectBackground;
 	}
 
 	public String getSupportActivity() {
@@ -92,7 +95,5 @@ public class SupportPlanItems extends AbstractIdentifierObject{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
 	
 }

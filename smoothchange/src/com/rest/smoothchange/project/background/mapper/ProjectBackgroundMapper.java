@@ -19,9 +19,7 @@ public class ProjectBackgroundMapper extends AbstractMapper<ProjectBackgroundDto
 		ProjectBackground projectBackground = null;
 		if (dto != null) {
 			projectBackground = new ProjectBackground();
-
 			projectBackground.setId(dto.getId());
-
 			projectBackground.setOtherTypeOfChange(dto.getOtherTypeOfChange());
 			projectBackground.setOwnerOfChange(dto.getOwnerOfChange());
 			projectBackground.setProjectDescription(dto.getProjectDescription());
@@ -29,7 +27,6 @@ public class ProjectBackgroundMapper extends AbstractMapper<ProjectBackgroundDto
 			TypeOfChange type=TypeOfChange.getValue(dto.getTypeOfChange());
 			projectBackground.setTypeOfChange(type);
 			projectBackground.setContactPerson(dto.getContactPerson());
-			
 		}
 		return projectBackground;
 	}
@@ -39,9 +36,7 @@ public class ProjectBackgroundMapper extends AbstractMapper<ProjectBackgroundDto
 		ProjectBackgroundDto projectBackgroundDto = null;
 		if (bo != null) {
 			projectBackgroundDto = new ProjectBackgroundDto();
-
 			projectBackgroundDto.setId(bo.getId());
-
 			projectBackgroundDto.setOtherTypeOfChange(bo.getOtherTypeOfChange());
 			projectBackgroundDto.setOwnerOfChange(bo.getOwnerOfChange());
 			projectBackgroundDto.setProjectDescription(bo.getProjectDescription());

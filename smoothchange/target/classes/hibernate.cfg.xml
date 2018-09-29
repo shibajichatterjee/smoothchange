@@ -24,32 +24,19 @@
 	     <mapping class="com.rest.smoothchange.project.background.entity.ProjectBackground"/>
 	     <mapping class="com.rest.smoothchange.project.stakeholders.entity.ProjectStakeholders"/>
 	     <mapping class="com.rest.smoothchange.admin.entity.Admin"/>
-	     	     <mapping class="com.rest.smoothchange.organization.info.entity.OrganizationInfo"/>
+	     <mapping class="com.rest.smoothchange.organization.info.entity.OrganizationInfo"/>
 	     <mapping class="com.rest.smoothchange.business.benefit.mapping.entity.BusinessBenefitMapping"/>
 	     <mapping class="com.rest.smoothchange.impact.analysis.entity.ImpactAnalysis"/>
 	     <mapping class="com.rest.smoothchange.implementation.strategy.entity.ImplementationStrategy"/>
-	     <mapping class="com.rest.smoothchange.communication.plan.entity.CommunicationPlan"/>
 	     <mapping class="com.rest.smoothchange.user.entity.User"/>
 	     <mapping class="com.rest.smoothchange.readiness.category.master.entity.ReadinessCategoryMaster"/>
 	     <mapping class="com.rest.smoothchange.change.readiness.categories.entity.ChangeReadinessCategories"/>
 	     <mapping class="com.rest.smoothchange.readiness.category.items.master.entity.ReadinessCategoryItemsMaster"/>
 	     <mapping class="com.rest.smoothchange.readiness.assessment.data.entity.ReadinessAssessmentData"/>
 	     <mapping class="com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryItems"/>
-
-	     <mapping class="com.rest.smoothchange.management.plan.entity.ChangeManagementPlan"/>
-	     <mapping class="com.rest.smoothchange.support.plan.entity.SupportPlan"/>
 	     <mapping class="com.rest.smoothchange.support.plan.items.entity.SupportPlanItems"/>
 	     <mapping class="com.rest.smoothchange.cost.of.change.entity.CostOfChange"/>
-	     <mapping class="com.rest.smoothchange.cost.of.change.items.entity.CostOfChangeItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.entity.ActionPlan"/>
-	     <mapping class="com.rest.smoothchange.action.plan.it.hardware.items.entity.ActionPlanItHardwareItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.it.software.items.entity.ActionPlanItSoftwareItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.it.network.items.entity.ActionPlanItNetworkItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.business.unit.items.entity.ActionPlanBusinessUnitItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.project.team.items.entity.ActionPlanProjectTeamItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.communication.items.entity.ActionPlanCommunicationItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.training.items.entity.ActionPlanTrainingItems"/>
-	     <mapping class="com.rest.smoothchange.action.plan.audit.items.entity.ActionPlanAuditItems"/>
+	     <mapping class="com.rest.smoothchange.cost.of.change.items.entity.CostOfChangeItems"/>	     	  	    
 	     <mapping class="com.rest.smoothchange.training.plan.entity.TrainingPlan"/>     
 	     <mapping class="com.rest.smoothchange.training.plan.version.history.entity.TrainingPlanVersionHistory" /> 
 	    

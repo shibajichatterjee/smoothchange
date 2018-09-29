@@ -37,6 +37,7 @@ public class ProjectBackground extends com.rest.framework.entity.AbstractPersist
 	
 	@Column(name="contact_person")
 	private String contactPerson;
+
 	
 	public String getContactPerson() {
 		return contactPerson;
@@ -91,8 +92,4 @@ public class ProjectBackground extends com.rest.framework.entity.AbstractPersist
 		this.ownerOfChange = ownerOfChange;
 	}
 
-
-	
-	
-	
 }

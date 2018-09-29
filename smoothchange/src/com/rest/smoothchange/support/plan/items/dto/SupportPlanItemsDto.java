@@ -4,14 +4,14 @@
 package com.rest.smoothchange.support.plan.items.dto;
 
 import com.rest.framework.dto.AbstractIdentifierDTO;
-import com.rest.smoothchange.support.plan.dto.SupportPlanDto;
+import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.util.SupportedStackHolderStatus;
 
 
 public class SupportPlanItemsDto extends AbstractIdentifierDTO{
 	
 
-	public SupportPlanDto supportPlan;
+	private ProjectBackgroundDto projectBackgroundDto;
 	
 	private String  supportActivity;
 	
@@ -23,12 +23,13 @@ public class SupportPlanItemsDto extends AbstractIdentifierDTO{
 	
     private String  comments;
 
-	public SupportPlanDto getSupportPlan() {
-		return supportPlan;
+	
+	public ProjectBackgroundDto getProjectBackgroundDto() {
+		return projectBackgroundDto;
 	}
 
-	public void setSupportPlan(SupportPlanDto supportPlan) {
-		this.supportPlan = supportPlan;
+	public void setProjectBackgroundDto(ProjectBackgroundDto projectBackgroundDto) {
+		this.projectBackgroundDto = projectBackgroundDto;
 	}
 
 	public String getSupportActivity() {

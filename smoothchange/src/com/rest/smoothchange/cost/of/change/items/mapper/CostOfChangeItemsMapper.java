@@ -10,8 +10,6 @@ import com.rest.smoothchange.cost.of.change.dto.CostOfChangeDto;
 import com.rest.smoothchange.cost.of.change.entity.CostOfChange;
 import com.rest.smoothchange.cost.of.change.items.dto.CostOfChangeItemsDto;
 import com.rest.smoothchange.cost.of.change.items.entity.CostOfChangeItems;
-import com.rest.smoothchange.management.plan.dto.ChangeManagementPlanDto;
-import com.rest.smoothchange.management.plan.entity.ChangeManagementPlan;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
 import com.rest.smoothchange.util.TypeOfChange;
@@ -35,26 +33,22 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 				   costOfChange = new CostOfChange();				 
 				   costOfChange.setId(dto.getCostOfChange().getId());
 				   costOfChange.setTotalCost(dto.getCostOfChange().getTotalCost());
-				   ChangeManagementPlan changeManagementPlan = null;
-				   if(dto.getCostOfChange().getChangeManagementPlan()!=null) {
-					   changeManagementPlan = new ChangeManagementPlan();
-					   changeManagementPlan.setId(dto.getCostOfChange().getChangeManagementPlan().getId());
-					   ProjectBackground projectBackground = null;
-						if(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground()!=null) {
-							projectBackground = new ProjectBackground();
-							projectBackground.setId(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getId());
-							projectBackground.setOtherTypeOfChange(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getOtherTypeOfChange());
-							projectBackground.setOwnerOfChange(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getOwnerOfChange());
-							projectBackground.setProjectDescription(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getProjectDescription());
-							projectBackground.setProjectName(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getProjectName());
-							projectBackground.setTypeOfChange(TypeOfChange.getValue(dto.getCostOfChange().getChangeManagementPlan().getProjectBackground().getTypeOfChange()));
-							changeManagementPlan.setProjectBackground(projectBackground);
-						}
-						costOfChange.setChangeManagementPlan(changeManagementPlan);
-				   }				   
-				   costOfChangeItems.setCostOfChange(costOfChange);				 		   
+				  ProjectBackground projectBackground = null;
+				  if(dto.getCostOfChange().getProjectBackground()!=null) {
+					  projectBackground = new ProjectBackground();
+					  projectBackground.setId(dto.getId());
+					  projectBackground.setOtherTypeOfChange(dto.getCostOfChange().getProjectBackground().getOtherTypeOfChange());
+					  projectBackground.setOwnerOfChange(dto.getCostOfChange().getProjectBackground().getOwnerOfChange());
+					  projectBackground.setProjectDescription(dto.getCostOfChange().getProjectBackground().getProjectDescription());
+					  projectBackground.setProjectName(dto.getCostOfChange().getProjectBackground().getProjectName());
+					  TypeOfChange type=TypeOfChange.getValue(dto.getCostOfChange().getProjectBackground().getTypeOfChange());
+					  projectBackground.setTypeOfChange(type);
+					  projectBackground.setContactPerson(dto.getCostOfChange().getProjectBackground().getContactPerson());
+					  projectBackground.setContactPerson(dto.getCostOfChange().getProjectBackground().getContactPerson());
+					  costOfChange.setProjectBackground(projectBackground);
+				  }
+				  costOfChangeItems.setCostOfChange(costOfChange);				 		   
 			   }
-			  
 		   }		
 		   return costOfChangeItems;
 	}
@@ -70,31 +64,26 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 			   costOfChangeItems.setCost(bo.getCost());
 			   costOfChangeItems.setId(bo.getId());
 			   CostOfChangeDto costOfChange = null;
-			    
-			   if(bo.getCostOfChange()!=null) {
+	           if(bo.getCostOfChange()!=null) {
 				   costOfChange = new CostOfChangeDto();				 
 				   costOfChange.setId(bo.getCostOfChange().getId());
-				   costOfChange.setTotalCost(bo.getCostOfChange().getTotalCost());
-				   ChangeManagementPlanDto changeManagementPlan = null;
-				   if(bo.getCostOfChange().getChangeManagementPlan()!=null) {
-					   changeManagementPlan = new ChangeManagementPlanDto();
-					   changeManagementPlan.setId(bo.getCostOfChange().getChangeManagementPlan().getId());
-					   ProjectBackgroundDto projectBackground = null;
-						if(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground()!=null) {
-							projectBackground = new ProjectBackgroundDto();					
-							projectBackground.setId(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getId());					
-							projectBackground.setOtherTypeOfChange(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getOtherTypeOfChange());
-							projectBackground.setOwnerOfChange(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getOwnerOfChange());
-							projectBackground.setProjectDescription(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getProjectDescription());
-							projectBackground.setProjectName(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getProjectName());
-							projectBackground.setTypeOfChange(bo.getCostOfChange().getChangeManagementPlan().getProjectBackground().getTypeOfChange().getMessage());
-							changeManagementPlan.setProjectBackground(projectBackground);
-						}
-						costOfChange.setChangeManagementPlan(changeManagementPlan);
-				   }				   
-				   costOfChangeItems.setCostOfChange(costOfChange);				 		   
-			   }
-			  
+				   costOfChange.setTotalCost(bo.getCostOfChange().getTotalCost());			   
+				   costOfChangeItems.setCostOfChange(costOfChange);		
+				ProjectBackgroundDto projectBackground = null;
+				if(bo.getCostOfChange().getProjectBackground()!=null) {
+					 projectBackground = new ProjectBackgroundDto();
+					   projectBackground.setId(bo.getId());
+					   projectBackground.setOtherTypeOfChange(bo.getCostOfChange().getProjectBackground().getOtherTypeOfChange());
+					   projectBackground.setOwnerOfChange(bo.getCostOfChange().getProjectBackground().getOwnerOfChange());
+					   projectBackground.setProjectDescription(bo.getCostOfChange().getProjectBackground().getProjectDescription());
+					   projectBackground.setProjectName(bo.getCostOfChange().getProjectBackground().getProjectName());
+					   projectBackground.setTypeOfChange(bo.getCostOfChange().getProjectBackground().getTypeOfChange().getMessage());
+					   projectBackground.setContactPerson(bo.getCostOfChange().getProjectBackground().getContactPerson());
+					   projectBackground.setContactPerson(bo.getCostOfChange().getProjectBackground().getContactPerson());
+					   costOfChange.setProjectBackground(projectBackground);
+				}	
+				costOfChangeItems.setCostOfChange(costOfChange);
+			   }			  
 		   }		
 		   return costOfChangeItems;
 	}	

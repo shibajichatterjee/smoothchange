@@ -4,27 +4,24 @@
 package com.rest.smoothchange.project.background.dto;
 
 import com.rest.framework.dto.AbstractDTO;
-import com.rest.smoothchange.util.TypeOfChange;
 
 
 public class ProjectBackgroundDto extends AbstractDTO{
 	
 	private static final long serialVersionUID = 1L;
 
-	
 	private String projectName;
 
 	private String projectDescription;
-
 
 	private String typeOfChange;
 	
 	private String otherTypeOfChange; 
 	
-	
 	private String ownerOfChange;
+	
 	private String contactPerson;
-
+	
 
 	public String getContactPerson() {
 		return contactPerson;
@@ -85,9 +82,10 @@ public class ProjectBackgroundDto extends AbstractDTO{
 		return typeOfChange;
 	}
 
-
 	public void setTypeOfChange(String typeOfChange) {
 		this.typeOfChange = typeOfChange;
 	}
+
+	
 	
 }
