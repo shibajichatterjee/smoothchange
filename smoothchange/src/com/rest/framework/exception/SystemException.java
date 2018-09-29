@@ -1,7 +1,5 @@
 package com.rest.framework.exception;
 
-import com.rest.framework.bean.MessageBean;
-
 public class SystemException extends Exception {
 
     private static final long serialVersionUID = 1L;

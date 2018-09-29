@@ -3,7 +3,6 @@ package com.rest.smoothchange.implementation.strategy.dto;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 
 public class ImplementationStrategyRequestDto {
 

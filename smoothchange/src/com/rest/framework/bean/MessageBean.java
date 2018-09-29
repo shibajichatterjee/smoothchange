@@ -1,6 +1,5 @@
 package com.rest.framework.bean;
 
-import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.constant.MessageEnum.enumMessage;
 
 public class MessageBean {

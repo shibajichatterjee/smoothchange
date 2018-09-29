@@ -22,7 +22,6 @@ import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStackeHolderRequestDto;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
-import com.rest.smoothchange.project.stakeholders.entity.ProjectStakeholders;
 import com.rest.smoothchange.project.stakeholders.service.ProjectStakeholdersService;
 import com.rest.smoothchange.util.EngagementStrategy;
 import com.rest.smoothchange.util.LevelOfInfluence;

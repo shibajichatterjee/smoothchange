@@ -1,11 +1,5 @@
 package com.rest.smoothchange.impact.analysis.dto;
 
-import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
-import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
-import com.rest.smoothchange.util.ImpactType;
-import com.rest.smoothchange.util.LevelOfImpact;
-import com.rest.smoothchange.util.PlannedActivity;
-
 public class ImpactAnalysisRequestDto {
 
 	private String impactType;

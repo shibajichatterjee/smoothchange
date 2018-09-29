@@ -1,6 +1,5 @@
 package com.rest.smoothchange.util;
 
-import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;

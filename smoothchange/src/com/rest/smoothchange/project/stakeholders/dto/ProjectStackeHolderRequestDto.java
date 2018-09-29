@@ -3,8 +3,6 @@
  */
 package com.rest.smoothchange.project.stakeholders.dto;
 
-import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
-
 public class ProjectStackeHolderRequestDto {
 
 	private static final long serialVersionUID = 1L;

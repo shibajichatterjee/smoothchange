@@ -5,7 +5,6 @@ package com.rest.smoothchange.project.background.mapper;
 
 import org.springframework.stereotype.Component;
 
-import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.mapper.AbstractMapper;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;

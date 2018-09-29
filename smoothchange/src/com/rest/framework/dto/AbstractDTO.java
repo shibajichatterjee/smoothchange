@@ -1,8 +1,5 @@
 package com.rest.framework.dto;
 
-import java.util.Date;
-
-
 public class AbstractDTO extends AbstractIdentifierDTO {
 
 	private static final long serialVersionUID = 1L;

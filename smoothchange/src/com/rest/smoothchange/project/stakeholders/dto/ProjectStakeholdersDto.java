@@ -5,9 +5,6 @@ package com.rest.smoothchange.project.stakeholders.dto;
 
 import com.rest.framework.dto.AbstractDTO;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
-import com.rest.smoothchange.util.EngagementStrategy;
-import com.rest.smoothchange.util.LevelOfInfluence;
-import com.rest.smoothchange.util.StakeholderType;
 
 public class ProjectStakeholdersDto extends AbstractDTO {
 
