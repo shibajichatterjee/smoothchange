@@ -1,5 +1,8 @@
 package com.rest.smoothchange.implementation.strategy.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +58,7 @@ public class ImplementationStrategyController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+
 	@ApiOperation(value = "Modify Implementation Strategy")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyImplementationStrategy", method = RequestMethod.POST)
@@ -75,6 +79,55 @@ public class ImplementationStrategyController {
 
 	}
 
+	@ApiOperation(value = "Get Implementation Strategy by Project Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetImplementationStrategyByProjectId", method = RequestMethod.GET)
+	public ResponseEntity getImplementationStrategyByProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") String projectId) throws NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		List<ImplementationStrategyRequestDto> requestDtoList = new ArrayList<>();
+		getProjectBackGround(projectId);
+
+		List<ImplementationStrategyDto> dto = implementationStrategyService
+				.getImplementationStrategyListByProjectId(Long.parseLong(projectId));
+		if (dto == null || dto.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		for (ImplementationStrategyDto implementationStrategyDto : dto) {
+			requestDtoList.add(mapDtoToRequestDto(implementationStrategyDto));
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(requestDtoList);
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Get Implementation Strategy by Id and Project Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetImplementationStrategyByIdandProjectId", method = RequestMethod.GET)
+	public ResponseEntity getBusinessBenefitMappingByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+			throws NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		getProjectBackGround(projectId);
+		ImplementationStrategyDto dto = new ImplementationStrategyDto();
+		dto.setId(Long.parseLong(id));
+		dto.setProjectBackground(new ProjectBackgroundDto());
+		dto.getProjectBackground().setId(Long.parseLong(projectId));
+		dto = implementationStrategyService.getImplementationStrategyByIdProjectId(dto);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(mapDtoToRequestDto(dto));
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
 	private ImplementationStrategyDto mapRequestToDto(
 			ImplementationStrategyRequestDto implementationStrategyRequestDto) {
 		ImplementationStrategyDto implementationStrategyDto = new ImplementationStrategyDto();
@@ -90,6 +143,7 @@ public class ImplementationStrategyController {
 
 		return implementationStrategyDto;
 	}
+
 	private ImplementationStrategyRequestDto mapDtoToRequestDto(ImplementationStrategyDto implementationStrategyDto) {
 		ImplementationStrategyRequestDto implementationStrategyRequestDto = new ImplementationStrategyRequestDto();
 		implementationStrategyRequestDto.setId(implementationStrategyDto.getId());

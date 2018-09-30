@@ -94,6 +94,9 @@ public class BusinessBenefitMappingController {
 		dto.setProjectBackground(new ProjectBackgroundDto());
 		dto.getProjectBackground().setId(Long.parseLong(projectId));
 		dto = businessBenefitMappingService.getBusinessBenefitMappingByIdProjectId(dto);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(mapDtoToRequestDto(dto));
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
@@ -113,6 +116,9 @@ public class BusinessBenefitMappingController {
 
 		List<BusinessBenefitMappingDto> dto = businessBenefitMappingService
 				.getBusinessBenefitMappingListByProjectId(Long.parseLong(projectId));
+		if (dto == null || dto.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		for (BusinessBenefitMappingDto businessBenefitMappingDto : dto) {
 			requestDtoList.add(mapDtoToRequestDto(businessBenefitMappingDto));
 		}

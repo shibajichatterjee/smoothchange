@@ -124,6 +124,9 @@ public class ProjectStakeholdersController {
 		dto.setProjectBackground(new ProjectBackgroundDto());
 		dto.getProjectBackground().setId(Long.parseLong(projectId));
 		dto = projectStakeholdersService.getStakeHolderByIdProjectId(dto);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(mapDtoToRequestDto(dto));
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
@@ -143,6 +146,9 @@ public class ProjectStakeholdersController {
 
 		List<ProjectStakeholdersDto> dto = projectStakeholdersService
 				.getStakeHolderListByProjectId(Long.parseLong(projectId));
+		if (dto == null || dto.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		for (ProjectStakeholdersDto projectStakeholdersDto : dto) {
 			requestDtoList.add(mapDtoToRequestDto(projectStakeholdersDto));
 		}

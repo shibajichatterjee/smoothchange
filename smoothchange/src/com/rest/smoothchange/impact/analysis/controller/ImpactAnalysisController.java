@@ -123,6 +123,9 @@ public class ImpactAnalysisController {
 		List<ImpactAnalysisRequestDto> requestDtoList = new ArrayList<>();
 		getProjectBackGround(projectId);
 		List<ImpactAnalysisDto> dto = impactAnalysisService.getImpactAnalysisListByProjectId(Long.parseLong(projectId));
+		if (dto == null || dto.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		for (ImpactAnalysisDto impactAnalysisDto : dto) {
 			requestDtoList.add(mapDtoToRequestDto(impactAnalysisDto));
 		}
@@ -147,6 +150,9 @@ public class ImpactAnalysisController {
 		dto.setProjectBackground(new ProjectBackgroundDto());
 		dto.getProjectBackground().setId(Long.parseLong(projectId));
 		dto = impactAnalysisService.getImpactAnalysisByIdProjectId(dto);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(mapDtoToRequestDto(dto));
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
@@ -177,12 +183,12 @@ public class ImpactAnalysisController {
 		impactAnalysisDto.getProjectStakeholders().setId(impactAnalysisRequestDto.getProjectStakeholdersId());
 		return impactAnalysisRequestDto;
 	}
+
 	private void getProjectBackGround(String id) throws NoRecordsFoundException {
 		ProjectBackgroundDto dto = projectService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
 	}
-
 
 }
