@@ -24,6 +24,7 @@ import com.rest.smoothchange.impact.analysis.service.ImpactAnalysisService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
+import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.ImpactType;
 import com.rest.smoothchange.util.LevelOfImpact;
 import com.rest.smoothchange.util.PlannedActivity;
@@ -41,6 +42,9 @@ public class ImpactAnalysisController {
 	private ImpactAnalysisService impactAnalysisService;
 	@Autowired
 	private ProjectBackgroundService projectService;
+	
+	@Autowired
+	private CommonUtil commonUtil;
 
 	@ApiOperation(value = "Add Impact Analysis")
 	@SuppressWarnings("unchecked")
@@ -67,7 +71,7 @@ public class ImpactAnalysisController {
 			throw new NoEnumRecordsFoundException("Planned Activity not matched");
 		}
 
-		getProjectBackGround(id);
+		commonUtil.getProjectBackGround(id);
 		ImpactAnalysisDto dto = mapRequestToDto(impactAnalysisRequestDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		impactAnalysisService.create(dto);
@@ -102,7 +106,7 @@ public class ImpactAnalysisController {
 			throw new NoEnumRecordsFoundException("Planned Activity not matched");
 		}
 
-		getProjectBackGround(id);
+		commonUtil.getProjectBackGround(id);
 		ImpactAnalysisDto dto = mapRequestToDto(impactAnalysisRequestDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		impactAnalysisService.update(dto);
@@ -121,7 +125,7 @@ public class ImpactAnalysisController {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		List<ImpactAnalysisRequestDto> requestDtoList = new ArrayList<>();
-		getProjectBackGround(projectId);
+		commonUtil.getProjectBackGround(projectId);
 		List<ImpactAnalysisDto> dto = impactAnalysisService.getImpactAnalysisListByProjectId(Long.parseLong(projectId));
 		if (dto == null || dto.size() == 0) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
@@ -144,7 +148,7 @@ public class ImpactAnalysisController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		getProjectBackGround(id);
+		commonUtil.getProjectBackGround(id);
 		ImpactAnalysisDto dto = new ImpactAnalysisDto();
 		dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());
@@ -184,11 +188,11 @@ public class ImpactAnalysisController {
 		return impactAnalysisRequestDto;
 	}
 
-	private void getProjectBackGround(String id) throws NoRecordsFoundException {
+	/*private void getProjectBackGround(String id) throws NoRecordsFoundException {
 		ProjectBackgroundDto dto = projectService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
-	}
+	}*/
 
 }
