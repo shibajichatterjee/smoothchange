@@ -27,6 +27,7 @@ public class ReadinessCategoryItemsMasterMapper extends AbstractMapper<Readiness
 				   readinessCategoryMaster = new ReadinessCategoryMaster();
 				   readinessCategoryMaster.setChangeReadinessMasterCategoryName(dto.getReadinessCategoryMaster().getChangeReadinessMasterCategoryName());
 				   readinessCategoryMaster.setId(dto.getReadinessCategoryMaster().getId()); 
+				   readinessCategoryItemsMaster.setReadinessCategoryMaster(readinessCategoryMaster);
 			   }
 		   }		
 		   return readinessCategoryItemsMaster;
@@ -45,6 +46,7 @@ public class ReadinessCategoryItemsMasterMapper extends AbstractMapper<Readiness
 				   readinessCategoryMaster = new ReadinessCategoryMasterDto();
 				   readinessCategoryMaster.setChangeReadinessMasterCategoryName(bo.getReadinessCategoryMaster().getChangeReadinessMasterCategoryName());
 				   readinessCategoryMaster.setId(bo.getReadinessCategoryMaster().getId()); 
+				   readinessCategoryItemsMaster.setReadinessCategoryMaster(readinessCategoryMaster);
 			   }
 		   }		
 		   return readinessCategoryItemsMaster;

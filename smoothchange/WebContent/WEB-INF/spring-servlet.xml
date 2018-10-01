@@ -37,4 +37,6 @@
 	
 	<mvc:resources mapping="/resources/**" location="/resources/" />
 	
+	<context:property-placeholder location="classpath*:item.properties"/>
+	
 </beans>  
