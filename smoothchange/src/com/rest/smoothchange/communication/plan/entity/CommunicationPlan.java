@@ -14,11 +14,13 @@ import javax.persistence.Table;
 import com.rest.framework.entity.AbstractPersistentObject;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
 import com.rest.smoothchange.project.stakeholders.entity.ProjectStakeholders;
+import com.rest.smoothchange.util.CommunicationChannel;
 import com.rest.smoothchange.util.Frequency;
+import com.rest.smoothchange.util.PurposeOfCommunication;
 import com.rest.smoothchange.util.Status;
 
 @Entity
-@Table(name = "COMMUNICATION_PLAN")
+@Table(name = "COMMUNICATION_PLAN_ITEMS")
 public class CommunicationPlan extends AbstractPersistentObject{
 	
 	private static final long serialVersionUID = 1L;
@@ -32,15 +34,15 @@ public class CommunicationPlan extends AbstractPersistentObject{
 	private ProjectStakeholders projectStakeholders;
 	
 
-	@Column(name = "purpose_of_communication")
-	private String purposeOfCommunication;
+	@Enumerated(EnumType.ORDINAL)
+	private PurposeOfCommunication purposeOfCommunication;
 	
 	@Column(name="message")
 	private String message;
 	
 	
-	@Column(name="communication_channel")
-	private String communicationChannel;
+	@Enumerated(EnumType.ORDINAL)
+	private CommunicationChannel communicationChannel;
 	
 	@Column(name="timing_or_date")
 	private String timingOrDate;
@@ -74,13 +76,7 @@ public class CommunicationPlan extends AbstractPersistentObject{
 		this.projectStakeholders = projectStakeholders;
 	}
 
-	public String getPurposeOfCommunication() {
-		return purposeOfCommunication;
-	}
-
-	public void setPurposeOfCommunication(String purposeOfCommunication) {
-		this.purposeOfCommunication = purposeOfCommunication;
-	}
+	
 
 	public String getMessage() {
 		return message;
@@ -90,11 +86,21 @@ public class CommunicationPlan extends AbstractPersistentObject{
 		this.message = message;
 	}
 
-	public String getCommunicationChannel() {
+	
+
+	public PurposeOfCommunication getPurposeOfCommunication() {
+		return purposeOfCommunication;
+	}
+
+	public void setPurposeOfCommunication(PurposeOfCommunication purposeOfCommunication) {
+		this.purposeOfCommunication = purposeOfCommunication;
+	}
+
+	public CommunicationChannel getCommunicationChannel() {
 		return communicationChannel;
 	}
 
-	public void setCommunicationChannel(String communicationChannel) {
+	public void setCommunicationChannel(CommunicationChannel communicationChannel) {
 		this.communicationChannel = communicationChannel;
 	}
 

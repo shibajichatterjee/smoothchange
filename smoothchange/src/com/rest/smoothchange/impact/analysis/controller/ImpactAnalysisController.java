@@ -148,7 +148,7 @@ public class ImpactAnalysisController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		commonUtil.getProjectBackGround(id);
+		commonUtil.getProjectBackGround(projectId);
 		ImpactAnalysisDto dto = new ImpactAnalysisDto();
 		dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());

@@ -6,32 +6,49 @@ package com.rest.smoothchange.communication.plan.dto;
 import com.rest.framework.dto.AbstractDTO;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
+import com.rest.smoothchange.util.CommunicationChannel;
 import com.rest.smoothchange.util.Frequency;
+import com.rest.smoothchange.util.PurposeOfCommunication;
 import com.rest.smoothchange.util.Status;
 
+public class CommunicationPlanDto extends AbstractDTO {
 
-public class CommunicationPlanDto extends AbstractDTO{
-	
+	public PurposeOfCommunication getPurposeOfCommunication() {
+		return purposeOfCommunication;
+	}
+
+	public void setPurposeOfCommunication(PurposeOfCommunication purposeOfCommunication) {
+		this.purposeOfCommunication = purposeOfCommunication;
+	}
+
+	public CommunicationChannel getCommunicationChannel() {
+		return communicationChannel;
+	}
+
+	public void setCommunicationChannel(CommunicationChannel communicationChannel) {
+		this.communicationChannel = communicationChannel;
+	}
+
 	private static final long serialVersionUID = 1L;
 
 	private ProjectBackgroundDto projectBackground;
-	
+
 	private ProjectStakeholdersDto projectStakeholders;
-	
-	private String purposeOfCommunication;
-	
+
+	private PurposeOfCommunication purposeOfCommunication;
+
 	private String message;
-	
-	private String communicationChannel;
-	
+
+	private CommunicationChannel communicationChannel;
+
 	private String timingOrDate;
-	
+
 	private Frequency frequency;
-	
+
 	private String preparedBy;
-	
+
 	private String sentBy;
-	
+
 	private Status status;
 
 	public ProjectBackgroundDto getProjectBackground() {
@@ -50,28 +67,12 @@ public class CommunicationPlanDto extends AbstractDTO{
 		this.projectStakeholders = projectStakeholders;
 	}
 
-	public String getPurposeOfCommunication() {
-		return purposeOfCommunication;
-	}
-
-	public void setPurposeOfCommunication(String purposeOfCommunication) {
-		this.purposeOfCommunication = purposeOfCommunication;
-	}
-
 	public String getMessage() {
 		return message;
 	}
 
 	public void setMessage(String message) {
 		this.message = message;
-	}
-
-	public String getCommunicationChannel() {
-		return communicationChannel;
-	}
-
-	public void setCommunicationChannel(String communicationChannel) {
-		this.communicationChannel = communicationChannel;
 	}
 
 	public String getTimingOrDate() {
@@ -117,7 +118,5 @@ public class CommunicationPlanDto extends AbstractDTO{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-
 
 }

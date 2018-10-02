@@ -20,5 +20,13 @@ public enum Frequency {
     public String getNumVal() {
         return numVal;
     }
+    public static Frequency getValue(String numVal) {
+		for (Frequency e : Frequency.values()) {
+			if (e.getNumVal().equals(numVal)) {
+				return e;
+			}
+		}
+		return null;
+	}
 	
 }

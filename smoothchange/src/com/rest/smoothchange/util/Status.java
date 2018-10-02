@@ -2,18 +2,25 @@ package com.rest.smoothchange.util;
 
 public enum Status {
 
-	High('H'),
-	Medium('M'),
-	Low('L');
-	
-	private char numVal;
+	Drafted("Drafted"), Sentforapproval("Sent for approval"), Onhold("On hold"),Delivered("Delivered"),Others("Others");
 
-	Status(char numVal) {
-        this.numVal = numVal;
-    }
+	private String numVal;
 
-    public char getNumVal() {
-        return numVal;
-    }
-	
+	Status(String numVal) {
+		this.numVal = numVal;
+	}
+
+	public String getNumVal() {
+		return numVal;
+	}
+
+	public static Status getValue(String numVal) {
+		for (Status e : Status.values()) {
+			if (e.getNumVal().equals(numVal)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
 }
