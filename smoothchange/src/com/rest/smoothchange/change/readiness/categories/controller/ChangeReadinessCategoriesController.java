@@ -19,10 +19,14 @@ import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryI
 import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMasterDto;
 import com.rest.smoothchange.readiness.category.master.service.ReadinessCategoryMasterService;
 
+import io.swagger.annotations.Api;
+
 
 
 @RestController
-@RequestMapping(value = "/changeReadinessCategories")
+@RequestMapping(value = "/CopyChangeReadinessCategoriesFromMasterAPI")
+@Api(value = "Copy Change Readiness Categories From Master", description = "Operations For Copy Change Readiness Categories From Master with Project Id")
+
 @Transactional
 public class ChangeReadinessCategoriesController {
 
@@ -38,7 +42,6 @@ public class ChangeReadinessCategoriesController {
 	@Autowired
 	private ReadinessCategoryItemsMasterService readinessCategoryItemsMasterService;
 	
-	@RequestMapping(value="populateMasterDateForRedinessCategoryForTransaction")
 	public String populateMasterDateForRedinessCategory(@RequestParam("projectId")long projectId) {
 		try {
 			ProjectBackgroundDto projectBackgroundDto = new ProjectBackgroundDto();

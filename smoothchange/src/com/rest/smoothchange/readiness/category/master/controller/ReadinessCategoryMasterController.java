@@ -15,10 +15,14 @@ import com.rest.smoothchange.readiness.category.items.master.service.ReadinessCa
 import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMasterDto;
 import com.rest.smoothchange.readiness.category.master.service.ReadinessCategoryMasterService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 
 
 @RestController
-@RequestMapping(value = "/readinesscategoryitemsmaster")
+@RequestMapping(value = "/readinessMasterAPI")
+@Api(value = "Readiness Master", description = "Operations For Readiness Master Data")
 @Transactional
 public class ReadinessCategoryMasterController {
 
@@ -35,8 +39,8 @@ public class ReadinessCategoryMasterController {
 	@Value("${CHANGE_READINESS_CATEGORY_ITEMS_MASTER}")
 	private String CHANGE_READINESS_CATEGORY_ITEMS_MASTER;
 	
-	
-	@RequestMapping(value="populateMasterDateForRedinessCategory")
+	@ApiOperation(value = "Add Data Readiness category and Item Master")
+	@RequestMapping(value="AddMasterDateRediness")
 	public String populateDateIntable() {
 		try {		
 		List<ReadinessCategoryMasterDto> readinessCategoryMasterDtoList = getReadinessCategoryMasteList();
