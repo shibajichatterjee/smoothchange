@@ -27,7 +27,27 @@ public class ImplementationStrategyDto extends AbstractDTO{
 	
 	private String leadContactName;
 	
-	private String leadContactAddress;
+	private String leadContactDesignation;
+	
+	private long noOfRequiredResources;
+
+	public String getLeadContactDesignation() {
+		return leadContactDesignation;
+	}
+
+	public void setLeadContactDesignation(String leadContactDesignation) {
+		this.leadContactDesignation = leadContactDesignation;
+	}
+
+	
+
+	public long getNoOfRequiredResources() {
+		return noOfRequiredResources;
+	}
+
+	public void setNoOfRequiredResources(long noOfRequiredResources) {
+		this.noOfRequiredResources = noOfRequiredResources;
+	}
 
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
@@ -85,13 +105,7 @@ public class ImplementationStrategyDto extends AbstractDTO{
 		this.leadContactName = leadContactName;
 	}
 
-	public String getLeadContactAddress() {
-		return leadContactAddress;
-	}
-
-	public void setLeadContactAddress(String leadContactAddress) {
-		this.leadContactAddress = leadContactAddress;
-	}
+	
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;

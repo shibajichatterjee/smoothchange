@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -45,7 +46,7 @@ public class ChangeReadinessCategoriesController {
 	@Autowired 
 	private CommonUtil commonUtil;
 	
-	@RequestMapping(value = "/CopyChangeReadinessCategoriesFromMasterAPI")
+	@RequestMapping(value = "/CopyChangeReadinessCategoriesFromMaster" ,method = RequestMethod.POST)
 	public String populateMasterDateForRedinessCategory(@RequestParam("projectId")String projectId) {
 		try {
 			ProjectBackgroundDto projectBackgroundDto = commonUtil.getProjectBackGround(projectId);

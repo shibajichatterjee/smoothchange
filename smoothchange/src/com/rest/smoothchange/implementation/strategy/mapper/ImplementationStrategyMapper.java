@@ -30,7 +30,8 @@ public class ImplementationStrategyMapper extends AbstractMapper<ImplementationS
 			implementationStrategy.setStartDate(dto.getStartDate());
 			implementationStrategy.setEndDate(dto.getEndDate());
 			implementationStrategy.setLeadContactName(dto.getLeadContactName());
-			implementationStrategy.setLeadContactAddress(dto.getLeadContactAddress());	
+			implementationStrategy.setLeadContactDesignation(dto.getLeadContactDesignation());	
+			implementationStrategy.setNoOfRequiredResources(dto.getNoOfRequiredResources());
 			if(dto.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackground();
 				projectBackground.setId(dto.getProjectBackground().getId());
@@ -60,7 +61,8 @@ public class ImplementationStrategyMapper extends AbstractMapper<ImplementationS
 			implementationStrategy.setStartDate(bo.getStartDate());
 			implementationStrategy.setEndDate(bo.getEndDate());
 			implementationStrategy.setLeadContactName(bo.getLeadContactName());
-			implementationStrategy.setLeadContactAddress(bo.getLeadContactAddress());			
+			implementationStrategy.setLeadContactDesignation(bo.getLeadContactDesignation());
+			implementationStrategy.setNoOfRequiredResources(bo.getNoOfRequiredResources());
 			if(bo.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackgroundDto();
 				projectBackground.setId(bo.getProjectBackground().getId());

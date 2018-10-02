@@ -29,6 +29,7 @@ public class ImplementationStrategyServiceImpl extends AbstractService<Implement
 		for(ImplementationStrategy implementationStrategy : implementationStrategyList) {
 			implementationStrategyDtoList.add(mapper.mapEntityToDto(implementationStrategy));
 		}
+		
 		return implementationStrategyDtoList;
 	}
 	

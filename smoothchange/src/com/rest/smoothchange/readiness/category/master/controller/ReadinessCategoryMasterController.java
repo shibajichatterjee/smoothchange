@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rest.smoothchange.readiness.category.items.master.dto.ReadinessCategoryItemsMasterDto;
@@ -40,7 +41,7 @@ public class ReadinessCategoryMasterController {
 	private String CHANGE_READINESS_CATEGORY_ITEMS_MASTER;
 	
 	@ApiOperation(value = "Add Data Readiness category and Item Master")
-	@RequestMapping(value="AddMasterDateRediness")
+	@RequestMapping(value="AddMasterDateRediness",method = RequestMethod.POST)
 	public String populateDateIntable() {
 		try {		
 		List<ReadinessCategoryMasterDto> readinessCategoryMasterDtoList = getReadinessCategoryMasteList();

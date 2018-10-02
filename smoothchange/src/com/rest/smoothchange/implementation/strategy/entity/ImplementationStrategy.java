@@ -46,9 +46,10 @@ public class ImplementationStrategy extends AbstractPersistentObject{
 	@Column(name="lead_contact_name")
 	private String leadContactName;
 	
-	@Column(name="lead_contact_address")
-	private String leadContactAddress;
-	
+	@Column(name="lead_contact_designation")
+    private String leadContactDesignation;
+	@Column(name="no_of_required_resources")
+	private long noOfRequiredResources;	
 	
 	
 	public static long getSerialversionuid() {
@@ -107,12 +108,22 @@ public class ImplementationStrategy extends AbstractPersistentObject{
 		this.leadContactName = leadContactName;
 	}
 
-	public String getLeadContactAddress() {
-		return leadContactAddress;
+	
+
+	public String getLeadContactDesignation() {
+		return leadContactDesignation;
 	}
 
-	public void setLeadContactAddress(String leadContactAddress) {
-		this.leadContactAddress = leadContactAddress;
+	public void setLeadContactDesignation(String leadContactDesignation) {
+		this.leadContactDesignation = leadContactDesignation;
+	}
+
+	public long getNoOfRequiredResources() {
+		return noOfRequiredResources;
+	}
+
+	public void setNoOfRequiredResources(long noOfRequiredResources) {
+		this.noOfRequiredResources = noOfRequiredResources;
 	}
 
 	public void setProjectBackground(ProjectBackground projectBackground) {

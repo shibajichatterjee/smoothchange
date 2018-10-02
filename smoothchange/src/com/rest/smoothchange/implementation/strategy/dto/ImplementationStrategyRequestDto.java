@@ -18,8 +18,27 @@ public class ImplementationStrategyRequestDto {
 
 	private String leadContactName;
 
-	private String leadContactAddress;
+private String leadContactDesignation;
+	
+	private long noOfRequiredResources;
 
+	public String getLeadContactDesignation() {
+		return leadContactDesignation;
+	}
+
+	public void setLeadContactDesignation(String leadContactDesignation) {
+		this.leadContactDesignation = leadContactDesignation;
+	}
+
+	
+
+	public long getNoOfRequiredResources() {
+		return noOfRequiredResources;
+	}
+
+	public void setNoOfRequiredResources(long noOfRequiredResources) {
+		this.noOfRequiredResources = noOfRequiredResources;
+	}
 	private Long id;
 
 	public Long getId() {
@@ -78,12 +97,5 @@ public class ImplementationStrategyRequestDto {
 		this.leadContactName = leadContactName;
 	}
 
-	public String getLeadContactAddress() {
-		return leadContactAddress;
-	}
-
-	public void setLeadContactAddress(String leadContactAddress) {
-		this.leadContactAddress = leadContactAddress;
-	}
-
+	
 }

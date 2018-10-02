@@ -134,13 +134,13 @@ public class ImplementationStrategyController {
 		implementationStrategyDto.setId(implementationStrategyRequestDto.getId());
 		implementationStrategyDto.setActivity(implementationStrategyRequestDto.getActivity());
 		implementationStrategyDto.setExpectedResult(implementationStrategyRequestDto.getExpectedResult());
-		implementationStrategyDto.setLeadContactAddress(implementationStrategyRequestDto.getLeadContactAddress());
+		implementationStrategyDto.setLeadContactDesignation(implementationStrategyRequestDto.getLeadContactDesignation());
 		implementationStrategyDto.setLeadContactName(implementationStrategyRequestDto.getLeadContactName());
 		implementationStrategyDto.setProjectBackground(new ProjectBackgroundDto());
 		implementationStrategyDto.setEndDate(implementationStrategyRequestDto.getEndDate());
 		implementationStrategyDto.setStartDate(implementationStrategyRequestDto.getStartDate());
 		implementationStrategyDto.setStrategicObjective(implementationStrategyRequestDto.getStrategicObjective());
-
+implementationStrategyDto.setNoOfRequiredResources(implementationStrategyRequestDto.getNoOfRequiredResources());
 		return implementationStrategyDto;
 	}
 
@@ -149,11 +149,12 @@ public class ImplementationStrategyController {
 		implementationStrategyRequestDto.setId(implementationStrategyDto.getId());
 		implementationStrategyRequestDto.setActivity(implementationStrategyDto.getActivity());
 		implementationStrategyRequestDto.setExpectedResult(implementationStrategyDto.getExpectedResult());
-		implementationStrategyRequestDto.setLeadContactAddress(implementationStrategyDto.getLeadContactAddress());
+		implementationStrategyRequestDto.setLeadContactDesignation(implementationStrategyDto.getLeadContactDesignation());
 		implementationStrategyRequestDto.setLeadContactName(implementationStrategyDto.getLeadContactName());
 		implementationStrategyRequestDto.setEndDate(implementationStrategyDto.getEndDate());
 		implementationStrategyRequestDto.setStartDate(implementationStrategyDto.getStartDate());
 		implementationStrategyRequestDto.setStrategicObjective(implementationStrategyDto.getStrategicObjective());
+		implementationStrategyRequestDto.setNoOfRequiredResources(implementationStrategyDto.getNoOfRequiredResources());
 
 		return implementationStrategyRequestDto;
 	}
