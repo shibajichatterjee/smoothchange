@@ -1,5 +1,6 @@
 package com.rest.smoothchange.change.readiness.categories.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import com.rest.smoothchange.readiness.category.items.master.service.ReadinessCa
 import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryItemsService;
 import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMasterDto;
 import com.rest.smoothchange.readiness.category.master.service.ReadinessCategoryMasterService;
+import com.rest.smoothchange.util.CommonUtil;
 
 import io.swagger.annotations.Api;
 
@@ -33,8 +35,6 @@ public class ChangeReadinessCategoriesController {
 	@Autowired
 	private ChangeReadinessCategoriesService changeReadinessCategoriesService; 
 
-	@Autowired
-	private ReadinessCategoryItemsService readinessCategoryItemsService;
 	
 	@Autowired
 	private ReadinessCategoryMasterService readinessCategoryMasterService; 
@@ -42,35 +42,37 @@ public class ChangeReadinessCategoriesController {
 	@Autowired
 	private ReadinessCategoryItemsMasterService readinessCategoryItemsMasterService;
 	
-	public String populateMasterDateForRedinessCategory(@RequestParam("projectId")long projectId) {
+	@Autowired 
+	private CommonUtil commonUtil;
+	
+	@RequestMapping(value = "/CopyChangeReadinessCategoriesFromMasterAPI")
+	public String populateMasterDateForRedinessCategory(@RequestParam("projectId")String projectId) {
 		try {
-			ProjectBackgroundDto projectBackgroundDto = new ProjectBackgroundDto();
-			projectBackgroundDto.setId(projectId);
+			ProjectBackgroundDto projectBackgroundDto = commonUtil.getProjectBackGround(projectId);
 			List<ReadinessCategoryMasterDto>  readinessCategoryMasterDtolist =  readinessCategoryMasterService.getAll();
 			ChangeReadinessCategoriesDto changeReadinessCategoriesDto = null;
 			 ReadinessCategoryItemsDto readinessCategoryItemsDto = null;
+			 List<ReadinessCategoryItemsDto> readinessCategoryItemsDtoList = null;
 			for(ReadinessCategoryMasterDto readinessCategoryMasterDto : readinessCategoryMasterDtolist) {
 				changeReadinessCategoriesDto = new ChangeReadinessCategoriesDto();
 				changeReadinessCategoriesDto.setChangeReadinessCategoryName(readinessCategoryMasterDto.getChangeReadinessMasterCategoryName());
-				changeReadinessCategoriesDto.setProjectBackgroundDto(projectBackgroundDto);
-				Long changeReadinessCategoriesId = (Long)changeReadinessCategoriesService.create(changeReadinessCategoriesDto);
-				changeReadinessCategoriesDto.setId(changeReadinessCategoriesId);				
-				 List<ReadinessCategoryItemsMasterDto> readinessCategoryItemsMasterDtoList =	readinessCategoryItemsMasterService.getReadinessCategoryItemsMasterByCategoryMasterId(readinessCategoryMasterDto.getId());
-		  
-			   for(ReadinessCategoryItemsMasterDto readinessCategoryItemsMasterDto : readinessCategoryItemsMasterDtoList ) {
+				changeReadinessCategoriesDto.setProjectBackgroundDto(projectBackgroundDto);				
+				readinessCategoryItemsDtoList = new ArrayList<>();
+				List<ReadinessCategoryItemsMasterDto> readinessCategoryItemsMasterDtoList =	readinessCategoryItemsMasterService.getReadinessCategoryItemsMasterByCategoryMasterId(readinessCategoryMasterDto.getId());		  
+				for(ReadinessCategoryItemsMasterDto readinessCategoryItemsMasterDto : readinessCategoryItemsMasterDtoList ) {
 				   readinessCategoryItemsDto = new ReadinessCategoryItemsDto();
 				   readinessCategoryItemsDto.setChangeReadinessCategories(changeReadinessCategoriesDto);
 				   readinessCategoryItemsDto.setChangeReadinessCategoryItemCode(readinessCategoryItemsMasterDto.getChangeReadinessMasterCategoryItemCode());
 				   readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(readinessCategoryItemsMasterDto.getChangeReadinessMasterCategoryItemDescription());
-				   readinessCategoryItemsService.create(readinessCategoryItemsDto);
-			   }			 
+				   readinessCategoryItemsDtoList.add(readinessCategoryItemsDto);
+			   }
+				changeReadinessCategoriesDto.setReadinessCategoryItemList(readinessCategoryItemsDtoList);
+				changeReadinessCategoriesService.create(changeReadinessCategoriesDto);
 			}
 			return "success";
 		}catch(Exception e) {
-			System.out.println("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"+e.getMessage());
 			return "error";
-		}
-		
+		}		
 	}
 	
 

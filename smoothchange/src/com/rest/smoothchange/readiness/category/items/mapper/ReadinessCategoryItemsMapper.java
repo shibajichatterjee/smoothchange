@@ -24,12 +24,14 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 		   if(dto!=null) { 
 			   readinessCategoryItems = new ReadinessCategoryItems();
 			   readinessCategoryItems.setId(dto.getId());
-			   
+			   readinessCategoryItems.setChangeReadinessCategoryItemCode(dto.getChangeReadinessCategoryItemCode());
+			   readinessCategoryItems.setChangeReadinessCategoryItemDescription(dto.getChangeReadinessCategoryItemDescription());
 			   if(dto.getChangeReadinessCategories()!=null) {
 				   ProjectBackground projectBackground = null;
-
 					   changeReadinessCategories = new ChangeReadinessCategories();
-					   changeReadinessCategories.setChangeReadinessCategoryName(dto.getChangeReadinessCategories().getChangeReadinessCategoryName());			   
+					   changeReadinessCategories.setChangeReadinessCategoryName(dto.getChangeReadinessCategories().getChangeReadinessCategoryName());
+					   readinessCategoryItems.setChangeReadinessCategoryItemCode(dto.getChangeReadinessCategoryItemCode());
+					   readinessCategoryItems.setChangeReadinessCategoryItemDescription(dto.getChangeReadinessCategoryItemDescription());
 					   if(dto.getChangeReadinessCategories().getProjectBackgroundDto()!=null){
 						    projectBackground = new ProjectBackground();						  
 							projectBackground.setId(dto.getChangeReadinessCategories().getProjectBackgroundDto().getId());						

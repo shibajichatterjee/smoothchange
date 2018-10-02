@@ -3,6 +3,9 @@
  */
 package com.rest.smoothchange.change.readiness.categories.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.rest.framework.mapper.AbstractMapper;
@@ -10,7 +13,11 @@ import com.rest.smoothchange.change.readiness.categories.dto.ChangeReadinessCate
 import com.rest.smoothchange.change.readiness.categories.entity.ChangeReadinessCategories;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
+import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsDto;
+import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryItems;
 import com.rest.smoothchange.util.TypeOfChange;
+
+
 
 @Component
 public class ChangeReadinessCategoriesMapper extends AbstractMapper<ChangeReadinessCategoriesDto , ChangeReadinessCategories>{
@@ -19,6 +26,7 @@ public class ChangeReadinessCategoriesMapper extends AbstractMapper<ChangeReadin
 	public ChangeReadinessCategories mapDtoToEntity(ChangeReadinessCategoriesDto dto) {
 		ChangeReadinessCategories changeReadinessCategories = null;
 		ProjectBackground projectBackground = null;
+		List<ReadinessCategoryItems> readinessCategoryItemList = null;
 		   if(dto!=null) { 
 			   changeReadinessCategories = new ChangeReadinessCategories();
 			   changeReadinessCategories.setChangeReadinessCategoryName(dto.getChangeReadinessCategoryName());
@@ -32,6 +40,18 @@ public class ChangeReadinessCategoriesMapper extends AbstractMapper<ChangeReadin
 					projectBackground.setProjectName(dto.getProjectBackgroundDto().getProjectName());
 					projectBackground.setTypeOfChange(TypeOfChange.getValue(dto.getProjectBackgroundDto().getTypeOfChange()));
 					changeReadinessCategories.setProjectBackground(projectBackground);
+			   }	
+			   if(dto.getReadinessCategoryItemList()!=null && dto.getReadinessCategoryItemList().size()>0) {
+				   readinessCategoryItemList = new ArrayList<>();
+				   ReadinessCategoryItems readinessCategoryItems = null; 
+				   for(ReadinessCategoryItemsDto readinessCategoryItemsDto : dto.getReadinessCategoryItemList()) {
+					   readinessCategoryItems = new ReadinessCategoryItems();
+					   readinessCategoryItems.setChangeReadinessCategories(changeReadinessCategories);				   
+					   readinessCategoryItems.setChangeReadinessCategoryItemCode(readinessCategoryItemsDto.getChangeReadinessCategoryItemCode());
+					   readinessCategoryItems.setChangeReadinessCategoryItemDescription(readinessCategoryItemsDto.getChangeReadinessCategoryItemDescription());
+					   readinessCategoryItemList.add(readinessCategoryItems);
+				   }
+				   changeReadinessCategories.setReadinessCategoryItemList(readinessCategoryItemList);
 			   }	   
 		   }		
 		   return changeReadinessCategories;

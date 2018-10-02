@@ -14,7 +14,7 @@ public class OrganizationInfoDto extends AbstractDTO{
 
 	private String address;
 
-	private String logoPath;
+	private byte[] logo;
 	
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -38,12 +38,14 @@ public class OrganizationInfoDto extends AbstractDTO{
 		this.address = address;
 	}
 
-	public String getLogoPath() {
-		return logoPath;
+	public byte[] getLogo() {
+		return logo;
 	}
 
-	public void setLogoPath(String logoPath) {
-		this.logoPath = logoPath;
+	public void setLogo(byte[] logo) {
+		this.logo = logo;
 	}
+
+	
 	
 }

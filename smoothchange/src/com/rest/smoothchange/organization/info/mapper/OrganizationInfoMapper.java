@@ -19,7 +19,7 @@ public class OrganizationInfoMapper extends AbstractMapper<OrganizationInfoDto ,
 			organizationInfo = new OrganizationInfo();
 			organizationInfo.setAddress(dto.getAddress());
 			organizationInfo.setId(dto.getId());
-			organizationInfo.setLogoPath(dto.getLogoPath());
+			organizationInfo.setLogo(dto.getLogo());
 			organizationInfo.setOrganisationName(dto.getOrganisationName());			
 		}
 		return organizationInfo;
@@ -32,7 +32,7 @@ public class OrganizationInfoMapper extends AbstractMapper<OrganizationInfoDto ,
 			organizationInfoDto = new OrganizationInfoDto();
 			organizationInfoDto.setAddress(bo.getAddress());
 			organizationInfoDto.setId(bo.getId());
-			organizationInfoDto.setLogoPath(bo.getLogoPath());
+			organizationInfoDto.setLogo(bo.getLogo());
 			organizationInfoDto.setOrganisationName(bo.getOrganisationName());			
 		}
 		return organizationInfoDto;

@@ -5,6 +5,7 @@ package com.rest.smoothchange.organization.info.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 import com.rest.framework.entity.AbstractPersistentObject;
@@ -21,8 +22,9 @@ public class OrganizationInfo extends AbstractPersistentObject{
 	@Column(name = "address")
 	private String address;
 
-	@Column(name = "logo")
-	private String logoPath;
+	@Lob
+    @Column(name = "logo", columnDefinition="BLOB")
+    private byte[] logo;
 	
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -45,12 +47,16 @@ public class OrganizationInfo extends AbstractPersistentObject{
 		this.address = address;
 	}
 
-	public String getLogoPath() {
-		return logoPath;
+
+	public byte[] getLogo() {
+		return logo;
 	}
 
-	public void setLogoPath(String logoPath) {
-		this.logoPath = logoPath;
+
+	public void setLogo(byte[] logo) {
+		this.logo = logo;
 	}
+
+	
 	
 }
