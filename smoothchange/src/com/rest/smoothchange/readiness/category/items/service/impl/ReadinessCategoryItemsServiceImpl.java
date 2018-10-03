@@ -1,6 +1,9 @@
 package com.rest.smoothchange.readiness.category.items.service.impl;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +20,13 @@ import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryI
 public class ReadinessCategoryItemsServiceImpl extends AbstractService<ReadinessCategoryItemsDao, ReadinessCategoryItemsDto, ReadinessCategoryItemsMapper, ReadinessCategoryItems>  implements ReadinessCategoryItemsService{
 
 	
-	
+	public List<ReadinessCategoryItemsDto> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto){
+	    List<ReadinessCategoryItemsDto> readinessCategoryItemsDtoList = new ArrayList<ReadinessCategoryItemsDto>();
+		List<ReadinessCategoryItems> readinessCategoryItemList = dao.getReadinessCategoryItemsListByCategoryIdAndProjectId(readinessCategoryItemsDto);
+	    for(ReadinessCategoryItems readinessCategoryItems : readinessCategoryItemList) {
+	    	readinessCategoryItemsDtoList.add(mapper.mapEntityToDto(readinessCategoryItems));
+	    }
+	    return readinessCategoryItemsDtoList;		
+	}
 	
 }

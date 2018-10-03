@@ -42,6 +42,7 @@
 	     <mapping class="com.rest.smoothchange.training.plan.schedule.entity.TrainingPlanSchedule" /> 
 	     <mapping class="com.rest.smoothchange.training.plan.equipment.entity.TrainingPlanEquipment" />
 	     <mapping class="com.rest.smoothchange.communication.plan.entity.CommunicationPlan"/>
+	     <mapping class="com.rest.smoothchange.action.plan.items.entity.ActionPlanItems"/>
 	      
 	     
 	       

@@ -10,7 +10,7 @@ import com.rest.smoothchange.support.plan.items.service.SupportPlanItemsService;
 
 
 @RestController
-@RequestMapping(value = "/supportplanitem")
+@RequestMapping(value = "/supportPlanItemAPI")
 @Transactional
 public class SupportPlanItemsController {
 
