@@ -6,11 +6,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.rest.framework.bean.ResponseBean;
+import com.rest.framework.constant.MessageEnum;
 import com.rest.smoothchange.readiness.category.items.master.dto.ReadinessCategoryItemsMasterDto;
 import com.rest.smoothchange.readiness.category.items.master.service.ReadinessCategoryItemsMasterService;
 import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMasterDto;
@@ -42,7 +45,8 @@ public class ReadinessCategoryMasterController {
 	
 	@ApiOperation(value = "Add Data Readiness category and Item Master")
 	@RequestMapping(value="AddMasterDateRediness",method = RequestMethod.POST)
-	public String populateDateIntable() {
+	public ResponseEntity addMasterDateRediness() {
+		ResponseBean responseBean = new ResponseBean();	
 		try {		
 		List<ReadinessCategoryMasterDto> readinessCategoryMasterDtoList = getReadinessCategoryMasteList();
 		for(ReadinessCategoryMasterDto readinessCategoryMasterDto : readinessCategoryMasterDtoList) {
@@ -54,9 +58,11 @@ public class ReadinessCategoryMasterController {
 		    	readinessCategoryItemsMasterService.create(readinessCategoryItemsMasterDto);
 		    }
 		}	
-		return "success"; 
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 		}catch(Exception e) {
-			return "error";
+			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
