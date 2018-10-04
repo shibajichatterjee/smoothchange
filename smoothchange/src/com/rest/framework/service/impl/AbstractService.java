@@ -74,7 +74,9 @@ public abstract class AbstractService<IDAO extends DAO,
     }
 	
 	public void deleteById(Serializable id) {
+		
 		dao.deleteById(id);
+		
 	}
 	
 	public void deleteAll() {

@@ -29,14 +29,13 @@ public class SupportPlanItemsMapper extends AbstractMapper<SupportPlanItemsDto ,
 			   supportPlanItems.setSupportedStackHolderStatus(dto.getSupportedStackHolderStatus());
 			   if(dto.getProjectBackgroundDto()!=null) {
 				   projectBackground = new ProjectBackground();
-				   projectBackground.setId(dto.getId());
+				   projectBackground.setId(dto.getProjectBackgroundDto().getId());
 				   projectBackground.setOtherTypeOfChange(dto.getProjectBackgroundDto().getOtherTypeOfChange());
 				   projectBackground.setOwnerOfChange(dto.getProjectBackgroundDto().getOwnerOfChange());
 				   projectBackground.setProjectDescription(dto.getProjectBackgroundDto().getProjectDescription());
 				   projectBackground.setProjectName(dto.getProjectBackgroundDto().getProjectName());
 				   TypeOfChange type=TypeOfChange.getValue(dto.getProjectBackgroundDto().getTypeOfChange());
 				   projectBackground.setTypeOfChange(type);
-				   projectBackground.setContactPerson(dto.getProjectBackgroundDto().getContactPerson());
 				   projectBackground.setContactPerson(dto.getProjectBackgroundDto().getContactPerson());
 				   supportPlanItems.setProjectBackground(projectBackground);
 			   }
@@ -64,7 +63,6 @@ public class SupportPlanItemsMapper extends AbstractMapper<SupportPlanItemsDto ,
 				   projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
 				   projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
 				   projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
-				   projectBackground.setContactPerson(bo.getProjectBackground().getContactPerson());
 				   projectBackground.setContactPerson(bo.getProjectBackground().getContactPerson());
 				   supportPlanItems.setProjectBackgroundDto(projectBackground);
 			   }

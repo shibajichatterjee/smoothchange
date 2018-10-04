@@ -127,6 +127,21 @@ public class BusinessBenefitMappingController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+	
+	@ApiOperation(value = "Delete Business Benefit Mapping by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteBusinessBenefitMappingById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+		if(!apiKey.equals(MessageEnum.API_KEY))
+		{
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		businessBenefitMappingService.deleteById(Long.parseLong(id));
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
 
 	private BusinessBenefitMappingDto mapRequestToDto(
 			BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto) {

@@ -157,6 +157,21 @@ public class ProjectStakeholdersController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+	
+	@ApiOperation(value = "Delete project stake holder by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteStakeHolderById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+		if(!apiKey.equals(MessageEnum.API_KEY))
+		{
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		projectStakeholdersService.deleteById(Long.parseLong(id));
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
 
 	private ProjectStakeholdersDto mapRequestToDto(ProjectStackeHolderRequestDto rdto) {
 		ProjectStakeholdersDto projectStakeholdersDto = new ProjectStakeholdersDto();

@@ -3,10 +3,10 @@ package com.rest.smoothchange.util;
 public enum SupportedStackHolderStatus {
 
 	
-	YES("yes"),
-	NO("no"),
-	NotSure("notsure"),
-	Others("others");
+	YES("Yes"),
+	NO("No"),
+	NotSure("Not Sure"),
+	Others("Others");
 	
 	private String numVal;
 
@@ -17,5 +17,12 @@ public enum SupportedStackHolderStatus {
     public String getNumVal() {
         return numVal;
     }
-	
+    public static SupportedStackHolderStatus getValue(String numVal) {
+		for (SupportedStackHolderStatus e : SupportedStackHolderStatus.values()) {
+			if (e.getNumVal().equals(numVal)) {
+				return e;
+			}
+		}
+		return null;
+	}
 }

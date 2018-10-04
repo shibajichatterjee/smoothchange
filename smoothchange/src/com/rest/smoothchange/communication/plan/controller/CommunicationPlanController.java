@@ -171,6 +171,21 @@ public class CommunicationPlanController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+	
+	@ApiOperation(value = "Delete Communication Plans by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteCommunicationPlansById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteCommunicationPlansById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+		if(!apiKey.equals(MessageEnum.API_KEY))
+		{
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		communicationPlanService.deleteById(Long.parseLong(id));
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
 
 	private CommunicationPlanDto mapRequestToDto(CommunicationPlanRequestDto communicationPlanRequestDto) {
 		CommunicationPlanDto communicationPlanDto = new CommunicationPlanDto();

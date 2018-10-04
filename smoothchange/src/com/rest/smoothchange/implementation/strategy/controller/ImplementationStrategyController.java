@@ -127,6 +127,21 @@ public class ImplementationStrategyController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+	
+	@ApiOperation(value = "Delete Implementation Strategy by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteImplementationStrategyById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteImplementationStrategyById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+		if(!apiKey.equals(MessageEnum.API_KEY))
+		{
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		implementationStrategyService.deleteById(Long.parseLong(id));
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
 
 	private ImplementationStrategyDto mapRequestToDto(
 			ImplementationStrategyRequestDto implementationStrategyRequestDto) {
