@@ -31,4 +31,8 @@ public class ChangeReadinessCategoriesServiceImpl extends AbstractService<Change
 		}
 		return changeReadinessCategoriesList;
 	}
+	
+	public ChangeReadinessCategoriesDto getChangeReadinessCategoriesByCodeNameAndProjectId(String categoryName , long projectId){
+		return mapper.mapEntityToDto(dao.getChangeReadinessCategoriesByCodeNameAndProjectId( categoryName ,  projectId));
+	}
 }

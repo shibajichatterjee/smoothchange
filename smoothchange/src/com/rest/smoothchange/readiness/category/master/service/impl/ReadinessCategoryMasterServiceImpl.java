@@ -16,5 +16,8 @@ import com.rest.smoothchange.readiness.category.master.service.ReadinessCategory
 @Transactional
 public class ReadinessCategoryMasterServiceImpl extends AbstractService<ReadinessCategoryMasterDao, ReadinessCategoryMasterDto, ReadinessCategoryMasterMapper, ReadinessCategoryMaster>  implements ReadinessCategoryMasterService{
 
-	
+	public  ReadinessCategoryMasterDto getReadinessCategoryMasterDtoByCategoryName(String categoryName) {
+		ReadinessCategoryMaster readinessCategoryMaster = dao.getReadinessCategoryMasterDtoByCategoryName(categoryName);
+		return mapper.mapEntityToDto(readinessCategoryMaster);
+	}
 }

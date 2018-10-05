@@ -8,12 +8,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
+import com.rest.framework.exception.NoEnumRecordsFoundException;
+import com.rest.framework.exception.NoRecordsFoundException;
+import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.readiness.category.items.master.dto.ReadinessCategoryItemsMasterDto;
 import com.rest.smoothchange.readiness.category.items.master.service.ReadinessCategoryItemsMasterService;
 import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMasterDto;
@@ -45,18 +49,32 @@ public class ReadinessCategoryMasterController {
 	
 	@ApiOperation(value = "Add Data Readiness category and Item Master")
 	@RequestMapping(value="AddMasterDateRediness",method = RequestMethod.POST)
-	public ResponseEntity addMasterDateRediness() {
+	public ResponseEntity addMasterDateRediness(@RequestHeader("API-KEY") String apiKey)throws UnauthorizedException {
+		
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		
 		ResponseBean responseBean = new ResponseBean();	
+		Long readinessCategoryMasterDtoId = null;
 		try {		
 		List<ReadinessCategoryMasterDto> readinessCategoryMasterDtoList = getReadinessCategoryMasteList();
 		for(ReadinessCategoryMasterDto readinessCategoryMasterDto : readinessCategoryMasterDtoList) {
-			Long readinessCategoryMasterDtoId = (Long)readinessCategoryMasterService.create(readinessCategoryMasterDto);
+			ReadinessCategoryMasterDto readinessCategoryMasterDtoTemp = readinessCategoryMasterService.getReadinessCategoryMasterDtoByCategoryName(readinessCategoryMasterDto.getChangeReadinessMasterCategoryName());
+			if(readinessCategoryMasterDtoTemp!=null && readinessCategoryMasterDtoTemp.getId()!=null) {
+				readinessCategoryMasterDtoId = readinessCategoryMasterDtoTemp.getId();
+			}else {
+				readinessCategoryMasterDtoId = (Long)readinessCategoryMasterService.create(readinessCategoryMasterDto);	
+			}			
 			readinessCategoryMasterDto.setId(readinessCategoryMasterDtoId);
 			List<ReadinessCategoryItemsMasterDto> readinessCategoryItemsMasterDtolist = getReadinessCategoryItemMasteList(readinessCategoryMasterDto.getChangeReadinessMasterCategoryName());
 		    for(ReadinessCategoryItemsMasterDto readinessCategoryItemsMasterDto :readinessCategoryItemsMasterDtolist) {
-		    	readinessCategoryItemsMasterDto.setReadinessCategoryMaster(readinessCategoryMasterDto);
-		    	readinessCategoryItemsMasterService.create(readinessCategoryItemsMasterDto);
-		    }
+		    	ReadinessCategoryItemsMasterDto readinessCategoryItemsMasterDtoTemp = readinessCategoryItemsMasterService.getReadinessCategoryItemsMasterByCategoryItemCode(readinessCategoryItemsMasterDto.getChangeReadinessMasterCategoryItemCode());
+		    	if(readinessCategoryItemsMasterDtoTemp==null) {
+			    	readinessCategoryItemsMasterDto.setReadinessCategoryMaster(readinessCategoryMasterDto);
+			    	readinessCategoryItemsMasterService.create(readinessCategoryItemsMasterDto);
+		    	}
+		    }		    
 		}	
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);

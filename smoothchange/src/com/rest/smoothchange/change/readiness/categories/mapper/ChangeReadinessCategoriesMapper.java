@@ -40,19 +40,7 @@ public class ChangeReadinessCategoriesMapper extends AbstractMapper<ChangeReadin
 					projectBackground.setProjectName(dto.getProjectBackgroundDto().getProjectName());
 					projectBackground.setTypeOfChange(TypeOfChange.getValue(dto.getProjectBackgroundDto().getTypeOfChange()));
 					changeReadinessCategories.setProjectBackground(projectBackground);
-			   }	
-			   if(dto.getReadinessCategoryItemList()!=null && dto.getReadinessCategoryItemList().size()>0) {
-				   readinessCategoryItemList = new ArrayList<>();
-				   ReadinessCategoryItems readinessCategoryItems = null; 
-				   for(ReadinessCategoryItemsDto readinessCategoryItemsDto : dto.getReadinessCategoryItemList()) {
-					   readinessCategoryItems = new ReadinessCategoryItems();
-					   readinessCategoryItems.setChangeReadinessCategories(changeReadinessCategories);				   
-					   readinessCategoryItems.setChangeReadinessCategoryItemCode(readinessCategoryItemsDto.getChangeReadinessCategoryItemCode());
-					   readinessCategoryItems.setChangeReadinessCategoryItemDescription(readinessCategoryItemsDto.getChangeReadinessCategoryItemDescription());
-					   readinessCategoryItemList.add(readinessCategoryItems);
-				   }
-				   changeReadinessCategories.setReadinessCategoryItemList(readinessCategoryItemList);
-			   }	   
+			   }		   
 		   }		
 		   return changeReadinessCategories;
 	}
@@ -72,7 +60,9 @@ public class ChangeReadinessCategoriesMapper extends AbstractMapper<ChangeReadin
 					projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
 					projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
 					projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
+					if(bo.getProjectBackground().getTypeOfChange()!=null) {
 					projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+					}
 					changeReadinessCategories.setProjectBackgroundDto(projectBackground);			   
 					}	   
 		   }		

@@ -6,6 +6,7 @@ import com.rest.smoothchange.readiness.category.master.dto.ReadinessCategoryMast
 
 public interface ReadinessCategoryMasterService extends Service<ReadinessCategoryMasterDto>{
 	
+	ReadinessCategoryMasterDto getReadinessCategoryMasterDtoByCategoryName(String categoryName);
 	
 
 }

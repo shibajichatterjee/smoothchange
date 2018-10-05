@@ -9,5 +9,7 @@ import com.rest.smoothchange.readiness.category.items.master.dto.ReadinessCatego
 public interface ReadinessCategoryItemsMasterService extends Service<ReadinessCategoryItemsMasterDto>{
 	
    List<ReadinessCategoryItemsMasterDto> getReadinessCategoryItemsMasterByCategoryMasterId(long categoryId);
+   
+   ReadinessCategoryItemsMasterDto getReadinessCategoryItemsMasterByCategoryItemCode(String itemCodeCode);
 
 }

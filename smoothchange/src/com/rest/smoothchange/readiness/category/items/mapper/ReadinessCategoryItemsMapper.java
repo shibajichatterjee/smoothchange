@@ -29,9 +29,8 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 			   if(dto.getChangeReadinessCategories()!=null) {
 				   ProjectBackground projectBackground = null;
 					   changeReadinessCategories = new ChangeReadinessCategories();
-					   changeReadinessCategories.setChangeReadinessCategoryName(dto.getChangeReadinessCategories().getChangeReadinessCategoryName());
-					   readinessCategoryItems.setChangeReadinessCategoryItemCode(dto.getChangeReadinessCategoryItemCode());
-					   readinessCategoryItems.setChangeReadinessCategoryItemDescription(dto.getChangeReadinessCategoryItemDescription());
+					   changeReadinessCategories.setId(dto.getChangeReadinessCategories().getId());
+					   changeReadinessCategories.setChangeReadinessCategoryName(dto.getChangeReadinessCategories().getChangeReadinessCategoryName());					 
 					   if(dto.getChangeReadinessCategories().getProjectBackgroundDto()!=null){
 						    projectBackground = new ProjectBackground();						  
 							projectBackground.setId(dto.getChangeReadinessCategories().getProjectBackgroundDto().getId());						
@@ -58,6 +57,7 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 			   if(bo.getChangeReadinessCategories()!=null) {
 				   ProjectBackgroundDto projectBackground = null;
 					   changeReadinessCategories = new ChangeReadinessCategoriesDto();
+					   changeReadinessCategories.setId(bo.getChangeReadinessCategories().getId());
 					   changeReadinessCategories.setChangeReadinessCategoryName(bo.getChangeReadinessCategories().getChangeReadinessCategoryName());			   
 					   if(bo.getChangeReadinessCategories().getProjectBackground()!=null){
 						    projectBackground = new ProjectBackgroundDto();						    
@@ -66,7 +66,9 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 							projectBackground.setOwnerOfChange(bo.getChangeReadinessCategories().getProjectBackground().getOwnerOfChange());
 							projectBackground.setProjectDescription(bo.getChangeReadinessCategories().getProjectBackground().getProjectDescription());
 							projectBackground.setProjectName(bo.getChangeReadinessCategories().getProjectBackground().getProjectName());
+							if(bo.getChangeReadinessCategories().getProjectBackground().getTypeOfChange()!=null) {
 							projectBackground.setTypeOfChange(bo.getChangeReadinessCategories().getProjectBackground().getTypeOfChange().getMessage());
+							}
 							changeReadinessCategories.setProjectBackgroundDto(projectBackground);
 					}
 				   readinessCategoryItemsDto.setChangeReadinessCategories(changeReadinessCategories);

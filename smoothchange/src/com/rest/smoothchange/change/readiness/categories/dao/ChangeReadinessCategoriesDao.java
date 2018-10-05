@@ -10,7 +10,7 @@ import com.rest.smoothchange.change.readiness.categories.entity.ChangeReadinessC
 public interface ChangeReadinessCategoriesDao extends DAO<ChangeReadinessCategories>{
 
 	
-	public ChangeReadinessCategories getChangeReadinessCategoriesByIdProjectId(ChangeReadinessCategoriesDto changeReadinessCategoriesDto);	
-	public List<ChangeReadinessCategories> getChangeReadinessCategoriesListByProjectId(long projectId);
-	
+	 ChangeReadinessCategories getChangeReadinessCategoriesByIdProjectId(ChangeReadinessCategoriesDto changeReadinessCategoriesDto);	
+	 List<ChangeReadinessCategories> getChangeReadinessCategoriesListByProjectId(long projectId);
+	 ChangeReadinessCategories getChangeReadinessCategoriesByCodeNameAndProjectId(String categoryName , long projectId);
 }

@@ -26,4 +26,12 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 		criteria.add(Restrictions.eq("projectBackground.id", readinessCategoryItemsDto.getChangeReadinessCategories().getProjectBackgroundDto().getId()));
 		return criteria.list();
 	}
+	
+	public ReadinessCategoryItems getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode) {
+		Criteria criteria = getSession().createCriteria(ReadinessCategoryItems.class);
+		criteria.createAlias("changeReadinessCategories", "changeReadinessCategories", JoinType.LEFT_OUTER_JOIN);		
+		criteria.add(Restrictions.eq("changeReadinessCategories.id",categoryId));
+		criteria.add(Restrictions.eq("changeReadinessCategoryItemCode", itemCode));
+		return (ReadinessCategoryItems)criteria.uniqueResult();
+	}
 }

@@ -30,10 +30,6 @@ public class ChangeReadinessCategories extends AbstractIdentifierObject{
 	private ProjectBackground projectBackground;
 	
 
-	@OneToMany(cascade = {CascadeType.ALL,CascadeType.PERSIST,CascadeType.MERGE },mappedBy="changeReadinessCategories")
-	private List<ReadinessCategoryItems> readinessCategoryItemList = new ArrayList<>();
-	
-
 	public String getChangeReadinessCategoryName() {
 		return changeReadinessCategoryName;
 	}
@@ -50,15 +46,5 @@ public class ChangeReadinessCategories extends AbstractIdentifierObject{
 		this.projectBackground = projectBackground;
 	}
 
-	public List<ReadinessCategoryItems> getReadinessCategoryItemList() {
-		return readinessCategoryItemList;
-	}
-
-	public void setReadinessCategoryItemList(List<ReadinessCategoryItems> readinessCategoryItemList) {
-		this.readinessCategoryItemList = readinessCategoryItemList;
-	}
-
 	
-	
-
 }

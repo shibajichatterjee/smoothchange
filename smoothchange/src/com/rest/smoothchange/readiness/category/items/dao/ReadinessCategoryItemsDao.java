@@ -10,5 +10,7 @@ import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryIt
 public interface ReadinessCategoryItemsDao extends DAO<ReadinessCategoryItems>{
 
  public List<ReadinessCategoryItems> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto);
+ 
+ ReadinessCategoryItems getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode);
 	
 }

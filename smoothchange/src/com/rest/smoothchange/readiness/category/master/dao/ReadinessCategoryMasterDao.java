@@ -7,6 +7,6 @@ import com.rest.smoothchange.readiness.category.master.entity.ReadinessCategoryM
 public interface ReadinessCategoryMasterDao extends DAO<ReadinessCategoryMaster>{
 
 	
-	
+	ReadinessCategoryMaster getReadinessCategoryMasterDtoByCategoryName(String categoryName);
 	
 }

@@ -10,4 +10,6 @@ public interface ReadinessCategoryItemsMasterDao extends DAO<ReadinessCategoryIt
 
 	List<ReadinessCategoryItemsMaster> getReadinessCategoryItemsMasterByCategoryMasterId(long categoryId);
 	
+	ReadinessCategoryItemsMaster getReadinessCategoryItemsMasterByCategoryItemCode(String itemCodeCode);
+	
 }

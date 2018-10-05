@@ -30,4 +30,11 @@ public class ChangeReadinessCategoriesDaoImpl extends AbstractDAO<ChangeReadines
 		criteria.add(Restrictions.eq("projectBackground.id", projectId));
 		return criteria.list();
 	}
+	
+	public ChangeReadinessCategories getChangeReadinessCategoriesByCodeNameAndProjectId(String categoryName , long projectId ) {
+		Criteria criteria = getSession().createCriteria(ChangeReadinessCategories.class);
+		criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
+		criteria.add(Restrictions.and(Restrictions.eq("projectBackground.id", projectId),Restrictions.eq("changeReadinessCategoryName", categoryName)));
+		return (ChangeReadinessCategories)criteria.uniqueResult();
+	}
 }

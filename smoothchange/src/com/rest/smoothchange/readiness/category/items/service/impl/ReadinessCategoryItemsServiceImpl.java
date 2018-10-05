@@ -29,4 +29,8 @@ public class ReadinessCategoryItemsServiceImpl extends AbstractService<Readiness
 	    return readinessCategoryItemsDtoList;		
 	}
 	
+	public ReadinessCategoryItemsDto getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode) {
+		return mapper.mapEntityToDto(dao.getReadinessCategoryItemsByItemCodeAndCategoryId(categoryId, itemCode));
+	}
+			
 }

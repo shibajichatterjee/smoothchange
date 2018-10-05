@@ -17,8 +17,6 @@ public class ChangeReadinessCategoriesDto extends AbstractIdentifierDTO{
 	private String changeReadinessCategoryName;
 	
 	private ProjectBackgroundDto projectBackgroundDto;
-	
-	private List<ReadinessCategoryItemsDto> readinessCategoryItemList = new ArrayList<>();
 
 	public String getChangeReadinessCategoryName() {
 		return changeReadinessCategoryName;
@@ -35,15 +33,5 @@ public class ChangeReadinessCategoriesDto extends AbstractIdentifierDTO{
 	public void setProjectBackgroundDto(ProjectBackgroundDto projectBackgroundDto) {
 		this.projectBackgroundDto = projectBackgroundDto;
 	}
-
-	public List<ReadinessCategoryItemsDto> getReadinessCategoryItemList() {
-		return readinessCategoryItemList;
-	}
-
-	public void setReadinessCategoryItemList(List<ReadinessCategoryItemsDto> readinessCategoryItemList) {
-		this.readinessCategoryItemList = readinessCategoryItemList;
-	}
-
-	
 	
 }

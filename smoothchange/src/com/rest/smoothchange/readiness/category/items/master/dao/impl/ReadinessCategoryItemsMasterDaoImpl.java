@@ -25,6 +25,13 @@ public class ReadinessCategoryItemsMasterDaoImpl extends AbstractDAO<ReadinessCa
 		criteria.add(Restrictions.eq("readinessCategoryMaster.id", categoryMasterId));
 		return criteria.list();			
 	}
+	
+	public ReadinessCategoryItemsMaster getReadinessCategoryItemsMasterByCategoryItemCode(String itemCodeCode){
+		Criteria criteria = getSession().createCriteria(ReadinessCategoryItemsMaster.class);
+		criteria.add(Restrictions.eq("changeReadinessMasterCategoryItemCode", itemCodeCode));
+		return (ReadinessCategoryItemsMaster) criteria.uniqueResult();
+	}
+	
 		
 	 
 }

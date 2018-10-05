@@ -9,6 +9,9 @@ import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryIt
 
 public interface ReadinessCategoryItemsService extends Service<ReadinessCategoryItemsDto>{
 	
-	public List<ReadinessCategoryItemsDto> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto);
-
+	 List<ReadinessCategoryItemsDto> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto);
+     
+	 ReadinessCategoryItemsDto getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode);
+	
+	
 }
