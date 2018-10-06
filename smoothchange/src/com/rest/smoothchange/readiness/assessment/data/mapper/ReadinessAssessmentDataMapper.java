@@ -27,9 +27,9 @@ public class ReadinessAssessmentDataMapper extends AbstractMapper<ReadinessAsses
 		   if(dto!=null) { 
 			   readinessAssessmentData = new ReadinessAssessmentData();
 			   readinessAssessmentData.setId(dto.getId());
-			   if(readinessAssessmentData.getReadinessCategoryItems()!=null) {
+			   if(dto.getReadinessCategoryItems()!=null) {
 				   readinessCategoryItems = new ReadinessCategoryItems();
-				   readinessCategoryItems.setId(readinessAssessmentData.getReadinessCategoryItems().getId());
+				   readinessCategoryItems.setId(dto.getReadinessCategoryItems().getId());
 				   if(dto.getReadinessCategoryItems().getChangeReadinessCategories()!=null) {
 					   ProjectBackground projectBackground = null;
 						   changeReadinessCategories = new ChangeReadinessCategories();
@@ -62,9 +62,9 @@ public class ReadinessAssessmentDataMapper extends AbstractMapper<ReadinessAsses
 	   if(bo!=null) { 
 		   readinessAssessmentData = new ReadinessAssessmentDataDto();
 		   readinessAssessmentData.setId(bo.getId());
-		   if(readinessAssessmentData.getReadinessCategoryItems()!=null) {
+		   if(bo.getReadinessCategoryItems()!=null) {
 			   readinessCategoryItems = new ReadinessCategoryItemsDto();
-			   readinessCategoryItems.setId(readinessAssessmentData.getReadinessCategoryItems().getId());
+			   readinessCategoryItems.setId(bo.getReadinessCategoryItems().getId());
 			   if(bo.getReadinessCategoryItems().getChangeReadinessCategories()!=null) {
 				   ProjectBackgroundDto projectBackground = null;
 					   changeReadinessCategories = new ChangeReadinessCategoriesDto();

@@ -43,7 +43,7 @@
 	     <mapping class="com.rest.smoothchange.training.plan.equipment.entity.TrainingPlanEquipment" />
 	     <mapping class="com.rest.smoothchange.communication.plan.entity.CommunicationPlan"/>
 	     <mapping class="com.rest.smoothchange.action.plan.items.entity.ActionPlanItems"/>
-	      
+	     <mapping class="com.rest.smoothchange.readiness.assessment.data.item.entity.ReadinessAssessmentDataItem"/>
 	     
 	       
 	     

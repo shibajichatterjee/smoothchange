@@ -20,9 +20,9 @@ import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryI
 public class ReadinessCategoryItemsServiceImpl extends AbstractService<ReadinessCategoryItemsDao, ReadinessCategoryItemsDto, ReadinessCategoryItemsMapper, ReadinessCategoryItems>  implements ReadinessCategoryItemsService{
 
 	
-	public List<ReadinessCategoryItemsDto> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto){
+	public List<ReadinessCategoryItemsDto> getReadinessCategoryItemsListByCategoryIdProjectId(long categoryId , long projectId){
 	    List<ReadinessCategoryItemsDto> readinessCategoryItemsDtoList = new ArrayList<ReadinessCategoryItemsDto>();
-		List<ReadinessCategoryItems> readinessCategoryItemList = dao.getReadinessCategoryItemsListByCategoryIdAndProjectId(readinessCategoryItemsDto);
+		List<ReadinessCategoryItems> readinessCategoryItemList = dao.getReadinessCategoryItemsListByCategoryIdProjectId( categoryId ,  projectId);
 	    for(ReadinessCategoryItems readinessCategoryItems : readinessCategoryItemList) {
 	    	readinessCategoryItemsDtoList.add(mapper.mapEntityToDto(readinessCategoryItems));
 	    }

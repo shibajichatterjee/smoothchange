@@ -18,12 +18,16 @@ import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryIt
 public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategoryItems> implements ReadinessCategoryItemsDao{
 
 	 
-	public List<ReadinessCategoryItems> getReadinessCategoryItemsListByCategoryIdAndProjectId(ReadinessCategoryItemsDto readinessCategoryItemsDto){
+	public List<ReadinessCategoryItems> getReadinessCategoryItemsListByCategoryIdProjectId(long categoryId , long projectId){
 		Criteria criteria = getSession().createCriteria(ReadinessCategoryItems.class);
 		criteria.createAlias("changeReadinessCategories", "changeReadinessCategories", JoinType.LEFT_OUTER_JOIN);
 		criteria.createAlias("changeReadinessCategories.projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
-		criteria.add(Restrictions.eq("changeReadinessCategories.id", readinessCategoryItemsDto.getChangeReadinessCategories().getId()));
-		criteria.add(Restrictions.eq("projectBackground.id", readinessCategoryItemsDto.getChangeReadinessCategories().getProjectBackgroundDto().getId()));
+		if(categoryId>0) {
+		  criteria.add(Restrictions.eq("changeReadinessCategories.id",categoryId));
+		} 
+		if(projectId>0) {
+		 criteria.add(Restrictions.eq("projectBackground.id", projectId));
+		}
 		return criteria.list();
 	}
 	
@@ -34,4 +38,5 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 		criteria.add(Restrictions.eq("changeReadinessCategoryItemCode", itemCode));
 		return (ReadinessCategoryItems)criteria.uniqueResult();
 	}
+
 }
