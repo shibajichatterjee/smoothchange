@@ -18,4 +18,16 @@ public enum ApprovalStatus {
         return numVal;
     }
     
+    public static ApprovalStatus getValue(String message)
+    {
+    	for(ApprovalStatus e:ApprovalStatus.values())
+    	{
+    		if(e.getNumVal().equals(message))
+    		{
+    			return e;
+    		}
+    	}
+    	return null;
+    }
+    
 }

@@ -19,7 +19,7 @@ public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
 	
 	private String approver;
 	
-	private ApprovalStatus approvalStatus;
+	private String approvalStatus;
 
 	
 	public CostOfChangeDto getCostOfChange() {
@@ -54,12 +54,14 @@ public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
 		this.approver = approver;
 	}
 
-	public ApprovalStatus getApprovalStatus() {
+	public String getApprovalStatus() {
 		return approvalStatus;
 	}
 
-	public void setApprovalStatus(ApprovalStatus approvalStatus) {
+	public void setApprovalStatus(String approvalStatus) {
 		this.approvalStatus = approvalStatus;
 	}
+
+	
 		
 }

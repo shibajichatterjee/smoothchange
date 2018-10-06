@@ -55,7 +55,9 @@ public class CostOfChangeMapper extends AbstractMapper<CostOfChangeDto , CostOfC
 				   projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
 				   projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
 				   projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
-				   projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+				   if(bo.getProjectBackground().getTypeOfChange()!=null) {
+				    projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+				   }
 				   projectBackground.setContactPerson(bo.getProjectBackground().getContactPerson());
 				   projectBackground.setContactPerson(bo.getProjectBackground().getContactPerson());
 				   costOfChange.setProjectBackground(projectBackground);

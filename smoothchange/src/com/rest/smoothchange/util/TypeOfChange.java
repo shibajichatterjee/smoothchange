@@ -18,6 +18,7 @@ public enum TypeOfChange {
     public String getMessage() {
         return message;
     }
+    
     public static TypeOfChange getValue(String message)
     {
     	for(TypeOfChange e:TypeOfChange.values())

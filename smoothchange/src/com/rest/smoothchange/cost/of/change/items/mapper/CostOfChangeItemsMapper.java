@@ -12,6 +12,7 @@ import com.rest.smoothchange.cost.of.change.items.dto.CostOfChangeItemsDto;
 import com.rest.smoothchange.cost.of.change.items.entity.CostOfChangeItems;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
+import com.rest.smoothchange.util.ApprovalStatus;
 import com.rest.smoothchange.util.TypeOfChange;
 
 @Component
@@ -21,14 +22,14 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 	public CostOfChangeItems mapDtoToEntity(CostOfChangeItemsDto dto) {
 		CostOfChangeItems costOfChangeItems = null;
 		   if(dto!=null) { 
-			   costOfChangeItems = new CostOfChangeItems();
-			   costOfChangeItems.setApprovalStatus(dto.getApprovalStatus());
+			   costOfChangeItems = new CostOfChangeItems();			   
+			   ApprovalStatus approvalStatus = ApprovalStatus.getValue(dto.getApprovalStatus());
+			   costOfChangeItems.setApprovalStatus(approvalStatus); 
 			   costOfChangeItems.setApprover(dto.getApprover());
 			   costOfChangeItems.setChangeActivity(dto.getChangeActivity());
 			   costOfChangeItems.setCost(dto.getCost());
 			   costOfChangeItems.setId(dto.getId());
-			   CostOfChange costOfChange = null;
-			    
+			   CostOfChange costOfChange = null;	    
 			   if(dto.getCostOfChange()!=null) {
 				   costOfChange = new CostOfChange();				 
 				   costOfChange.setId(dto.getCostOfChange().getId());
@@ -57,8 +58,10 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 	public CostOfChangeItemsDto mapEntityToDto(CostOfChangeItems bo) {
 		CostOfChangeItemsDto costOfChangeItems = null;
 		   if(bo!=null) { 
-			   costOfChangeItems = new CostOfChangeItemsDto();
-			   costOfChangeItems.setApprovalStatus(bo.getApprovalStatus());
+			   costOfChangeItems = new CostOfChangeItemsDto();			   
+			   if(bo.getApprovalStatus()!=null) {
+				   costOfChangeItems.setApprovalStatus(bo.getApprovalStatus().getNumVal());
+			   }			
 			   costOfChangeItems.setApprover(bo.getApprover());
 			   costOfChangeItems.setChangeActivity(bo.getChangeActivity());
 			   costOfChangeItems.setCost(bo.getCost());
@@ -77,7 +80,9 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 					   projectBackground.setOwnerOfChange(bo.getCostOfChange().getProjectBackground().getOwnerOfChange());
 					   projectBackground.setProjectDescription(bo.getCostOfChange().getProjectBackground().getProjectDescription());
 					   projectBackground.setProjectName(bo.getCostOfChange().getProjectBackground().getProjectName());
-					   projectBackground.setTypeOfChange(bo.getCostOfChange().getProjectBackground().getTypeOfChange().getMessage());
+					   if(bo.getCostOfChange().getProjectBackground().getTypeOfChange()!=null) {
+					    projectBackground.setTypeOfChange(bo.getCostOfChange().getProjectBackground().getTypeOfChange().getMessage());
+				       }
 					   projectBackground.setContactPerson(bo.getCostOfChange().getProjectBackground().getContactPerson());
 					   projectBackground.setContactPerson(bo.getCostOfChange().getProjectBackground().getContactPerson());
 					   costOfChange.setProjectBackground(projectBackground);

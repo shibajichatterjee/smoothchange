@@ -1,6 +1,9 @@
 package com.rest.smoothchange.cost.of.change.items.service.impl;
 
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,5 +19,12 @@ import com.rest.smoothchange.cost.of.change.items.service.CostOfChangeItemsServi
 @Transactional
 public class CostOfChangeItemsServiceImpl extends AbstractService<CostOfChangeItemsDao, CostOfChangeItemsDto, CostOfChangeItemsMapper, CostOfChangeItems>  implements CostOfChangeItemsService{
 
-	
+	public List<CostOfChangeItemsDto> getCostOfChangeItemListByProjectIdCostOfChageId(long projectId , long costOfChangeId){
+		List<CostOfChangeItems> costOfChangeItemList = dao.getCostOfChangeItemListByProjectIdCostOfChageId(projectId, costOfChangeId);
+		List<CostOfChangeItemsDto> costOfChangeItemsDtoList = new ArrayList<CostOfChangeItemsDto>();
+        for(CostOfChangeItems costOfChangeItems : costOfChangeItemList) {
+			costOfChangeItemsDtoList.add(mapper.mapEntityToDto(costOfChangeItems));
+		}
+        return costOfChangeItemsDtoList;
+	}
 }
