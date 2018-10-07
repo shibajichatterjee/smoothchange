@@ -3,10 +3,10 @@ package com.rest.smoothchange.util;
 public enum ApprovalStatus {
 
 	
-	Approved("approved"),
-	Pending("pending"),
-	NotInitiated("notinitiated"),
-	Other("other");
+	Approved("Approved"),
+	Pending("Pending"),
+	NotInitiated("Not Initiated"),
+	Others("Others");
 	
 	private String numVal;
 

@@ -166,10 +166,16 @@ public class ImpactAnalysisController {
 	@ApiOperation(value = "Delete Impact Analysis by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteImpactAnalysisById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteImpactAnalysisById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+	public ResponseEntity deleteImpactAnalysisById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
 		if(!apiKey.equals(MessageEnum.API_KEY))
 		{
 			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		ImpactAnalysisDto dto=impactAnalysisService.getById(Long.parseLong(id));
+		if(dto==null)
+		{
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+
 		}
 		impactAnalysisService.deleteById(Long.parseLong(id));
 		ResponseBean responseBean = new ResponseBean();

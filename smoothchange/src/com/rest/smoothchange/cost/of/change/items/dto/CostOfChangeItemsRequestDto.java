@@ -1,33 +1,27 @@
-/**
- * 
- */
 package com.rest.smoothchange.cost.of.change.items.dto;
 
-import com.rest.framework.dto.AbstractIdentifierDTO;
-import com.rest.smoothchange.cost.of.change.dto.CostOfChangeDto;
-import com.rest.smoothchange.util.ApprovalStatus;
+public class CostOfChangeItemsRequestDto {
 
 
-public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
-	
-
-	private CostOfChangeDto costOfChange;
-	
 	private String changeActivity;
 	
 	private Double cost;
 	
 	private String approver;
 	
-	private ApprovalStatus approvalStatus;
+	private String approvalStatus;
 
+	private Long id; 
 	
-	public CostOfChangeDto getCostOfChange() {
-		return costOfChange;
+
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setCostOfChange(CostOfChangeDto costOfChange) {
-		this.costOfChange = costOfChange;
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getChangeActivity() {
@@ -54,15 +48,13 @@ public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
 		this.approver = approver;
 	}
 
-	public ApprovalStatus getApprovalStatus() {
+	public String getApprovalStatus() {
 		return approvalStatus;
 	}
 
-	public void setApprovalStatus(ApprovalStatus approvalStatus) {
+	public void setApprovalStatus(String approvalStatus) {
 		this.approvalStatus = approvalStatus;
 	}
-
-	
 
 	
 		

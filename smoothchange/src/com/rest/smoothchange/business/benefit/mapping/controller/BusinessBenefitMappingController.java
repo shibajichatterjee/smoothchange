@@ -131,10 +131,15 @@ public class BusinessBenefitMappingController {
 	@ApiOperation(value = "Delete Business Benefit Mapping by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteBusinessBenefitMappingById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+	public ResponseEntity deleteBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
 		if(!apiKey.equals(MessageEnum.API_KEY))
 		{
 			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		BusinessBenefitMappingDto businessBenefitMappingDto=businessBenefitMappingService.getById(Long.parseLong(id));
+		if(businessBenefitMappingDto==null)
+		{
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
 		}
 		businessBenefitMappingService.deleteById(Long.parseLong(id));
 		ResponseBean responseBean = new ResponseBean();

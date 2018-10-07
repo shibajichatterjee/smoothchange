@@ -149,12 +149,19 @@ public class SupportPlanItemsController {
 	@ApiOperation(value = "Delete Support Plan by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteSupportPlanById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteSupportPlanById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+	public ResponseEntity deleteSupportPlanById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
 		if(!apiKey.equals(MessageEnum.API_KEY))
 		{
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		SupportPlanItemsDto dto=supportPlanItemService.getById(Long.parseLong(id));
+		if(dto==null)
+		{
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+
+		}
 		supportPlanItemService.deleteById(Long.parseLong(id));
+
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);

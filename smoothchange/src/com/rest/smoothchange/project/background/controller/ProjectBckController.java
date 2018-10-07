@@ -1,6 +1,9 @@
 package com.rest.smoothchange.project.background.controller;
 
+import java.sql.SQLException;
 import java.util.List;
+
+import javax.transaction.SystemException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -120,12 +123,18 @@ public class ProjectBckController {
 	@ApiOperation(value = "Delete project back ground by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteProjectBackgroundById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteProjectBackground(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+	public ResponseEntity deleteProjectBackground(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, SystemException {
 		if(!apiKey.equals(MessageEnum.API_KEY))
 		{
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		try
+		{
 		projectService.deleteById(Long.parseLong(id));
+		}catch(Exception e)
+		{
+			throw new SystemException("please delete all associated table data");
+		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);

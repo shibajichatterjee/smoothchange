@@ -9,7 +9,8 @@ public enum Frequency {
 	BiMonthly("BiMonthly"),
 	Quarterly("Quarterly"),
 	HalfYearly("HalfYearly"),
-	Annually("Annually");
+	Annually("Annually"),
+	Others("Others");
 	
 	private String numVal;
 

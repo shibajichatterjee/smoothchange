@@ -23,8 +23,7 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 		CostOfChangeItems costOfChangeItems = null;
 		   if(dto!=null) { 
 			   costOfChangeItems = new CostOfChangeItems();			   
-			   ApprovalStatus approvalStatus = ApprovalStatus.getValue(dto.getApprovalStatus());
-			   costOfChangeItems.setApprovalStatus(approvalStatus); 
+			   costOfChangeItems.setApprovalStatus(dto.getApprovalStatus()); 
 			   costOfChangeItems.setApprover(dto.getApprover());
 			   costOfChangeItems.setChangeActivity(dto.getChangeActivity());
 			   costOfChangeItems.setCost(dto.getCost());
@@ -60,7 +59,7 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 		   if(bo!=null) { 
 			   costOfChangeItems = new CostOfChangeItemsDto();			   
 			   if(bo.getApprovalStatus()!=null) {
-				   costOfChangeItems.setApprovalStatus(bo.getApprovalStatus().getNumVal());
+				   costOfChangeItems.setApprovalStatus(bo.getApprovalStatus());
 			   }			
 			   costOfChangeItems.setApprover(bo.getApprover());
 			   costOfChangeItems.setChangeActivity(bo.getChangeActivity());

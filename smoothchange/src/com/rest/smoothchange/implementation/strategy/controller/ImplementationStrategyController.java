@@ -131,10 +131,16 @@ public class ImplementationStrategyController {
 	@ApiOperation(value = "Delete Implementation Strategy by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteImplementationStrategyById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteImplementationStrategyById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
+	public ResponseEntity deleteImplementationStrategyById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
 		if(!apiKey.equals(MessageEnum.API_KEY))
 		{
 			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		ImplementationStrategyDto dto=implementationStrategyService.getById(Long.parseLong(id));
+		if(dto==null)
+		{
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+
 		}
 		implementationStrategyService.deleteById(Long.parseLong(id));
 		ResponseBean responseBean = new ResponseBean();
