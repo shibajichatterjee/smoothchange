@@ -1,5 +1,10 @@
 package com.rest.smoothchange.readiness.category.items.controller;
 
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.List;
+
+import org.hibernate.criterion.Projections;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,10 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
 import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryItemsService;
+import com.rest.smoothchange.util.DateUtil;
 import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.UnauthorizedException;
@@ -50,15 +57,16 @@ public class ReadinessCategoryItemsController {
     private ReadinessAssessmentDataItemService readinessAssessmentDataItemService;
 	
 	
+	private static final String dateFormate = "dd/mm/yyyy";
+	
 	@ApiOperation(value = "Add Readiness Category Items")
 	@RequestMapping(value="createReadinessCategoryItems" ,method = RequestMethod.POST)
-	public ResponseEntity createReadinessCategoryItems(@RequestHeader("API-KEY") String apiKey,@RequestHeader("categoryId") long categoryId,@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto ) throws UnauthorizedException {
+	public ResponseEntity createReadinessCategoryItems(@RequestHeader("API-KEY") String apiKey,@RequestParam("categoryId") long categoryId,@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto ) throws UnauthorizedException, ParseException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		
-		
+			
 		ResponseBean responseBean = new ResponseBean();
 		ChangeReadinessCategoriesDto changeReadinessCategories = changeReadinessCategoriesService.getById(categoryId);
 		ReadinessCategoryItemsDto readinessCategoryItems = null;
@@ -70,15 +78,20 @@ public class ReadinessCategoryItemsController {
 			readinessCategoryItems.setChangeReadinessCategoryItemCode(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
 			readinessCategoryItems.setChangeReadinessCategoryItemDescription(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
 			Long readinessCategoryItemId= (Long)readinessCategoryItemService.create(readinessCategoryItems);
-			readinessCategoryItems.setId(readinessCategoryItemId);;
+			readinessCategoryItems.setId(readinessCategoryItemId);
 			readinessAssessmentDataDto = new ReadinessAssessmentDataDto();
 			readinessAssessmentDataDto.setReadinessCategoryItems(readinessCategoryItems);
 			Long readinessAssessmentDataId  = (Long) readinessAssessmentDataService.create(readinessAssessmentDataDto);
 			readinessAssessmentDataDto.setId(readinessAssessmentDataId);
 			readinessAssessmentDataItemDto = new ReadinessAssessmentDataItemDto();
 			readinessAssessmentDataItemDto.setChangeReadinessApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
-			readinessAssessmentDataItemDto.setChangeReadinessDate1(readinessCategoryItemsRequestDto.getChangeReadinessDate1());
-			readinessAssessmentDataItemDto.setChangeReadinessDate2(readinessCategoryItemsRequestDto.getChangeReadinessDate2());
+
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate1()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate1().trim().equals("")) {
+			 readinessAssessmentDataItemDto.setChangeReadinessDate1(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate1(), dateFormate));
+			}
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate1()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate2().trim().equals("")) {
+			 readinessAssessmentDataItemDto.setChangeReadinessDate2(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate2(),dateFormate));
+			}
 			readinessAssessmentDataItemDto.setChangeReadinessResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
 			readinessAssessmentDataItemDto.setReadinessAssessmentDataDto(readinessAssessmentDataDto);
 			readinessAssessmentDataItemService.create(readinessAssessmentDataItemDto);		
@@ -89,11 +102,48 @@ public class ReadinessCategoryItemsController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 	
-	
-	
-	
-	 
-	
-	
 
+	
+	
+	
+	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Item_Id")
+	@RequestMapping(value="getRedinessCategoryItemDetailById")
+	public   ResponseEntity getRedinessCategoryItemDetailById(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryItemId") long categoryItemId) throws UnauthorizedException {
+		
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		
+		ResponseBean responseBean = new ResponseBean();			
+		ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto =  readinessCategoryItemService.getRedinessCategoryItemDetailById(categoryItemId);
+		if(readinessCategoryItemsRequestDto!=null) {
+		  responseBean.setBody(readinessCategoryItemsRequestDto);
+		  return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}else {
+			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}
+	}
+	
+	
+	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Id and Project_Id")
+	@RequestMapping(value="getRedinessCategoryItemDetailByCategoryIdProjectId")
+	public   ResponseEntity getRedinessCategoryItemDetailByCategoryIdProjectId(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryId") long categoryId ,  @RequestParam("projectId") long projectId) throws UnauthorizedException {
+		
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		
+		ResponseBean responseBean = new ResponseBean();
+		List<ReadinessCategoryItemsRequestDto> readinessCategoryItemsRequestDtoList = Collections.emptyList();
+		readinessCategoryItemsRequestDtoList =  readinessCategoryItemService.getRedinessCategoryItemDetailByCategoryIdProjectId(categoryId, projectId);
+		if(readinessCategoryItemsRequestDtoList!=null && readinessCategoryItemsRequestDtoList.size()>0) {
+		  responseBean.setBody(readinessCategoryItemsRequestDtoList);
+		  return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}else {
+			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}
+	}
+	
 }

@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.rest.framework.service.impl.AbstractService;
 import com.rest.smoothchange.readiness.category.items.dao.ReadinessCategoryItemsDao;
 import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsDto;
+import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsRequestDto;
 import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryItems;
 import com.rest.smoothchange.readiness.category.items.mapper.ReadinessCategoryItemsMapper;
 import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryItemsService;
@@ -32,5 +33,15 @@ public class ReadinessCategoryItemsServiceImpl extends AbstractService<Readiness
 	public ReadinessCategoryItemsDto getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode) {
 		return mapper.mapEntityToDto(dao.getReadinessCategoryItemsByItemCodeAndCategoryId(categoryId, itemCode));
 	}
-			
+		
+	public ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) {
+		return dao.getRedinessCategoryItemDetailById(categoryItemId);
+	}	
+	
+	public List<ReadinessCategoryItemsRequestDto> getRedinessCategoryItemDetailByCategoryIdProjectId(long categoryId , long projectId ){
+		return dao.getRedinessCategoryItemDetailByCategoryIdProjectId( categoryId ,  projectId);
+	}
+	
+	
+	
 }

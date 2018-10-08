@@ -33,6 +33,4 @@ public class ReadinessCategoryItemsMasterImpl extends AbstractService<ReadinessC
 	  return mapper.mapEntityToDto(readinessCategoryItemsMaster);
   }
   
-  
-  
 }
