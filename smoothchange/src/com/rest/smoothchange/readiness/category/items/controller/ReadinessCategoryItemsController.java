@@ -61,7 +61,7 @@ public class ReadinessCategoryItemsController {
 	
 	@ApiOperation(value = "Add Readiness Category Items")
 	@RequestMapping(value="createReadinessCategoryItems" ,method = RequestMethod.POST)
-	public ResponseEntity createReadinessCategoryItems(@RequestHeader("API-KEY") String apiKey,@RequestParam("categoryId") long categoryId,@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto ) throws UnauthorizedException, ParseException {
+	public ResponseEntity createReadinessCategoryItems(@RequestHeader("API-KEY") String apiKey,@RequestParam("categoryId") long categoryId, @RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto ) throws UnauthorizedException, ParseException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -145,5 +145,61 @@ public class ReadinessCategoryItemsController {
 			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 		}
 	}
+	
+	
+	
+	@ApiOperation(value = "Update ReadinessCategoryItem and ReadinessAssessmentDataItem")
+	@RequestMapping(value = "getRedinessCategoryItemDetailByCategoryIdProjectId")
+	public ResponseEntity updateRedinessCategoryItem(@RequestHeader("API-KEY") String apiKey,
+			@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto,
+			@RequestParam("categoryItemId") long categoryItemId,
+			@RequestParam("assesmentDataItemId") long assesmentDataItemId)
+			throws UnauthorizedException, ParseException {
+
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		ResponseBean responseBean = new ResponseBean();
+		ReadinessCategoryItemsDto readinessCategoryItemsDto = readinessCategoryItemService.getById(categoryItemId);
+		if (readinessCategoryItemsDto != null && readinessCategoryItemsDto.getId() != null) {
+			ReadinessAssessmentDataItemDto assessmentDataItemDto = readinessAssessmentDataItemService
+					.getById(assesmentDataItemId);
+			if (assessmentDataItemDto != null && assessmentDataItemDto.getId() != null) {
+				readinessCategoryItemsDto.setChangeReadinessCategoryItemCode(
+						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
+				readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(
+						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
+
+				assessmentDataItemDto
+						.setChangeReadinessApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
+				if (readinessCategoryItemsRequestDto.getChangeReadinessDate1() != null
+						&& !readinessCategoryItemsRequestDto.getChangeReadinessDate1().trim().equals("")) {
+					assessmentDataItemDto.setChangeReadinessDate1(DateUtil
+							.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate1(), dateFormate));
+				}
+				if (readinessCategoryItemsRequestDto.getChangeReadinessDate1() != null
+						&& !readinessCategoryItemsRequestDto.getChangeReadinessDate2().trim().equals("")) {
+					assessmentDataItemDto.setChangeReadinessDate2(DateUtil
+							.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate2(), dateFormate));
+				}
+				assessmentDataItemDto.setChangeReadinessResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+				
+				readinessCategoryItemService.update(readinessCategoryItemsDto);
+				readinessAssessmentDataItemService.update(assessmentDataItemDto);						
+			} else {
+				responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+				return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+			}
+		} else {
+			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}
+		
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		
+	}
+	
+	
 	
 }
