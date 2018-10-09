@@ -36,7 +36,7 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 				  ProjectBackground projectBackground = null;
 				  if(dto.getCostOfChange().getProjectBackground()!=null) {
 					  projectBackground = new ProjectBackground();
-					  projectBackground.setId(dto.getId());
+					  projectBackground.setId(dto.getCostOfChange().getProjectBackground().getId());
 					  projectBackground.setOtherTypeOfChange(dto.getCostOfChange().getProjectBackground().getOtherTypeOfChange());
 					  projectBackground.setOwnerOfChange(dto.getCostOfChange().getProjectBackground().getOwnerOfChange());
 					  projectBackground.setProjectDescription(dto.getCostOfChange().getProjectBackground().getProjectDescription());
@@ -74,7 +74,7 @@ public class CostOfChangeItemsMapper extends AbstractMapper<CostOfChangeItemsDto
 				ProjectBackgroundDto projectBackground = null;
 				if(bo.getCostOfChange().getProjectBackground()!=null) {
 					 projectBackground = new ProjectBackgroundDto();
-					   projectBackground.setId(bo.getId());
+					   projectBackground.setId(bo.getCostOfChange().getProjectBackground().getId());
 					   projectBackground.setOtherTypeOfChange(bo.getCostOfChange().getProjectBackground().getOtherTypeOfChange());
 					   projectBackground.setOwnerOfChange(bo.getCostOfChange().getProjectBackground().getOwnerOfChange());
 					   projectBackground.setProjectDescription(bo.getCostOfChange().getProjectBackground().getProjectDescription());

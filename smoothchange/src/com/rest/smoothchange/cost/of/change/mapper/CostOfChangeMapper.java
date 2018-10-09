@@ -49,7 +49,7 @@ public class CostOfChangeMapper extends AbstractMapper<CostOfChangeDto , CostOfC
 			   costOfChange.setTotalCost(bo.getTotalCost());
 			   if(bo.getProjectBackground()!=null) {
 				   projectBackground = new ProjectBackgroundDto();
-				   projectBackground.setId(bo.getId());
+				   projectBackground.setId(bo.getProjectBackground().getId());
 				   projectBackground.setOtherTypeOfChange(bo.getProjectBackground().getOtherTypeOfChange());
 				   projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
 				   projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());

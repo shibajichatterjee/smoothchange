@@ -2,16 +2,20 @@ package com.rest.smoothchange.readiness.category.items.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class ReadinessCategoryItemsRequestDto {
 
 		private String changeReadinessCategoryItemDescription;
 
 		private String changeReadinessCategoryItemCode;
-	 
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+
 		private String changeReadinessDate1;
 		
 		private String changeReadinessResponsible;
-		
+		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+
 		private String changeReadinessDate2;
 
 		private String changeReadinessApprover;

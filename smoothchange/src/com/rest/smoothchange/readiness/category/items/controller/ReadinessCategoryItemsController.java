@@ -107,7 +107,7 @@ public class ReadinessCategoryItemsController {
 	
 	
 	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Item_Id")
-	@RequestMapping(value="getRedinessCategoryItemDetailById")
+	@RequestMapping(value="getRedinessCategoryItemDetailById",method = RequestMethod.GET)
 	public   ResponseEntity getRedinessCategoryItemDetailById(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryItemId") long categoryItemId) throws UnauthorizedException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -127,7 +127,7 @@ public class ReadinessCategoryItemsController {
 	
 	
 	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Id and Project_Id")
-	@RequestMapping(value="getRedinessCategoryItemDetailByCategoryIdProjectId")
+	@RequestMapping(value="getRedinessCategoryItemDetailByCategoryIdProjectId",method = RequestMethod.GET)
 	public   ResponseEntity getRedinessCategoryItemDetailByCategoryIdProjectId(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryId") long categoryId ,  @RequestParam("projectId") long projectId) throws UnauthorizedException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -149,7 +149,7 @@ public class ReadinessCategoryItemsController {
 	
 	
 	@ApiOperation(value = "Update ReadinessCategoryItem and ReadinessAssessmentDataItem")
-	@RequestMapping(value = "getRedinessCategoryItemDetailByCategoryIdProjectId")
+	@RequestMapping(value = "UpdateReadinessCategoryItemWithAssessmentDataItem",method = RequestMethod.POST)
 	public ResponseEntity updateRedinessCategoryItem(@RequestHeader("API-KEY") String apiKey,
 			@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto,
 			@RequestParam("categoryItemId") long categoryItemId,
