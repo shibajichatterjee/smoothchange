@@ -29,8 +29,8 @@ import io.swagger.annotations.ApiOperation;
 
 
 @RestController
-@RequestMapping(value = "/readinessMasterAPI")
-@Api(value = "Readiness Master", description = "Operations For Readiness Master Data")
+@RequestMapping(value = "/generateReadinessMasterDataAPI")
+@Api(value = "Readiness Master", description = "Operations For Populate All Readiness Master Data")
 @Transactional
 public class ReadinessCategoryMasterController {
 
