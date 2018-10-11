@@ -196,7 +196,11 @@
 			<version>1.7.1</version>
 		</dependency>
 		<!-- End of AspectJ -->
-		
+		<dependency>
+            <groupId>org.wickedsource</groupId>
+            <artifactId>docx-stamper</artifactId>
+            <version>1.1.0</version>
+        </dependency>
 
 	</dependencies>
 </project>
