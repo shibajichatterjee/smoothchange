@@ -91,7 +91,7 @@ public class SupportPlanItemsController {
 		commonUtil.getProjectBackGround(id);
 		SupportPlanItemsDto dto = mapRequestToDto(supportPlanItemsRequestDto);
 		dto.getProjectBackgroundDto().setId(Long.parseLong(id));
-		supportPlanItemService.create(dto);
+		supportPlanItemService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
