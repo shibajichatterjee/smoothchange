@@ -39,7 +39,7 @@ import io.swagger.annotations.ApiOperation;
 
 
 @RestController
-@RequestMapping(value = "/readinesscategoryitemsAPI")
+@RequestMapping(value = "/readinessCategoryItemsAPI")
 @Api(value = "Readiness Category Items" , description = "Operations For Readiness Category Items")
 @Transactional
 public class ReadinessCategoryItemsController {
