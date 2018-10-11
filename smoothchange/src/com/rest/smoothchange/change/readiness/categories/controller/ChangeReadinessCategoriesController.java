@@ -34,7 +34,7 @@ import io.swagger.annotations.Api;
 
 @RestController
 @RequestMapping(value = "/CopyChangeReadinessCategoriesFromMasterAPI")
-@Api(value = "Copy Change Readiness Categories From Master", description = "Operations For Copy Change Readiness Categories From Master with Project Id")
+@Api(value = "Copy Change Readiness Categories From Master", description = "Operations For Copy Change Readiness Categories From Master to Transaction  with Project Id")
 
 @Transactional
 public class ChangeReadinessCategoriesController {
