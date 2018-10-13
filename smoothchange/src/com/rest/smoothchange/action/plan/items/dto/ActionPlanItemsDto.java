@@ -14,7 +14,7 @@ public class ActionPlanItemsDto extends AbstractDTO{
 
 	private ProjectBackgroundDto projectBackground;
 
-	private String actionType;
+	private ActionType actionType;
 	
 	private String action;
 
@@ -30,11 +30,13 @@ public class ActionPlanItemsDto extends AbstractDTO{
 		this.projectBackground = projectBackground;
 	}
 
-	public String getActionType() {
+	
+
+	public ActionType getActionType() {
 		return actionType;
 	}
 
-	public void setActionType(String actionType) {
+	public void setActionType(ActionType actionType) {
 		this.actionType = actionType;
 	}
 

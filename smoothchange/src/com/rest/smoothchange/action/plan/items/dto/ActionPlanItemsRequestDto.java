@@ -2,7 +2,6 @@ package com.rest.smoothchange.action.plan.items.dto;
 
 public class ActionPlanItemsRequestDto {
 
-	private Long projectStakeholdersId;
 	
 	private String actionType;
 
@@ -12,12 +11,17 @@ public class ActionPlanItemsRequestDto {
 	
 	private String timeframe;
 
-	public Long getProjectStakeholdersId() {
-		return projectStakeholdersId;
+private Long id; 
+	
+
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setProjectStakeholdersId(Long projectStakeholdersId) {
-		this.projectStakeholdersId = projectStakeholdersId;
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getActionType() {
