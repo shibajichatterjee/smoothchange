@@ -70,10 +70,13 @@ public class OrganizationInfoController {
 		ResponseBean responseBean = new ResponseBean();
 		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
 		if(organizationInfoDto!=null && organizationInfoDto.getId()!=null) {
-			byte [] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+			if(file!=null) {
+			 byte [] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+			 organizationInfoDto.setLogo(byteArray);
+			}
 			organizationInfoDto.setAddress(address);
 			organizationInfoDto.setOrganisationName(organisationName);
-			organizationInfoDto.setLogo(byteArray);	
+			
 			organizationInfoService.update(organizationInfoDto);
 			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());		
 		}else {
