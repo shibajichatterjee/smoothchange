@@ -22,8 +22,7 @@ public class OrganizationInfo extends AbstractPersistentObject{
 	@Column(name = "address")
 	private String address;
 
-	@Lob
-    @Column(name = "logo", columnDefinition="BLOB")
+	@Column(name = "logo", unique = false, nullable = false, length = 100000)
     private byte[] logo;
 	
 	public static long getSerialversionuid() {

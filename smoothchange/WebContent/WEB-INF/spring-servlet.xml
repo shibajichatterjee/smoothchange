@@ -16,6 +16,11 @@
 	<mvc:annotation-driven />
 	<context:annotation-config />
 	
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+       <property name="maxUploadSize" value="500000000"/>
+     </bean>
+	
+	
 	<tx:annotation-driven transaction-manager="transactionManager" />
 
 	<bean id="transactionManager"
@@ -38,5 +43,9 @@
 	<mvc:resources mapping="/resources/**" location="/resources/" />
 	
 	<context:property-placeholder location="classpath*:item.properties"/>
+	
+	
+	
+	
 	
 </beans>  
