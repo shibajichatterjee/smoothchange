@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,24 +18,35 @@ import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
+import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.organization.info.dto.OrganizationInfoDto;
 import com.rest.smoothchange.organization.info.dto.OrganizationInfoRequestDto;
 import com.rest.smoothchange.organization.info.service.OrganizationInfoService;
 import com.rest.smoothchange.util.ImageUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 
 
 @RestController
 @RequestMapping(value = "/organisationInfoAPI")
+@Api(value = "Organisation Information", description = "Operations For Organisation Information")
+
 @Transactional
 public class OrganizationInfoController {
 
 	@Autowired
 	private OrganizationInfoService organizationInfoService;
 
-
-	@RequestMapping(value="/saveOrganizationInfo" ,method = RequestMethod.POST)
-	public ResponseEntity saveOrganizationInfo(@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException {
+	@ApiOperation(value = "Add Organisation Information")
+	@RequestMapping(value="/AddOrganizationInfo" ,method = RequestMethod.POST)
+	public ResponseEntity saveOrganizationInfo(@RequestHeader("API-KEY") String apiKey,@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException, UnauthorizedException {
+		
+		
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		
 		ResponseBean responseBean = new ResponseBean();
 		byte [] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
@@ -48,9 +60,12 @@ public class OrganizationInfoController {
 		
 	}
 	
-	
+	@ApiOperation(value = "Get Organisation Information By ID")
 	@RequestMapping(value="/getOrganizationInfoById" ,method = RequestMethod.GET)
-	public ResponseEntity getOrganizationInfoById(@RequestParam("organizationId") long organizationId) throws IOException, NoRecordsFoundException {
+	public ResponseEntity getOrganizationInfoById(@RequestHeader("API-KEY") String apiKey,@RequestParam("organizationId") long organizationId) throws IOException, NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		
 		ResponseBean responseBean = new ResponseBean();
 		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
@@ -63,9 +78,12 @@ public class OrganizationInfoController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);	
 	}
 	
-	
+	@ApiOperation(value = "Modify Organisation Information")
 	@RequestMapping(value="/updateOrganizationInfo" ,method = RequestMethod.POST)
-	public ResponseEntity updateOrganizationInfo(@RequestParam("file") MultipartFile file,@RequestParam("organizationId")long organizationId ,@RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException, NoRecordsFoundException {
+	public ResponseEntity updateOrganizationInfo(@RequestHeader("API-KEY") String apiKey,@RequestParam("file") MultipartFile file,@RequestParam("organizationId")long organizationId ,@RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException, NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		
 		ResponseBean responseBean = new ResponseBean();
 		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
