@@ -1,5 +1,6 @@
 package com.rest.smoothchange.cost.of.change.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,6 +126,77 @@ public class CostOfChangeController {
 		costOfChangeDto.setTotalCost(cost);
 		costOfChangeService.update(costOfChangeDto);
 
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Get Cost of Change Item By ID")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetCostofChangeItemByID", method = RequestMethod.GET)
+	public ResponseEntity GetCostofChangeItemByID(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("id") String id)
+			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		CostOfChangeItemsDto dto = costOfChangeItemsService.getById(Long.parseLong(id));
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		CostOfChangeItemsRequestDto rdto = mapDtoToRequestDto(dto);
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(rdto);
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Get Cost of Change Item By Project ID")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetCostofChangeItemByProjectID", method = RequestMethod.GET)
+	public ResponseEntity GetCostofChangeItemByProjectID(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") String projectId)
+			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		List<CostOfChangeDto> dtoList = costOfChangeService.getCostOfChangeListByProjectId(Long.parseLong(projectId));
+		if (dtoList.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		List<CostOfChangeItemsDto> alldtoItemList = new ArrayList<>();
+		for (CostOfChangeDto dto : dtoList) {
+			List<CostOfChangeItemsDto> dtoItemlist = costOfChangeItemsService
+					.getCostOfChangeItemListByProjectIdCostOfChageId(Long.parseLong(projectId), dto.getId());
+			alldtoItemList.addAll(dtoItemlist);
+		}
+		List<CostOfChangeItemsRequestDto> requestDtoItemList = new ArrayList<>();
+		for (CostOfChangeItemsDto dtoUpdated : alldtoItemList) {
+			requestDtoItemList.add(mapDtoToRequestDto(dtoUpdated));
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(requestDtoItemList);
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Delete Cost of Change Item By ID")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteCostofChangeItemByID", method = RequestMethod.DELETE)
+	public ResponseEntity Delete(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") String id)
+			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		CostOfChangeItemsDto dto = costOfChangeItemsService.getById(Long.parseLong(id));
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		costOfChangeItemsService.deleteById((Long.parseLong(id)));
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);

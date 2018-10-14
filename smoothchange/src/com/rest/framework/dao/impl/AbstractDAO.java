@@ -73,7 +73,13 @@ public abstract class AbstractDAO<T extends Object> implements DAO<T> {
 	}
 
 	public void deleteById(Serializable id) {
+		try
+		{
 		delete(load(id));
+		}catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	public void deleteAll() {

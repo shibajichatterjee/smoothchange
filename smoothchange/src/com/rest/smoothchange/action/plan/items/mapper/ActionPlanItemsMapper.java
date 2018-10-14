@@ -33,7 +33,7 @@ public class ActionPlanItemsMapper extends AbstractMapper<ActionPlanItemsDto , A
 			ProjectBackground projectBackground =null;
 			actionPlanItems.setId(dto.getId());
 			actionPlanItems.setAction(dto.getAction());
-			actionPlanItems.setActionType(ActionType.getValue(dto.getActionType()));
+			actionPlanItems.setActionType(dto.getActionType());
 			actionPlanItems.setResponsible(dto.getResponsible());
 			actionPlanItems.setTimeframe(dto.getTimeframe());
 			if(dto.getProjectBackground()!=null) {
@@ -59,8 +59,9 @@ public class ActionPlanItemsMapper extends AbstractMapper<ActionPlanItemsDto , A
 			ProjectBackgroundDto projectBackground =null;
 			actionPlanItemsDto.setId(bo.getId());
 			if(bo.getActionType()!=null) {
-				actionPlanItemsDto.setAction(bo.getActionType().getNumVal());
+				actionPlanItemsDto.setActionType(bo.getActionType());
 			}
+			actionPlanItemsDto.setAction(bo.getAction());
 			actionPlanItemsDto.setResponsible(bo.getResponsible());
 			actionPlanItemsDto.setTimeframe(bo.getTimeframe());
 			if(bo.getProjectBackground()!=null) {
