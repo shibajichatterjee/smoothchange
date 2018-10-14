@@ -6,7 +6,7 @@ import com.rest.smoothchange.readiness.assessment.data.entity.ReadinessAssessmen
 
 public interface ReadinessAssessmentDataDao extends DAO<ReadinessAssessmentData>{
 
-	
+	ReadinessAssessmentData getReadinessAssessmentDataByItemId(long readinessAssessmentDataId);
 	
 	
 }

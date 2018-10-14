@@ -71,12 +71,14 @@ public class ReadinessAssessmentDataMapper extends AbstractMapper<ReadinessAsses
 					   changeReadinessCategories.setChangeReadinessCategoryName(bo.getReadinessCategoryItems().getChangeReadinessCategories().getChangeReadinessCategoryName());			   
 					   if(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground()!=null){
 						    projectBackground = new ProjectBackgroundDto();						    
-							projectBackground.setId(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getId());					
+							projectBackground.setId(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getId());			
 							projectBackground.setOtherTypeOfChange(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getOtherTypeOfChange());
 							projectBackground.setOwnerOfChange(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getOwnerOfChange());
 							projectBackground.setProjectDescription(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getProjectDescription());
-							projectBackground.setProjectName(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getProjectName());
-							projectBackground.setTypeOfChange(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getTypeOfChange().getMessage());
+							projectBackground.setProjectName(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getProjectName());							
+							if(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getTypeOfChange()!=null) {
+								 projectBackground.setTypeOfChange(bo.getReadinessCategoryItems().getChangeReadinessCategories().getProjectBackground().getTypeOfChange().getMessage());
+								}
 							changeReadinessCategories.setProjectBackgroundDto(projectBackground);
 					}
 				   readinessCategoryItems.setChangeReadinessCategories(changeReadinessCategories);

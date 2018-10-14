@@ -16,5 +16,10 @@ import com.rest.smoothchange.readiness.assessment.data.service.ReadinessAssessme
 @Transactional
 public class ReadinessAssessmentDataServiceImpl extends AbstractService<ReadinessAssessmentDataDao, ReadinessAssessmentDataDto, ReadinessAssessmentDataMapper, ReadinessAssessmentData>  implements ReadinessAssessmentDataService{
 
+	@Override
+	public ReadinessAssessmentDataDto getReadinessAssessmentDataByItemId(long readinessCategoryItemItem) {
+		return mapper.mapEntityToDto(dao.getReadinessAssessmentDataByItemId(readinessCategoryItemItem));
+	}
+
 	
 }

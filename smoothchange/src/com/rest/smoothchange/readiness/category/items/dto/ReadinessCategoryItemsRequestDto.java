@@ -1,24 +1,18 @@
 package com.rest.smoothchange.readiness.category.items.dto;
 
-import java.util.Date;
+import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.rest.smoothchange.readiness.assessment.data.item.dto.ReadinessAssessmentDataItemRequestDto;
 
 public class ReadinessCategoryItemsRequestDto {
 
+	    private long changeReadinessCategoryItemId;
+	
 		private String changeReadinessCategoryItemDescription;
 
 		private String changeReadinessCategoryItemCode;
-		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-
-		private String changeReadinessDate1;
 		
-		private String changeReadinessResponsible;
-		@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-
-		private String changeReadinessDate2;
-
-		private String changeReadinessApprover;
+	    private List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList;
 
 		public String getChangeReadinessCategoryItemDescription() {
 			return changeReadinessCategoryItemDescription;
@@ -36,39 +30,24 @@ public class ReadinessCategoryItemsRequestDto {
 			this.changeReadinessCategoryItemCode = changeReadinessCategoryItemCode;
 		}
 
-		public String getChangeReadinessResponsible() {
-			return changeReadinessResponsible;
+		public List<ReadinessAssessmentDataItemRequestDto> getReadinessAssessmentDataItemRequestDtoList() {
+			return readinessAssessmentDataItemRequestDtoList;
 		}
 
-		public void setChangeReadinessResponsible(String changeReadinessResponsible) {
-			this.changeReadinessResponsible = changeReadinessResponsible;
+		public void setReadinessAssessmentDataItemRequestDtoList(
+				List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList) {
+			this.readinessAssessmentDataItemRequestDtoList = readinessAssessmentDataItemRequestDtoList;
 		}
 
-		public String getChangeReadinessApprover() {
-			return changeReadinessApprover;
+		public long getChangeReadinessCategoryItemId() {
+			return changeReadinessCategoryItemId;
 		}
 
-		public void setChangeReadinessApprover(String changeReadinessApprover) {
-			this.changeReadinessApprover = changeReadinessApprover;
-		}
-
-		public String getChangeReadinessDate1() {
-			return changeReadinessDate1;
-		}
-
-		public void setChangeReadinessDate1(String changeReadinessDate1) {
-			this.changeReadinessDate1 = changeReadinessDate1;
-		}
-
-		public String getChangeReadinessDate2() {
-			return changeReadinessDate2;
-		}
-
-		public void setChangeReadinessDate2(String changeReadinessDate2) {
-			this.changeReadinessDate2 = changeReadinessDate2;
+		public void setChangeReadinessCategoryItemId(long changeReadinessCategoryItemId) {
+			this.changeReadinessCategoryItemId = changeReadinessCategoryItemId;
 		}
 		
 		
-
+		
 	
 }

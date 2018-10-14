@@ -5,9 +5,13 @@ package com.rest.smoothchange.readiness.category.items.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import com.rest.framework.entity.AbstractIdentifierObject;
 import com.rest.smoothchange.change.readiness.categories.entity.ChangeReadinessCategories;

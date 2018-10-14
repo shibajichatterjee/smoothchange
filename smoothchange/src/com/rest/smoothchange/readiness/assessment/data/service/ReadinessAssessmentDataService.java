@@ -6,6 +6,6 @@ import com.rest.smoothchange.readiness.assessment.data.dto.ReadinessAssessmentDa
 
 public interface ReadinessAssessmentDataService extends Service<ReadinessAssessmentDataDto>{
 	
-	
+	ReadinessAssessmentDataDto getReadinessAssessmentDataByItemId(long readinessCategoryItemItem);
 
 }

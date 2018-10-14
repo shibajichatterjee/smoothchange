@@ -31,6 +31,7 @@ public class ReadinessAssessmentDataItemMapper extends AbstractMapper<ReadinessA
 		 ChangeReadinessCategories changeReadinessCategories = null;
 		   if(dto!=null) {
 			   readinessAssessmentDataItem = new ReadinessAssessmentDataItem();
+			   readinessAssessmentDataItem.setId(dto.getId());
 			   readinessAssessmentDataItem.setChangeReadinessApprover(dto.getChangeReadinessApprover());
 			   readinessAssessmentDataItem.setChangeReadinessDate1(dto.getChangeReadinessDate1());
 			   readinessAssessmentDataItem.setChangeReadinessDate2(dto.getChangeReadinessDate2());
@@ -78,6 +79,7 @@ public class ReadinessAssessmentDataItemMapper extends AbstractMapper<ReadinessA
 		 ChangeReadinessCategoriesDto changeReadinessCategories = null;
 		   if(bo!=null) {
 			   readinessAssessmentDataItem = new ReadinessAssessmentDataItemDto();
+			   readinessAssessmentDataItem.setId(bo.getId());
 			   readinessAssessmentDataItem.setChangeReadinessApprover(bo.getChangeReadinessApprover());
 			   readinessAssessmentDataItem.setChangeReadinessDate1(bo.getChangeReadinessDate1());
 			   readinessAssessmentDataItem.setChangeReadinessDate2(bo.getChangeReadinessDate2());
