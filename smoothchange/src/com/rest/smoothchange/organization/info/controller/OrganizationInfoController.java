@@ -27,8 +27,6 @@ import com.rest.smoothchange.util.ImageUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
-
-
 @RestController
 @RequestMapping(value = "/organisationInfoAPI")
 @Api(value = "Organisation Information", description = "Operations For Organisation Information")
@@ -40,81 +38,84 @@ public class OrganizationInfoController {
 	private OrganizationInfoService organizationInfoService;
 
 	@ApiOperation(value = "Add Organisation Information")
-	@RequestMapping(value="/AddOrganizationInfo" ,method = RequestMethod.POST)
-	public ResponseEntity saveOrganizationInfo(@RequestHeader("API-KEY") String apiKey,@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException, UnauthorizedException {
-		
-		
+	@RequestMapping(value = "/AddOrganizationInfo", method = RequestMethod.POST)
+	public ResponseEntity saveOrganizationInfo(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName,
+			@RequestParam("address") String address) throws IOException, UnauthorizedException {
+
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		
+
 		ResponseBean responseBean = new ResponseBean();
-		byte [] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+		byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
 		OrganizationInfoDto organizationInfoDto = new OrganizationInfoDto();
 		organizationInfoDto.setAddress(address);
 		organizationInfoDto.setOrganisationName(organisationName);
-		organizationInfoDto.setLogo(byteArray);	
+		organizationInfoDto.setLogo(byteArray);
 		organizationInfoService.create(organizationInfoDto);
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
-		
+
 	}
-	
+
 	@ApiOperation(value = "Get Organisation Information By ID")
-	@RequestMapping(value="/getOrganizationInfoById" ,method = RequestMethod.GET)
-	public ResponseEntity getOrganizationInfoById(@RequestHeader("API-KEY") String apiKey,@RequestParam("organizationId") long organizationId) throws IOException, NoRecordsFoundException, UnauthorizedException {
+	@RequestMapping(value = "/getOrganizationInfoById", method = RequestMethod.GET)
+	public ResponseEntity getOrganizationInfoById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("organizationId") long organizationId)
+			throws IOException, NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		
+
 		ResponseBean responseBean = new ResponseBean();
 		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
-		if(organizationInfoDto!=null && organizationInfoDto.getId()!=null) {
+		if (organizationInfoDto != null && organizationInfoDto.getId() != null) {
 			OrganizationInfoRequestDto organizationInfoRequestDto = mapDtoToRequestDto(organizationInfoDto);
 			responseBean.setBody(organizationInfoRequestDto);
-		}else {
+		} else {
 			throw new NoRecordsFoundException("Organization Info No Found");
 		}
-		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);	
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
-	
+
 	@ApiOperation(value = "Modify Organisation Information")
-	@RequestMapping(value="/updateOrganizationInfo" ,method = RequestMethod.POST)
-	public ResponseEntity updateOrganizationInfo(@RequestHeader("API-KEY") String apiKey,@RequestParam("file") MultipartFile file,@RequestParam("organizationId")long organizationId ,@RequestParam("organisationName") String organisationName ,@RequestParam("address") String address) throws IOException, NoRecordsFoundException, UnauthorizedException {
+	@RequestMapping(value = "/updateOrganizationInfo", method = RequestMethod.POST)
+	public ResponseEntity updateOrganizationInfo(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("file") MultipartFile file, @RequestParam("organizationId") long organizationId,
+			@RequestParam("organisationName") String organisationName, @RequestParam("address") String address)
+			throws IOException, NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		
+
 		ResponseBean responseBean = new ResponseBean();
 		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
-		if(organizationInfoDto!=null && organizationInfoDto.getId()!=null) {
-			if(file!=null) {
-			 byte [] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
-			 organizationInfoDto.setLogo(byteArray);
+		if (organizationInfoDto != null && organizationInfoDto.getId() != null) {
+			if (file != null) {
+				byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+				organizationInfoDto.setLogo(byteArray);
 			}
 			organizationInfoDto.setAddress(address);
 			organizationInfoDto.setOrganisationName(organisationName);
-			
+
 			organizationInfoService.update(organizationInfoDto);
-			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());		
-		}else {
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		} else {
 			throw new NoRecordsFoundException("Organization Info No Found");
 		}
-		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);		
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
-	
-	
-	
+
 	private OrganizationInfoRequestDto mapDtoToRequestDto(OrganizationInfoDto organizationInfoDto) {
 		OrganizationInfoRequestDto organizationInfoRequestDto = null;
-		if(organizationInfoDto!=null) {
+		if (organizationInfoDto != null) {
 			organizationInfoRequestDto = new OrganizationInfoRequestDto();
 			organizationInfoRequestDto.setAddress(organizationInfoDto.getAddress());
-			organizationInfoRequestDto.setOrganisationName(organizationInfoDto.getOrganisationName());	
-			organizationInfoRequestDto.setLogo(ImageUtil.getByteArrayToBase64(organizationInfoDto.getLogo()));
+			organizationInfoRequestDto.setOrganisationName(organizationInfoDto.getOrganisationName());
+			organizationInfoRequestDto.setLogo(ImageUtil.getBase64FromByteArray(organizationInfoDto.getLogo()));
 		}
 		return organizationInfoRequestDto;
 	}
 
-	
 }

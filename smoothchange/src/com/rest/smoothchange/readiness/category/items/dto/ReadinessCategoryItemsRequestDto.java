@@ -6,48 +6,45 @@ import com.rest.smoothchange.readiness.assessment.data.item.dto.ReadinessAssessm
 
 public class ReadinessCategoryItemsRequestDto {
 
-	    private long changeReadinessCategoryItemId;
-	
-		private String changeReadinessCategoryItemDescription;
+	private long changeReadinessCategoryItemId;
 
-		private String changeReadinessCategoryItemCode;
-		
-	    private List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList;
+	private String changeReadinessCategoryItemDescription;
 
-		public String getChangeReadinessCategoryItemDescription() {
-			return changeReadinessCategoryItemDescription;
-		}
+	private String changeReadinessCategoryItemCode;
 
-		public void setChangeReadinessCategoryItemDescription(String changeReadinessCategoryItemDescription) {
-			this.changeReadinessCategoryItemDescription = changeReadinessCategoryItemDescription;
-		}
+	private List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList;
 
-		public String getChangeReadinessCategoryItemCode() {
-			return changeReadinessCategoryItemCode;
-		}
+	public String getChangeReadinessCategoryItemDescription() {
+		return changeReadinessCategoryItemDescription;
+	}
 
-		public void setChangeReadinessCategoryItemCode(String changeReadinessCategoryItemCode) {
-			this.changeReadinessCategoryItemCode = changeReadinessCategoryItemCode;
-		}
+	public void setChangeReadinessCategoryItemDescription(String changeReadinessCategoryItemDescription) {
+		this.changeReadinessCategoryItemDescription = changeReadinessCategoryItemDescription;
+	}
 
-		public List<ReadinessAssessmentDataItemRequestDto> getReadinessAssessmentDataItemRequestDtoList() {
-			return readinessAssessmentDataItemRequestDtoList;
-		}
+	public String getChangeReadinessCategoryItemCode() {
+		return changeReadinessCategoryItemCode;
+	}
 
-		public void setReadinessAssessmentDataItemRequestDtoList(
-				List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList) {
-			this.readinessAssessmentDataItemRequestDtoList = readinessAssessmentDataItemRequestDtoList;
-		}
+	public void setChangeReadinessCategoryItemCode(String changeReadinessCategoryItemCode) {
+		this.changeReadinessCategoryItemCode = changeReadinessCategoryItemCode;
+	}
 
-		public long getChangeReadinessCategoryItemId() {
-			return changeReadinessCategoryItemId;
-		}
+	public List<ReadinessAssessmentDataItemRequestDto> getReadinessAssessmentDataItemRequestDtoList() {
+		return readinessAssessmentDataItemRequestDtoList;
+	}
 
-		public void setChangeReadinessCategoryItemId(long changeReadinessCategoryItemId) {
-			this.changeReadinessCategoryItemId = changeReadinessCategoryItemId;
-		}
-		
-		
-		
-	
+	public void setReadinessAssessmentDataItemRequestDtoList(
+			List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList) {
+		this.readinessAssessmentDataItemRequestDtoList = readinessAssessmentDataItemRequestDtoList;
+	}
+
+	public long getChangeReadinessCategoryItemId() {
+		return changeReadinessCategoryItemId;
+	}
+
+	public void setChangeReadinessCategoryItemId(long changeReadinessCategoryItemId) {
+		this.changeReadinessCategoryItemId = changeReadinessCategoryItemId;
+	}
+
 }

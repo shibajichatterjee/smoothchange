@@ -14,7 +14,7 @@ public class ImageUtil {
 		return null;
 	} 
 	
-	public static String getByteArrayToBase64(byte[] byteArray) {
+	public static String getBase64FromByteArray(byte[] byteArray) {
 		if(byteArray!=null && byteArray.length>0) {
 		  return Base64.getEncoder().encodeToString(byteArray);	
 		}

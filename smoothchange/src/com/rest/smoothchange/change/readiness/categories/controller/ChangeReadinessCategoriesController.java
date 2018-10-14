@@ -54,8 +54,8 @@ public class ChangeReadinessCategoriesController {
 	@Autowired 
 	private CommonUtil commonUtil;
 	
-	@RequestMapping(value = "/CopyChangeReadinessCategoriesFromMaster" ,method = RequestMethod.POST)
-	public ResponseEntity copyChangeReadinessCategoriesFromMaster(@RequestParam("projectId")String projectId, @RequestHeader("API-KEY") String apiKey)throws NoRecordsFoundException, UnauthorizedException{
+	@RequestMapping(value = "/copyChangeReadinessCategoriesFromMaster" ,method = RequestMethod.POST)
+	public ResponseEntity copyChangeReadinessCategoriesFromMaster(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId")String projectId)throws NoRecordsFoundException, UnauthorizedException{
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);

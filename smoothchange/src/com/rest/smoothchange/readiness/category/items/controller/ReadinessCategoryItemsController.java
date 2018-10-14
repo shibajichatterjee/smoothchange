@@ -178,8 +178,7 @@ public class ReadinessCategoryItemsController {
 
 	private ReadinessAssessmentDataDto createReadinessAssessmentData(ReadinessCategoryItemsDto readinessCategoryItems) {
 		ReadinessAssessmentDataDto readinessAssessmentDataDto = null;
-		readinessAssessmentDataDto = readinessAssessmentDataService
-				.getReadinessAssessmentDataByItemId(readinessCategoryItems.getId());
+		readinessAssessmentDataDto = readinessAssessmentDataService.getReadinessAssessmentDataByItemId(readinessCategoryItems.getId());
 		if (readinessAssessmentDataDto == null) {
 			readinessAssessmentDataDto = new ReadinessAssessmentDataDto();
 			readinessAssessmentDataDto.setReadinessCategoryItems(readinessCategoryItems);
@@ -265,34 +264,7 @@ public class ReadinessCategoryItemsController {
 			
 			readinessAssessmentDataItemService.update(readinessAssessmentDataItemDto);
 		
-		   }
-		
+		   }		
 		}
 	}
-	
-	/*
-	@RequestMapping(value = "getDemoJson")
-	public ReadinessCategoryItemsRequestDto getDemoJson() {
-		ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto = new ReadinessCategoryItemsRequestDto();
-		readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemCode("Category Item Code");
-		readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemDescription("Category Item Description");
-		readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemId(1);
-
-		ReadinessAssessmentDataItemRequestDto readinessAssessmentDataItemRequestDto = new ReadinessAssessmentDataItemRequestDto();
-		readinessAssessmentDataItemRequestDto.setChangeReadinessApprover("ChangeReadinessApprover");
-		readinessAssessmentDataItemRequestDto.setChangeReadinessDate1("2018-10-10");
-		readinessAssessmentDataItemRequestDto.setChangeReadinessDate2("2018-10-13");
-		readinessAssessmentDataItemRequestDto.setChangeReadinessResponsible("ChangeReadinessResponsible");
-		readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataId(2);
-		readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataItemId(1);
-
-		List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList = new ArrayList<>();
-		readinessAssessmentDataItemRequestDtoList.add(readinessAssessmentDataItemRequestDto);
-
-		readinessCategoryItemsRequestDto
-				.setReadinessAssessmentDataItemRequestDtoList(readinessAssessmentDataItemRequestDtoList);
-		return readinessCategoryItemsRequestDto;
-
-	}*/
-
 }

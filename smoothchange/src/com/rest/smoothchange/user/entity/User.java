@@ -23,7 +23,7 @@ public class User extends AbstractIdentifierObject{
 	@Column(name="password")
 	private String  password;
 	
-	@Column(name="email_address")
+	@Column(name="email_address" , unique=true)
 	private String  emailAddress;
 	
 	@Column(name="first_name")
@@ -35,8 +35,7 @@ public class User extends AbstractIdentifierObject{
 	@Column(name="last_name")
 	private String  lastName;
 	
-	@Lob
-    @Column(name = "photo", columnDefinition="BLOB")
+	@Column(name = "photo", unique = false, nullable = false, length = 100000)
     private byte[] photo;
 	
 	@Column(name="admin_id")
