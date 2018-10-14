@@ -54,6 +54,8 @@ public class ActionPlanItemsMapper extends AbstractMapper<ActionPlanItemsDto , A
 	public ActionPlanItemsDto mapEntityToDto(ActionPlanItems bo) {
 		
 		ActionPlanItemsDto actionPlanItemsDto = null;
+		try
+		{
 		if(bo!=null) {
 			actionPlanItemsDto = new ActionPlanItemsDto();
 			ProjectBackgroundDto projectBackground =null;
@@ -74,6 +76,11 @@ public class ActionPlanItemsMapper extends AbstractMapper<ActionPlanItemsDto , A
 				projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
 				actionPlanItemsDto.setProjectBackground(projectBackground);
 			}			
+		}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 	  return actionPlanItemsDto;
 	

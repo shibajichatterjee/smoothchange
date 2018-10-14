@@ -18,12 +18,9 @@ import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsDto;
 import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsRequestDto;
 import com.rest.smoothchange.action.plan.items.service.ActionPlanItemsService;
-import com.rest.smoothchange.cost.of.change.dto.CostOfChangeDto;
-import com.rest.smoothchange.cost.of.change.items.dto.CostOfChangeItemsDto;
-import com.rest.smoothchange.cost.of.change.items.dto.CostOfChangeItemsRequestDto;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
+import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.util.ActionType;
-import com.rest.smoothchange.util.ApprovalStatus;
 import com.rest.smoothchange.util.CommonUtil;
 
 import io.swagger.annotations.Api;
@@ -44,7 +41,7 @@ public class ActionPlanItemsController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/AddActionPlanItem", method = RequestMethod.POST)
 	public ResponseEntity create(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
-			@RequestBody  ActionPlanItemsRequestDto actionPlanItemsRequestDto)
+			@RequestBody ActionPlanItemsRequestDto actionPlanItemsRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -55,7 +52,7 @@ public class ActionPlanItemsController {
 			throw new NoEnumRecordsFoundException("ActionType not matched");
 		}
 		commonUtil.getProjectBackGround(id);
-		ActionPlanItemsDto dto=mapRequestToDto(actionPlanItemsRequestDto);
+		ActionPlanItemsDto dto = mapRequestToDto(actionPlanItemsRequestDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		actionPlanItemsService.create(dto);
 
@@ -64,12 +61,12 @@ public class ActionPlanItemsController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
-	
+
 	@ApiOperation(value = "Modify Action Plan Item")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyActionPlanItem", method = RequestMethod.POST)
 	public ResponseEntity update(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
-			@RequestBody  ActionPlanItemsRequestDto actionPlanItemsRequestDto)
+			@RequestBody ActionPlanItemsRequestDto actionPlanItemsRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -80,7 +77,7 @@ public class ActionPlanItemsController {
 			throw new NoEnumRecordsFoundException("ActionType not matched");
 		}
 		commonUtil.getProjectBackGround(id);
-		ActionPlanItemsDto dto=mapRequestToDto(actionPlanItemsRequestDto);
+		ActionPlanItemsDto dto = mapRequestToDto(actionPlanItemsRequestDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		actionPlanItemsService.update(dto);
 
@@ -89,7 +86,49 @@ public class ActionPlanItemsController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
-	
+
+	@ApiOperation(value = "Get Action Plan Item by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetActionPlanItemById", method = RequestMethod.GET)
+	public ResponseEntity getActionPlanItemById(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String projectId,  @RequestParam("id") String id)
+			throws NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		commonUtil.getProjectBackGround(projectId);
+		ActionPlanItemsDto dto = new ActionPlanItemsDto();
+		dto.setId(Long.parseLong(id));
+		dto.setProjectBackground(new ProjectBackgroundDto());
+		dto.getProjectBackground().setId(Long.parseLong(projectId));
+		dto = actionPlanItemsService.getActionPlanItemsByIdProjectId(dto);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(mapDtoToRequestDto(dto));
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Delete Action Plan Item by Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteActionPlanItemById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteActionPlanItemById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		ActionPlanItemsDto dto = actionPlanItemsService.getById(id);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		actionPlanItemsService.deleteById(Long.parseLong(id));
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
 	private ActionPlanItemsDto mapRequestToDto(ActionPlanItemsRequestDto actionPlanItemsRequestDto) {
 		ActionPlanItemsDto dto = new ActionPlanItemsDto();
 		dto.setAction(actionPlanItemsRequestDto.getAction());
@@ -101,5 +140,16 @@ public class ActionPlanItemsController {
 
 		return dto;
 	}
-	
+
+	private ActionPlanItemsRequestDto mapDtoToRequestDto(ActionPlanItemsDto actionPlanItemsDto) {
+		ActionPlanItemsRequestDto dto = new ActionPlanItemsRequestDto();
+		dto.setAction(actionPlanItemsDto.getAction());
+		dto.setActionType(actionPlanItemsDto.getActionType().getNumVal());
+		dto.setId(actionPlanItemsDto.getId());
+		dto.setResponsible(actionPlanItemsDto.getResponsible());
+		dto.setTimeframe(actionPlanItemsDto.getTimeframe());
+
+		return dto;
+	}
+
 }

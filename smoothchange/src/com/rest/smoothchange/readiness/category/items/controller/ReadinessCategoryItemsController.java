@@ -270,7 +270,7 @@ public class ReadinessCategoryItemsController {
 		}
 	}
 	
-	
+	/*
 	@RequestMapping(value = "getDemoJson")
 	public ReadinessCategoryItemsRequestDto getDemoJson() {
 		ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto = new ReadinessCategoryItemsRequestDto();
@@ -293,6 +293,6 @@ public class ReadinessCategoryItemsController {
 				.setReadinessAssessmentDataItemRequestDtoList(readinessAssessmentDataItemRequestDtoList);
 		return readinessCategoryItemsRequestDto;
 
-	}
+	}*/
 
 }
