@@ -44,7 +44,7 @@ public class TrainingPlanVersionHistoryController {
 	
 	
 	@RequestMapping(value="createTrainingPlanVersionHistory", method = RequestMethod.POST)
-	public ResponseEntity createTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, NoEnumRecordsFoundException, UnauthorizedException {	
+	public ResponseEntity createTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -59,14 +59,14 @@ public class TrainingPlanVersionHistoryController {
 			long trainingPlanVersionHistoryId =  (Long)trainingPlanVersionHistoryService.create(trainingPlanVersionHistoryDto);
 			responseBean.setBody(trainingPlanVersionHistoryId);
 		}else {
-			throw new NoEnumRecordsFoundException("Project Not Found");
+			throw new NoRecordsFoundException("Project Not Found");
 		}	
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);	
 	}
 	
 	
 	@RequestMapping(value="updateTrainingPlanVersionHistory", method = RequestMethod.POST)
-	public ResponseEntity updateTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestParam("trainingPlanVersionHistoryId")long trainingPlanVersionHistoryId ,@RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, NoEnumRecordsFoundException, UnauthorizedException {	
+	public ResponseEntity updateTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestParam("trainingPlanVersionHistoryId")long trainingPlanVersionHistoryId ,@RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -81,11 +81,11 @@ public class TrainingPlanVersionHistoryController {
 				trainingPlanVersionHistoryDto =	mapTrainingPlanVersionHistoryRequestDtoToDto(trainingPlanVersionHistoryDto,trainingPlanVersionHistoryRequestDto);				
 				trainingPlanVersionHistoryService.update(trainingPlanVersionHistoryDto);
 			}else {
-				throw new NoEnumRecordsFoundException("Project Not Found");
+				throw new NoRecordsFoundException("Project Not Found");
 			}
 			
 		}else {
-			throw new NoEnumRecordsFoundException("Training Plan Version History Not Found");
+			throw new NoRecordsFoundException("Training Plan Version History Not Found");
 		}
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);	
