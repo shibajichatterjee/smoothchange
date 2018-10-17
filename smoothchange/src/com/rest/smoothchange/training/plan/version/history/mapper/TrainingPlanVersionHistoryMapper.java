@@ -20,7 +20,6 @@ public class TrainingPlanVersionHistoryMapper extends AbstractMapper<TrainingPla
 	@Override
 	public TrainingPlanVersionHistory mapDtoToEntity(TrainingPlanVersionHistoryDto dto) {
 		TrainingPlanVersionHistory trainingPlanVersionHistory = null;
-		TrainingPlan trainingPlan = null;
 		ProjectBackground projectBackground = null;
 		if(dto!=null) {
 			trainingPlanVersionHistory  = new TrainingPlanVersionHistory();
@@ -31,29 +30,23 @@ public class TrainingPlanVersionHistoryMapper extends AbstractMapper<TrainingPla
 			trainingPlanVersionHistory.setReason(dto.getReason());
 			trainingPlanVersionHistory.setRevisionDate(dto.getRevisionDate());
 			trainingPlanVersionHistory.setVersionNo(dto.getVersionNo());
-			if(dto.getTrainingPlan()!=null) {
-				trainingPlan = new TrainingPlan();
-				trainingPlan.setId(dto.getTrainingPlan().getId());
-			     if(dto.getTrainingPlan().getProjectBackgroundDto() !=null){
-					    projectBackground = new ProjectBackground();					    
-						projectBackground.setId(dto.getTrainingPlan().getProjectBackgroundDto().getId());						
-						projectBackground.setOtherTypeOfChange(dto.getTrainingPlan().getProjectBackgroundDto().getOtherTypeOfChange());
-						projectBackground.setOwnerOfChange(dto.getTrainingPlan().getProjectBackgroundDto().getOwnerOfChange());
-						projectBackground.setProjectDescription(dto.getTrainingPlan().getProjectBackgroundDto().getProjectDescription());
-						projectBackground.setProjectName(dto.getTrainingPlan().getProjectBackgroundDto().getProjectName());
-						projectBackground.setTypeOfChange(TypeOfChange.getValue(dto.getTrainingPlan().getProjectBackgroundDto().getTypeOfChange()));
-						trainingPlan.setProjectBackground(projectBackground);
-				   }
-			}
-			trainingPlanVersionHistory.setTrainingPlan(trainingPlan);
+            if(dto.getProjectBackground() !=null){
+				    projectBackground = new ProjectBackground();					    
+					projectBackground.setId(dto.getProjectBackground().getId());						
+					projectBackground.setOtherTypeOfChange(dto.getProjectBackground().getOtherTypeOfChange());
+					projectBackground.setOwnerOfChange(dto.getProjectBackground().getOwnerOfChange());
+					projectBackground.setProjectDescription(dto.getProjectBackground().getProjectDescription());
+					projectBackground.setProjectName(dto.getProjectBackground().getProjectName());
+					projectBackground.setTypeOfChange(TypeOfChange.getValue(dto.getProjectBackground().getTypeOfChange()));
+					trainingPlanVersionHistory.setProjectBackground(projectBackground);
+			   }
 		}
-		   return trainingPlanVersionHistory;
+	  return trainingPlanVersionHistory;
 	}
 
 	@Override
 	public TrainingPlanVersionHistoryDto mapEntityToDto(TrainingPlanVersionHistory bo) {
 		TrainingPlanVersionHistoryDto trainingPlanVersionHistory = null;
-		TrainingPlanDto trainingPlan = null;
 		ProjectBackgroundDto projectBackground = null;
 		if(bo!=null) {
 			trainingPlanVersionHistory  = new TrainingPlanVersionHistoryDto();
@@ -64,22 +57,19 @@ public class TrainingPlanVersionHistoryMapper extends AbstractMapper<TrainingPla
 			trainingPlanVersionHistory.setReason(bo.getReason());
 			trainingPlanVersionHistory.setRevisionDate(bo.getRevisionDate());
 			trainingPlanVersionHistory.setVersionNo(bo.getVersionNo());
-			if(bo.getTrainingPlan()!=null) {
-				trainingPlan = new TrainingPlanDto();
-				trainingPlan.setId(bo.getTrainingPlan().getId());
-			     if(bo.getTrainingPlan().getProjectBackground() !=null){
-					    projectBackground = new ProjectBackgroundDto();					    
-						projectBackground.setId(bo.getTrainingPlan().getProjectBackground().getId());						
-						projectBackground.setOtherTypeOfChange(bo.getTrainingPlan().getProjectBackground().getOtherTypeOfChange());
-						projectBackground.setOwnerOfChange(bo.getTrainingPlan().getProjectBackground().getOwnerOfChange());
-						projectBackground.setProjectDescription(bo.getTrainingPlan().getProjectBackground().getProjectDescription());
-						projectBackground.setProjectName(bo.getTrainingPlan().getProjectBackground().getProjectName());
-						projectBackground.setTypeOfChange(bo.getTrainingPlan().getProjectBackground().getTypeOfChange().getMessage());
-						trainingPlan.setProjectBackgroundDto(projectBackground);
-				   }
+	          if(bo.getProjectBackground() !=null){
+				    projectBackground = new ProjectBackgroundDto();					    
+					projectBackground.setId(bo.getProjectBackground().getId());						
+					projectBackground.setOtherTypeOfChange(bo.getProjectBackground().getOtherTypeOfChange());
+					projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
+					projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
+					projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
+					if(bo.getProjectBackground().getTypeOfChange()!=null){
+					 projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+	                 }
+					trainingPlanVersionHistory.setProjectBackground(projectBackground);					
+				 }
 			}
-			trainingPlanVersionHistory.setTrainingPlan(trainingPlan);
-		}
-		   return trainingPlanVersionHistory;
+         return trainingPlanVersionHistory;
 	}	
 }

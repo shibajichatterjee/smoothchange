@@ -1,5 +1,7 @@
 package com.rest.smoothchange.training.plan.version.history.dao;
 
+import java.util.List;
+
 import com.rest.framework.dao.DAO;
 import com.rest.smoothchange.training.plan.version.history.entity.TrainingPlanVersionHistory;
 
@@ -7,6 +9,8 @@ import com.rest.smoothchange.training.plan.version.history.entity.TrainingPlanVe
 public interface TrainingPlanVersionHistoryDao extends DAO<TrainingPlanVersionHistory>{
 
 	
-	
+	 TrainingPlanVersionHistory getTrainingPlanVersionHistoryById(long trainingPlanVersionHistoryId);
+	 
+	 List<TrainingPlanVersionHistory>  getTrainingPlanVersionHistoryListByProjectId(long projectId);
 	
 }

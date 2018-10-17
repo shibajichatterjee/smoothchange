@@ -6,12 +6,12 @@ package com.rest.smoothchange.training.plan.version.history.dto;
 import java.util.Date;
 
 import com.rest.framework.dto.AbstractIdentifierDTO;
-import com.rest.smoothchange.training.plan.dto.TrainingPlanDto;
+import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 
 
 public class TrainingPlanVersionHistoryDto extends AbstractIdentifierDTO{
 	
-	private TrainingPlanDto trainingPlan;
+	private ProjectBackgroundDto projectBackground;
 
 	private String versionNo;
 	
@@ -25,14 +25,13 @@ public class TrainingPlanVersionHistoryDto extends AbstractIdentifierDTO{
 	
 	private String reason;
 
-	
 
-	public TrainingPlanDto getTrainingPlan() {
-		return trainingPlan;
+	public ProjectBackgroundDto getProjectBackground() {
+		return projectBackground;
 	}
 
-	public void setTrainingPlan(TrainingPlanDto trainingPlan) {
-		this.trainingPlan = trainingPlan;
+	public void setProjectBackground(ProjectBackgroundDto projectBackground) {
+		this.projectBackground = projectBackground;
 	}
 
 	public String getVersionNo() {

@@ -14,15 +14,15 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import com.rest.framework.entity.AbstractIdentifierObject;
-import com.rest.smoothchange.training.plan.entity.TrainingPlan;
+import com.rest.smoothchange.project.background.entity.ProjectBackground;
 
 @Entity
 @Table(name = "TRAINING_PLAN_VERSION_HISTORY")
 public class TrainingPlanVersionHistory extends AbstractIdentifierObject{
 	
 	@ManyToOne
-	@JoinColumn(name="training_plan_id")
-	private TrainingPlan trainingPlan;
+	@JoinColumn(name="project_id")
+	private ProjectBackground projectBackground;
 
 	@Column(name="version_no")
 	private String versionNo;
@@ -45,12 +45,13 @@ public class TrainingPlanVersionHistory extends AbstractIdentifierObject{
 	@Column(name="reason")
 	private String reason;
 
-	public TrainingPlan getTrainingPlan() {
-		return trainingPlan;
+	
+	public ProjectBackground getProjectBackground() {
+		return projectBackground;
 	}
 
-	public void setTrainingPlan(TrainingPlan trainingPlan) {
-		this.trainingPlan = trainingPlan;
+	public void setProjectBackground(ProjectBackground projectBackground) {
+		this.projectBackground = projectBackground;
 	}
 
 	public String getVersionNo() {
