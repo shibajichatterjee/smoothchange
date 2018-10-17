@@ -25,7 +25,7 @@ public class TrainingPlanScheduleMapper extends AbstractMapper<TrainingPlanSched
 			   trainingPlanSchedule.setId(dto.getId());
 			   trainingPlanSchedule.setInstructor(dto.getInstructor());
 			   trainingPlanSchedule.setLocation(dto.getLocation());
-			   trainingPlanSchedule.setSession(dto.getLocation());
+			   trainingPlanSchedule.setSession(dto.getSession());
 			   trainingPlanSchedule.setDuration(dto.getDuration());
 			   ProjectBackground projectBackground = null;
 			   if(dto.getProjectBackground()!=null) {
@@ -54,7 +54,7 @@ public class TrainingPlanScheduleMapper extends AbstractMapper<TrainingPlanSched
 			   trainingPlanSchedule.setId(bo.getId());
 			   trainingPlanSchedule.setInstructor(bo.getInstructor());
 			   trainingPlanSchedule.setLocation(bo.getLocation());
-			   trainingPlanSchedule.setSession(bo.getLocation());
+			   trainingPlanSchedule.setSession(bo.getSession());
 			   trainingPlanSchedule.setDuration(bo.getDuration());
 			   ProjectBackgroundDto projectBackground = null;
 			   if(bo.getProjectBackground()!=null) {
@@ -64,7 +64,9 @@ public class TrainingPlanScheduleMapper extends AbstractMapper<TrainingPlanSched
 				projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
 			    projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
 				projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
+				if(bo.getProjectBackground().getTypeOfChange()!=null) {
 				projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+				}
 				projectBackground.setContactPerson(bo.getProjectBackground().getContactPerson());
 				trainingPlanSchedule.setProjectBackground(projectBackground);
 			   }

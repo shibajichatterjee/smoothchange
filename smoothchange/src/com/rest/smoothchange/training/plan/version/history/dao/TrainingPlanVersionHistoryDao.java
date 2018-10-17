@@ -7,9 +7,6 @@ import com.rest.smoothchange.training.plan.version.history.entity.TrainingPlanVe
 
 
 public interface TrainingPlanVersionHistoryDao extends DAO<TrainingPlanVersionHistory>{
-
-	
-	 TrainingPlanVersionHistory getTrainingPlanVersionHistoryById(long trainingPlanVersionHistoryId);
 	 
 	 List<TrainingPlanVersionHistory>  getTrainingPlanVersionHistoryListByProjectId(long projectId);
 	

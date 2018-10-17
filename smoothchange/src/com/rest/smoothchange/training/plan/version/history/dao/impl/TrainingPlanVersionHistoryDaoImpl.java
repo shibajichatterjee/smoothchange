@@ -17,13 +17,6 @@ import com.rest.smoothchange.training.plan.version.history.entity.TrainingPlanVe
 public class TrainingPlanVersionHistoryDaoImpl extends AbstractDAO<TrainingPlanVersionHistory> implements TrainingPlanVersionHistoryDao{
 
 	
-	public TrainingPlanVersionHistory getTrainingPlanVersionHistoryById(long trainingPlanVersionHistoryId) {
-		Criteria criteria = getSession().createCriteria(TrainingPlanVersionHistory.class);
-		criteria.add(Restrictions.eq("Id", trainingPlanVersionHistoryId));
-		return (TrainingPlanVersionHistory) criteria.uniqueResult();
-	}
-	
-	
 	public List<TrainingPlanVersionHistory>  getTrainingPlanVersionHistoryListByProjectId(long projectId){
 		Criteria criteria = getSession().createCriteria(TrainingPlanVersionHistory.class);
 		criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);

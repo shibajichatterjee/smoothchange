@@ -50,7 +50,9 @@ public class TrainingPlanMapper extends AbstractMapper<TrainingPlanDto , Trainin
 					projectBackground.setOwnerOfChange(bo.getProjectBackground().getOwnerOfChange());
 					projectBackground.setProjectDescription(bo.getProjectBackground().getProjectDescription());
 					projectBackground.setProjectName(bo.getProjectBackground().getProjectName());
-					projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+					if(bo.getProjectBackground().getTypeOfChange()!= null) {
+					 projectBackground.setTypeOfChange(bo.getProjectBackground().getTypeOfChange().getMessage());
+		            }
 					trainingPlan.setProjectBackgroundDto(projectBackground);
 			   }	   
 		   }		

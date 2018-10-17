@@ -100,7 +100,7 @@ public class TrainingPlanVersionHistoryController {
 		}		
 		ResponseBean responseBean = new ResponseBean();
 		TrainingPlanVersionHistoryDto trainingPlanVersionHistoryDto = trainingPlanVersionHistoryService
-				.getTrainingPlanVersionHistoryById(trainingPlanVersionHistoryId);
+				.getById(trainingPlanVersionHistoryId);
 		if (trainingPlanVersionHistoryDto != null && trainingPlanVersionHistoryDto.getId() != null) {
 			TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto = mapTrainingPlanVersionHistoryDtoToRequestDto(
 					trainingPlanVersionHistoryDto);

@@ -18,10 +18,6 @@ import com.rest.smoothchange.training.plan.version.history.service.TrainingPlanV
 @Service
 @Transactional
 public class TrainingPlanVersionHistoryServiceImpl extends AbstractService<TrainingPlanVersionHistoryDao, TrainingPlanVersionHistoryDto, TrainingPlanVersionHistoryMapper, TrainingPlanVersionHistory>  implements TrainingPlanVersionHistoryService{
-
-	public  TrainingPlanVersionHistoryDto getTrainingPlanVersionHistoryById(long trainingPlanVersionHistoryId) {
-		return mapper.mapEntityToDto(dao.getTrainingPlanVersionHistoryById(trainingPlanVersionHistoryId));
-	}
 	
 	public List<TrainingPlanVersionHistoryDto>  getTrainingPlanVersionHistoryListByProjectId(long projectId){
 		 List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList = new ArrayList<>();

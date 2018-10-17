@@ -20,12 +20,6 @@ import com.rest.smoothchange.training.plan.schedule.service.TrainingPlanSchedule
 public class TrainingPlanScheduleServiceImpl extends AbstractService<TrainingPlanScheduleDao, TrainingPlanScheduleDto, TrainingPlanScheduleMapper, TrainingPlanSchedule>  implements TrainingPlanScheduleService{
 
 	@Override
-	public TrainingPlanScheduleDto getTrainingPlanScheduleByIdProjectId(
-			TrainingPlanScheduleDto trainingPlanScheduleDto) {
-		return mapper.mapEntityToDto(dao.getTrainingPlanScheduleByIdProjectId(trainingPlanScheduleDto));
-	}
-
-	@Override
 	public List<TrainingPlanScheduleDto> getTrainingPlanScheduleListByProjectId(long projectId) {
 		List<TrainingPlanScheduleDto> trainingPlanScheduleDtoList = new ArrayList<>();
 		try {

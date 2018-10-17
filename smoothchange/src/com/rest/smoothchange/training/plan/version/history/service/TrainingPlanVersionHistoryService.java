@@ -7,8 +7,6 @@ import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersi
 
 
 public interface TrainingPlanVersionHistoryService extends Service<TrainingPlanVersionHistoryDto>{
-	
-	 TrainingPlanVersionHistoryDto getTrainingPlanVersionHistoryById(long trainingPlanVersionHistoryId);
 	 
 	 List<TrainingPlanVersionHistoryDto>  getTrainingPlanVersionHistoryListByProjectId(long projectId);
 
