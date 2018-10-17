@@ -174,28 +174,5 @@ public class TrainingPlanVersionHistoryController {
 		}
 		return trainingPlanVersionHistoryRequestDto;
 	}
-	
-	
-	@RequestMapping(value="getDummyJson")
-	private ResponseEntity getDummyJson()  {	
-		TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto = new TrainingPlanVersionHistoryRequestDto();
-		trainingPlanVersionHistoryRequestDto.setApprovalDate("2018-12-12");
-		trainingPlanVersionHistoryRequestDto.setApprovedBy("Approve By");
-		trainingPlanVersionHistoryRequestDto.setAuthor("Author");
-		trainingPlanVersionHistoryRequestDto.setReason("Reason");
-		trainingPlanVersionHistoryRequestDto.setRevisionDate("2018-12-12");
-		trainingPlanVersionHistoryRequestDto.setVersionNo("1.0");
-		ResponseBean responseBean = new ResponseBean();
-		responseBean.setBody(trainingPlanVersionHistoryRequestDto);
-		return new ResponseEntity(responseBean,org.springframework.http.HttpStatus.OK);
-	}
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
