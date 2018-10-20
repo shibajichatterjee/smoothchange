@@ -5,7 +5,7 @@ public enum SupportedStackHolderStatus {
 	
 	YES("Yes"),
 	NO("No"),
-	NotSure("Not Sure"),
+	NotSure("Not sure"),
 	Others("Others");
 	
 	private String numVal;

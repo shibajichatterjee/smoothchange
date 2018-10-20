@@ -14,7 +14,7 @@ public class RestGlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(Exception.class)
 
 	public ResponseEntity<ErrorResponse> exceptionHandler(Exception ex) {
-
+        ex.printStackTrace();
 		ErrorResponse error = new ErrorResponse();
 
 		error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());

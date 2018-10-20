@@ -1,5 +1,8 @@
 package com.rest.smoothchange.action.plan.items.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +22,6 @@ import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsDto;
 import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsRequestDto;
 import com.rest.smoothchange.action.plan.items.service.ActionPlanItemsService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
-import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.util.ActionType;
 import com.rest.smoothchange.util.CommonUtil;
 
@@ -90,7 +92,8 @@ public class ActionPlanItemsController {
 	@ApiOperation(value = "Get Action Plan Item by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/GetActionPlanItemById", method = RequestMethod.GET)
-	public ResponseEntity getActionPlanItemById(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String projectId,  @RequestParam("id") String id)
+	public ResponseEntity getActionPlanItemById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -106,6 +109,33 @@ public class ActionPlanItemsController {
 		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(mapDtoToRequestDto(dto));
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+
+	}
+
+	@ApiOperation(value = "Get Action Plan Item by Project Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/GetActionPlanItemByProjectId", method = RequestMethod.GET)
+	public ResponseEntity GetActionPlanItemByProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") String projectId) throws NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		commonUtil.getProjectBackGround(projectId);
+		List<ActionPlanItemsRequestDto> dtoRequestList = new ArrayList<>();
+		// dto.setProjectBackground(new ProjectBackgroundDto());
+		// dto.getProjectBackground().setId(Long.parseLong(projectId));
+		List<ActionPlanItemsDto> dtoList = actionPlanItemsService
+				.getActionPlanItemsListByProjectId(Long.parseLong(projectId));
+		if (dtoList == null || dtoList.size() == 0) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		for (ActionPlanItemsDto to : dtoList) {
+			dtoRequestList.add(mapDtoToRequestDto(to));
+		}
+
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(dtoRequestList);
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
