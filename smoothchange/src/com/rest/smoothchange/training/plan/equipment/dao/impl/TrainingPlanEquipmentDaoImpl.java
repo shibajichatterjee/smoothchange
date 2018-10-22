@@ -19,14 +19,14 @@ import com.rest.smoothchange.training.plan.schedule.entity.TrainingPlanSchedule;
 public class TrainingPlanEquipmentDaoImpl extends AbstractDAO<TrainingPlanEquipment> implements  TrainingPlanEquipmentDao{
 
 	public TrainingPlanEquipment getTrainingPlanEquipmentByIdProjectId(TrainingPlanEquipmentDto trainingPlanEquipmentDto) {
-		Criteria criteria = getSession().createCriteria(TrainingPlanSchedule.class);
+		Criteria criteria = getSession().createCriteria(TrainingPlanEquipment.class);
 		criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
 		criteria.add(Restrictions.and(Restrictions.eq("projectBackground.id", trainingPlanEquipmentDto.getProjectBackground().getId()),Restrictions.eq("id", trainingPlanEquipmentDto.getId())));
 		return (TrainingPlanEquipment)criteria.uniqueResult();
 	}
 	
 	public List<TrainingPlanEquipment> getTrainingPlanEquipmentListByProjectId(long projectId){
-		Criteria criteria = getSession().createCriteria(TrainingPlanSchedule.class);
+		Criteria criteria = getSession().createCriteria(TrainingPlanEquipment.class);
 		criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
 		criteria.add(Restrictions.eq("projectBackground.id", projectId));
 		return criteria.list();
