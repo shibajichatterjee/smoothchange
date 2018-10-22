@@ -26,10 +26,15 @@ import com.rest.smoothchange.training.plan.schedule.dto.TrainingPlanScheduleRequ
 import com.rest.smoothchange.training.plan.schedule.service.TrainingPlanScheduleService;
 import com.rest.smoothchange.util.DateUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 
 
 @RestController
 @RequestMapping(value = "/trainingPlanScheduleAPI")
+@Api(value = "Training Plan Schedule", description = "Operations For Training Plan Schedule")
+
 @Transactional
 public class TrainingPlanScheduleController {
 	
@@ -41,15 +46,16 @@ public class TrainingPlanScheduleController {
 	@Autowired
 	private ProjectBackgroundService projectBackgroundService;
 	
-	@RequestMapping(value="trainingPlanScheduleCreate" , method = RequestMethod.POST)
-	public ResponseEntity trainingPlanScheduleCreate(@RequestHeader("API-KEY") String apiKey, @RequestBody TrainingPlanScheduleRequestDto trainingPlanScheduleRequestDto ) throws NoRecordsFoundException, ParseException, UnauthorizedException {
+	@ApiOperation(value = "Add Training Plan Schedule")
+	@RequestMapping(value="trainingPlanScheduleCreate" , method = RequestMethod.POST)	
+	public ResponseEntity trainingPlanScheduleCreate(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String id, @RequestBody TrainingPlanScheduleRequestDto trainingPlanScheduleRequestDto ) throws NoRecordsFoundException, ParseException, UnauthorizedException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		
 		ResponseBean responseBean = new ResponseBean();		
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(trainingPlanScheduleRequestDto.getProjectBackgroundId());
+		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
 		if(projectBackgroundDto!=null && projectBackgroundDto.getId()!=null) {
 			TrainingPlanScheduleDto trainingPlanScheduleDto = new TrainingPlanScheduleDto();
 			trainingPlanScheduleDto.setProjectBackground(projectBackgroundDto);
@@ -57,28 +63,30 @@ public class TrainingPlanScheduleController {
 		    long trainingPlanScheduleId = (Long)trainingPlanScheduleService.create(trainingPlanScheduleDto);
 		    responseBean.setBody(trainingPlanScheduleId);
 		}else{
-			throw new NoRecordsFoundException("Project Not Found");
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}	
 		return new ResponseEntity(responseBean, HttpStatus.OK);		
 	}
 	
+	@ApiOperation(value = "Modify Training Plan Schedule")
 	@RequestMapping(value="trainingPlanScheduleUpdate" , method = RequestMethod.POST)
-	public ResponseEntity trainingPlanScheduleCreate(@RequestHeader("API-KEY") String apiKey, @RequestBody TrainingPlanScheduleRequestDto trainingPlanScheduleRequestDto , @RequestParam("trainingPlanScheduleById") long trainingPlanScheduleById) throws NoRecordsFoundException, ParseException, UnauthorizedException {
+	public ResponseEntity trainingPlanScheduleModify(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String id, @RequestBody TrainingPlanScheduleRequestDto trainingPlanScheduleRequestDto ) throws NoRecordsFoundException, ParseException, UnauthorizedException {
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		
 		ResponseBean responseBean = new ResponseBean();		
-		TrainingPlanScheduleDto trainingPlanScheduleDto = trainingPlanScheduleService.getById(trainingPlanScheduleById);
+		TrainingPlanScheduleDto trainingPlanScheduleDto = trainingPlanScheduleService.getById(trainingPlanScheduleRequestDto.getTrainingPlanScheduleId());
 		if(trainingPlanScheduleDto!=null && trainingPlanScheduleDto.getId()!=null) {
-			ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(trainingPlanScheduleRequestDto.getProjectBackgroundId());
+			ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
 			if(projectBackgroundDto!=null && projectBackgroundDto.getId()!=null) {
 				trainingPlanScheduleDto = mapTrainingPlanScheduleRequestDtoToDto(trainingPlanScheduleDto,trainingPlanScheduleRequestDto);
 				trainingPlanScheduleDto.setProjectBackground(projectBackgroundDto);
 				trainingPlanScheduleService.update(trainingPlanScheduleDto);
 			}else {
-				throw new NoRecordsFoundException("Project Not Found");
+				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
+
 			}
 		}else{
 			throw new NoRecordsFoundException("Training Plan Schedule Not");
@@ -87,6 +95,7 @@ public class TrainingPlanScheduleController {
 		return new ResponseEntity(responseBean, HttpStatus.OK);		
 	}
 	
+	@ApiOperation(value = "Get Training Plan Schedule By ID")
 	@RequestMapping(value="getTrainingPlanScheduleById",method = RequestMethod.GET)
 	public ResponseEntity getTrainingPlanScheduleById(@RequestHeader("API-KEY") String apiKey, @RequestParam("trainingPlanScheduleById")long trainingPlanScheduleById) throws NoRecordsFoundException, ParseException, UnauthorizedException {
 		
@@ -105,7 +114,7 @@ public class TrainingPlanScheduleController {
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
 	
-	
+	@ApiOperation(value = "Get Training Plan Schedule By ProjectID")
 	@RequestMapping(value="getTrainingPlanScheduleByProjectId",method = RequestMethod.GET)
 	public ResponseEntity getTrainingPlanScheduleByProjectId(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId")long projectId) throws NoRecordsFoundException, ParseException, UnauthorizedException {	
 		
@@ -139,6 +148,7 @@ public class TrainingPlanScheduleController {
 			trainingPlanScheduleDto.setInstructor(trainingPlanScheduleRequestDto.getInstructor());
 			trainingPlanScheduleDto.setLocation(trainingPlanScheduleRequestDto.getLocation());
 			trainingPlanScheduleDto.setSession(trainingPlanScheduleRequestDto.getSession());
+			trainingPlanScheduleDto.setId(trainingPlanScheduleRequestDto.getTrainingPlanScheduleId());
 		}
 		return trainingPlanScheduleDto;
 	}
@@ -150,9 +160,7 @@ public class TrainingPlanScheduleController {
 			if(trainingPlanScheduleDto.getDateTime()!=null) {
 				trainingPlanScheduleRequestDto.setDateTime(DateUtil.getFormattedDateStringFromDate(trainingPlanScheduleDto.getDateTime(), dateFormate));
 			}
-			if(trainingPlanScheduleDto.getProjectBackground()!=null) {
-				trainingPlanScheduleRequestDto.setProjectBackgroundId(trainingPlanScheduleDto.getProjectBackground().getId());
-			}
+			
 			trainingPlanScheduleRequestDto.setTrainingPlanScheduleId(trainingPlanScheduleDto.getId());
 			trainingPlanScheduleRequestDto.setDuration(trainingPlanScheduleDto.getDuration());
 			trainingPlanScheduleRequestDto.setInstructor(trainingPlanScheduleDto.getInstructor());

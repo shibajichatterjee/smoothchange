@@ -26,10 +26,14 @@ import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersi
 import com.rest.smoothchange.training.plan.version.history.service.TrainingPlanVersionHistoryService;
 import com.rest.smoothchange.util.DateUtil;
 
+import io.swagger.annotations.Api;
+
 
 
 @RestController
 @RequestMapping(value = "/trainingPlanVersionHistoryServiceAPI")
+@Api(value = "Training Plan History", description = "Operations For Training Plan History")
+
 @Transactional
 public class TrainingPlanVersionHistoryController {
 
@@ -44,14 +48,14 @@ public class TrainingPlanVersionHistoryController {
 	
 	
 	@RequestMapping(value="createTrainingPlanVersionHistory", method = RequestMethod.POST)
-	public ResponseEntity createTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
+	public ResponseEntity createTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String id,@RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		
 		ResponseBean responseBean = new ResponseBean();
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(trainingPlanVersionHistoryRequestDto.getProjectBackgroundId());
+		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
 		if(projectBackgroundDto!=null && projectBackgroundDto.getId()!=null) {	
 			TrainingPlanVersionHistoryDto trainingPlanVersionHistoryDto = new TrainingPlanVersionHistoryDto();
 			 trainingPlanVersionHistoryDto =	mapTrainingPlanVersionHistoryRequestDtoToDto(trainingPlanVersionHistoryDto,trainingPlanVersionHistoryRequestDto);
@@ -66,22 +70,22 @@ public class TrainingPlanVersionHistoryController {
 	
 	
 	@RequestMapping(value="updateTrainingPlanVersionHistory", method = RequestMethod.POST)
-	public ResponseEntity updateTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey, @RequestParam("trainingPlanVersionHistoryId")long trainingPlanVersionHistoryId ,@RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
+	public ResponseEntity updateTrainingPlanVersionHistory(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String id,@RequestBody TrainingPlanVersionHistoryRequestDto trainingPlanVersionHistoryRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		
 		ResponseBean responseBean = new ResponseBean();
-		TrainingPlanVersionHistoryDto trainingPlanVersionHistoryDto = trainingPlanVersionHistoryService.getById(trainingPlanVersionHistoryId);
+		TrainingPlanVersionHistoryDto trainingPlanVersionHistoryDto = trainingPlanVersionHistoryService.getById(trainingPlanVersionHistoryRequestDto.getTrainingPlanVersionHistoryId());
 		if(trainingPlanVersionHistoryDto!=null && trainingPlanVersionHistoryDto.getId()!=null) {				
-			ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(trainingPlanVersionHistoryRequestDto.getProjectBackgroundId());
+			ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
 			if(projectBackgroundDto!=null && projectBackgroundDto.getId()!=null) {
 				trainingPlanVersionHistoryDto.setProjectBackground(projectBackgroundDto);
 				trainingPlanVersionHistoryDto =	mapTrainingPlanVersionHistoryRequestDtoToDto(trainingPlanVersionHistoryDto,trainingPlanVersionHistoryRequestDto);				
 				trainingPlanVersionHistoryService.update(trainingPlanVersionHistoryDto);
 			}else {
-				throw new NoRecordsFoundException("Project Not Found");
+				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 			}
 			
 		}else {
@@ -148,6 +152,7 @@ public class TrainingPlanVersionHistoryController {
 				  trainingPlanVersionHistoryDto.setRevisionDate(DateUtil.getFormattedDate(trainingPlanVersionHistoryRequestDto.getRevisionDate(), dateFormate));
 			}
 			trainingPlanVersionHistoryDto.setVersionNo(trainingPlanVersionHistoryRequestDto.getVersionNo());
+			trainingPlanVersionHistoryDto.setId(trainingPlanVersionHistoryRequestDto.getTrainingPlanVersionHistoryId());
 		}
 		return trainingPlanVersionHistoryDto;
 	}
@@ -164,9 +169,6 @@ public class TrainingPlanVersionHistoryController {
 			}
 			trainingPlanVersionHistoryRequestDto.setApprovedBy(trainingPlanVersionHistoryDto.getApprovedBy());
 			trainingPlanVersionHistoryRequestDto.setAuthor(trainingPlanVersionHistoryDto.getAuthor());
-			if(trainingPlanVersionHistoryDto.getProjectBackground()!=null && trainingPlanVersionHistoryDto.getProjectBackground().getId()!=null) {
-				trainingPlanVersionHistoryRequestDto.setProjectBackgroundId(trainingPlanVersionHistoryDto.getProjectBackground().getId());
-			}
 			
 			trainingPlanVersionHistoryRequestDto.setReason(trainingPlanVersionHistoryDto.getReason());
 			trainingPlanVersionHistoryRequestDto.setVersionNo(trainingPlanVersionHistoryDto.getVersionNo());

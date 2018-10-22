@@ -6,7 +6,6 @@ public class TrainingPlanVersionHistoryRequestDto {
 
 	private long trainingPlanVersionHistoryId;
 	
-	private long projectBackgroundId;
 
 	private String versionNo;
 	
@@ -22,12 +21,17 @@ public class TrainingPlanVersionHistoryRequestDto {
 	
 	private String reason;
 
-	public long getProjectBackgroundId() {
-		return projectBackgroundId;
+private Long id; 
+	
+
+
+	public Long getId() {
+		return id;
 	}
 
-	public void setProjectBackgroundId(long projectBackgroundId) {
-		this.projectBackgroundId = projectBackgroundId;
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public String getVersionNo() {

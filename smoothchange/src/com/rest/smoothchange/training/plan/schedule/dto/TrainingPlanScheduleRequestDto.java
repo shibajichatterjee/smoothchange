@@ -8,7 +8,6 @@ public class TrainingPlanScheduleRequestDto {
 
 	private long trainingPlanScheduleId;
 
-	private long projectBackgroundId;
 
 	private String session;
 
@@ -23,13 +22,6 @@ public class TrainingPlanScheduleRequestDto {
 
 	private String duration;
 
-	public long getProjectBackgroundId() {
-		return projectBackgroundId;
-	}
-
-	public void setProjectBackgroundId(long projectBackgroundId) {
-		this.projectBackgroundId = projectBackgroundId;
-	}
 
 	public String getSession() {
 		return session;

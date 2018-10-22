@@ -6,7 +6,6 @@ public class TrainingPlanEquipmentRequestDto {
 
 	private long trainingPlanEquipmentId;
 	
-	private long projectBackgroundId;
 
 	private String  equipmentType;
 	
@@ -23,13 +22,7 @@ public class TrainingPlanEquipmentRequestDto {
 		this.trainingPlanEquipmentId = trainingPlanEquipmentId;
 	}
 
-	public long getProjectBackgroundId() {
-		return projectBackgroundId;
-	}
-
-	public void setProjectBackgroundId(long projectBackgroundId) {
-		this.projectBackgroundId = projectBackgroundId;
-	}
+	
 
 	public String getEquipmentType() {
 		return equipmentType;

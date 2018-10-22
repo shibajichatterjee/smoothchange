@@ -148,7 +148,7 @@ public class ActionPlanItemsController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		ActionPlanItemsDto dto = actionPlanItemsService.getById(id);
+		ActionPlanItemsDto dto = actionPlanItemsService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
