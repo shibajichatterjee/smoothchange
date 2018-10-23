@@ -34,8 +34,6 @@ import io.swagger.annotations.ApiOperation;
 @Transactional
 public class TrainingPlanCurriculumLessonPlanController {
 
-	private final static String dateFormate = "yyyy-MM-dd";
-
 	@Autowired
 	private TrainingPlanCurriculumLessonPlanService trainingPlanCurriculumLessonPlanService;
 
