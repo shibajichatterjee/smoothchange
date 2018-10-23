@@ -4,8 +4,6 @@ public class TrainingPlanCurriculumLessonPlanRequestDto {
 
 	private long trainingPlanCurriculumLessonPlanId;
 	
-    private long projectBackgroundId;
-	
 	private String  curriculumUnitNo;
 	
 	private String  curriculumUnitName;
@@ -25,13 +23,6 @@ public class TrainingPlanCurriculumLessonPlanRequestDto {
 		this.trainingPlanCurriculumLessonPlanId = trainingPlanCurriculumLessonPlanId;
 	}
 
-	public long getProjectBackgroundId() {
-		return projectBackgroundId;
-	}
-
-	public void setProjectBackgroundId(long projectBackgroundId) {
-		this.projectBackgroundId = projectBackgroundId;
-	}
 
 	public String getCurriculumUnitNo() {
 		return curriculumUnitNo;
