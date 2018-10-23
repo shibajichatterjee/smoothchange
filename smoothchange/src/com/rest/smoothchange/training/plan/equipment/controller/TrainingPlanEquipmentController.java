@@ -173,7 +173,7 @@ public class TrainingPlanEquipmentController {
 	private TrainingPlanEquipmentRequestDto mapTrainingPlanEquipmentDtoToRequestDto(
 			TrainingPlanEquipmentDto trainingPlanEquipmentDto) throws ParseException {
 		TrainingPlanEquipmentRequestDto trainingPlanEquipmentRequestDto = null;
-		if (trainingPlanEquipmentDto != null && trainingPlanEquipmentDto != null) {
+		if (trainingPlanEquipmentDto != null && trainingPlanEquipmentDto.getId() != null) {
 			trainingPlanEquipmentRequestDto = new TrainingPlanEquipmentRequestDto();
 
 			if (trainingPlanEquipmentDto.getDateRequired() != null) {
