@@ -145,7 +145,7 @@ public class TrainingPlanScheduleController {
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
-		return new ResponseEntity(responseBean, HttpStatus.OK);
+		return new ResponseEntity(responseBean, HttpStatus.OK);  
 	}
 
 	@ApiOperation(value = "Delete Training Plan Schedule By Id")
