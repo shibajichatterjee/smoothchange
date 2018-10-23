@@ -135,7 +135,7 @@ public class TrainingPlanRolesResponsibilitiesController {
 	@ApiOperation(value = "Delete Training Plan Roles Responsibilities by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/deleteTrainingPlanRolesResponsibilities", method = RequestMethod.DELETE)
-	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id) throws UnauthorizedException, NoRecordsFoundException {
+	public ResponseEntity deleteTrainingPlanRolesResponsibilities(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id) throws UnauthorizedException, NoRecordsFoundException {
 
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
