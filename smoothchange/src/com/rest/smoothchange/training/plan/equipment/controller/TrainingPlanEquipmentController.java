@@ -21,6 +21,7 @@ import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
+import com.rest.smoothchange.training.plan.curriculum.lesson.plan.dto.TrainingPlanCurriculumLessonPlanDto;
 import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentDto;
 import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentRequestDto;
 import com.rest.smoothchange.training.plan.equipment.service.TrainingPlanEquipmentService;
@@ -70,10 +71,10 @@ public class TrainingPlanEquipmentController {
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Update Training Plan Equipment")
-	@RequestMapping(value = "updateTrainingPlanEquipment", method = RequestMethod.POST)
+	@ApiOperation(value = "Modify Training Plan Equipment")
+	@RequestMapping(value = "modifyTrainingPlanEquipment", method = RequestMethod.POST)
 	public ResponseEntity updateTrainingPlanEquipment(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String id,
+			@RequestParam("projectId") long projectId,
 			@RequestBody TrainingPlanEquipmentRequestDto trainingPlanEquipmentRequestDto)
 			throws NoRecordsFoundException, ParseException, UnauthorizedException {
 
@@ -82,7 +83,7 @@ public class TrainingPlanEquipmentController {
 		}
 
 		ResponseBean responseBean = new ResponseBean();
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
+		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
 		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
 			TrainingPlanEquipmentDto trainingPlanEquipmentDto = trainingPlanEquipmentService
 					.getById(trainingPlanEquipmentRequestDto.getTrainingPlanEquipmentId());
@@ -93,10 +94,10 @@ public class TrainingPlanEquipmentController {
 				trainingPlanEquipmentService.update(trainingPlanEquipmentDto);
 				responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 			} else {
-				throw new NoRecordsFoundException("Training Plan Equipment Not Found");
+				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 			}
 		} else {
-			throw new NoRecordsFoundException("Project Not Found");
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
@@ -119,13 +120,12 @@ public class TrainingPlanEquipmentController {
 					trainingPlanEquipmentDto);
 			responseBean.setBody(trainingPlanEquipmentRequestDto);
 		} else {
-			throw new NoRecordsFoundException("Training Plan Equipment Not Found");
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
 
 	@ApiOperation(value = "Get Training Plan Equipment By ProjectID")
-
 	@RequestMapping(value = "getTrainingPlanEquipmentByProjectId", method = RequestMethod.GET)
 	public ResponseEntity getTrainingPlanEquipmentByProjectId(@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("projecId") long projecId)
@@ -146,11 +146,37 @@ public class TrainingPlanEquipmentController {
 			}
 			responseBean.setBody(trainingPlanEquipmentRequestDtoList);
 		} else {
-			throw new NoRecordsFoundException("Training Plan Equipment List Not Found");
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Delete Training Plan Equipment By Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/deleteTrainingPlanEquipment", method = RequestMethod.DELETE)
+	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("id") long trainingPlanEquipmentId)
+			throws UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		TrainingPlanEquipmentDto trainingPlanEquipmentDto = trainingPlanEquipmentService
+				.getById(trainingPlanEquipmentId);
+
+		if (trainingPlanEquipmentDto != null && trainingPlanEquipmentDto.getId() != null) {
+			trainingPlanEquipmentService.delete(trainingPlanEquipmentDto);
+		} else {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+	}
+
+	
+	
+	
+	
 	// ================= Privete Method ==============
 
 	private TrainingPlanEquipmentDto mapTrainingPlanEquipmentRequestDtoToDto(
