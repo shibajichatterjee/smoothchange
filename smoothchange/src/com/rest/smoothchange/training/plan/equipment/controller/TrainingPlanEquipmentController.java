@@ -21,7 +21,6 @@ import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
-import com.rest.smoothchange.training.plan.curriculum.lesson.plan.dto.TrainingPlanCurriculumLessonPlanDto;
 import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentDto;
 import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentRequestDto;
 import com.rest.smoothchange.training.plan.equipment.service.TrainingPlanEquipmentService;
@@ -154,7 +153,7 @@ public class TrainingPlanEquipmentController {
 	@ApiOperation(value = "Delete Training Plan Equipment By Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/deleteTrainingPlanEquipment", method = RequestMethod.DELETE)
-	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey,
+	public ResponseEntity deleteTrainingPlanEquipment(@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("id") long trainingPlanEquipmentId)
 			throws UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -173,9 +172,6 @@ public class TrainingPlanEquipmentController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
-	
-	
-	
 	
 	// ================= Privete Method ==============
 
