@@ -16,19 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
-import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.training.plan.roles.responsibilities.dto.TrainingPlanRolesResponsibilitiesDto;
 import com.rest.smoothchange.training.plan.roles.responsibilities.dto.TrainingPlanRolesResponsibilitiesRequestDto;
-import com.rest.smoothchange.training.plan.roles.responsibilities.entity.TrainingPlanRolesResponsibilities;
 import com.rest.smoothchange.training.plan.roles.responsibilities.service.TrainingPlanRolesResponsibilitiesService;
-import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersionHistoryDto;
-import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersionHistoryRequestDto;
-import com.rest.smoothchange.training.plan.version.history.service.TrainingPlanVersionHistoryService;
-import com.rest.smoothchange.util.DateUtil;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,19 +34,16 @@ import io.swagger.annotations.ApiOperation;
 @Api(value = "Rraining Plan Roles Responsibilities", description = "Rraining Plan Roles Responsibilities")
 @Transactional
 public class TrainingPlanRolesResponsibilitiesController {
-
-	private static final String dateFormate = "yyyy-MM-dd";
 	
 	@Autowired
 	private TrainingPlanRolesResponsibilitiesService trainingPlanRolesResponsibilitiesService;
-
 
 	@Autowired
 	private ProjectBackgroundService projectBackgroundService;
 	
 	@ApiOperation(value = "Add a Training Plan Roles Responsibilities")
 	@RequestMapping(value="addTrainingPlanRolesResponsibilities", method = RequestMethod.POST)
-	public ResponseEntity addTrainingPlanRolesResponsibilities(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") String projectId , @RequestBody TrainingPlanRolesResponsibilitiesRequestDto trainingPlanRolesResponsibilitiesRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
+	public ResponseEntity addTrainingPlanRolesResponsibilities(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") long projectId , @RequestBody TrainingPlanRolesResponsibilitiesRequestDto trainingPlanRolesResponsibilitiesRequestDto) throws ParseException, UnauthorizedException, NoRecordsFoundException {	
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -90,7 +81,7 @@ public class TrainingPlanRolesResponsibilitiesController {
 				trainingPlanRolesResponsibilitiesDto =	mapTrainingPlanRolesResponsibilitiesRequestDtoToDto(trainingPlanRolesResponsibilitiesDto,trainingPlanRolesResponsibilitiesRequestDto);				
 				trainingPlanRolesResponsibilitiesService.update(trainingPlanRolesResponsibilitiesDto);
 			}else {
-				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 			}
 			
 		}else {
@@ -136,7 +127,7 @@ public class TrainingPlanRolesResponsibilitiesController {
 			}
 			responseBean.setBody(trainingPlanRolesResponsibilitiesRequestDtoList);			
 		} else {
-			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
@@ -144,7 +135,7 @@ public class TrainingPlanRolesResponsibilitiesController {
 	@ApiOperation(value = "Delete Training Plan Roles Responsibilities by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/deleteTrainingPlanRolesResponsibilities", method = RequestMethod.DELETE)
-	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
+	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id) throws UnauthorizedException, NoRecordsFoundException {
 
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
