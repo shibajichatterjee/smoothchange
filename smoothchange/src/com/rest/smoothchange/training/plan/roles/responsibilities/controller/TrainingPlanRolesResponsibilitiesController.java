@@ -31,7 +31,7 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping(value = "/trainingPlanRolesResponsibilitiesAPI")
-@Api(value = "Rraining Plan Roles Responsibilities", description = "Rraining Plan Roles Responsibilities")
+@Api(value = "Rraining Plan Roles Responsibilities", description = "Training Plan Roles Responsibilities")
 @Transactional
 public class TrainingPlanRolesResponsibilitiesController {
 	
