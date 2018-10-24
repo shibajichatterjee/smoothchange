@@ -47,7 +47,7 @@ public class TrainingPlanEquipmentController {
 	@ApiOperation(value = "Add Training Plan Equipment")
 	@RequestMapping(value = "AddTrainingPlanEquipment", method = RequestMethod.POST)
 	public ResponseEntity AddTrainingPlanEquipment(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String id,
+			@RequestParam("projectId") long projectId,
 			@RequestBody TrainingPlanEquipmentRequestDto trainingPlanEquipmentRequestDto)
 			throws NoRecordsFoundException, ParseException, UnauthorizedException {
 
@@ -56,14 +56,14 @@ public class TrainingPlanEquipmentController {
 		}
 
 		ResponseBean responseBean = new ResponseBean();
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(Long.parseLong(id));
+		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
 		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
 			TrainingPlanEquipmentDto trainingPlanEquipmentDto = new TrainingPlanEquipmentDto();
 			trainingPlanEquipmentDto.setProjectBackground(projectBackgroundDto);
 			trainingPlanEquipmentDto = mapTrainingPlanEquipmentRequestDtoToDto(trainingPlanEquipmentDto,
 					trainingPlanEquipmentRequestDto);
 			Long trainingPlanEquipmentId = (Long) trainingPlanEquipmentService.create(trainingPlanEquipmentDto);
-			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+			responseBean.setBody(trainingPlanEquipmentId);
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}

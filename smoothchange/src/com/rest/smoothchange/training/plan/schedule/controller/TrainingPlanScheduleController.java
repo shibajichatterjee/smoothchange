@@ -21,7 +21,6 @@ import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
-import com.rest.smoothchange.training.plan.curriculum.lesson.plan.dto.TrainingPlanCurriculumLessonPlanDto;
 import com.rest.smoothchange.training.plan.schedule.dto.TrainingPlanScheduleDto;
 import com.rest.smoothchange.training.plan.schedule.dto.TrainingPlanScheduleRequestDto;
 import com.rest.smoothchange.training.plan.schedule.service.TrainingPlanScheduleService;
