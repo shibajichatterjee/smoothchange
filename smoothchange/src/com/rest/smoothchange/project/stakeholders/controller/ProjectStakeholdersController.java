@@ -78,7 +78,7 @@ public class ProjectStakeholdersController {
 	@ApiOperation(value = "Modify a project stakeholder")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyProjectStakeHolder", method = RequestMethod.POST)
-	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey,
 			@RequestBody ProjectStackeHolderRequestDto projDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -99,9 +99,20 @@ public class ProjectStakeholdersController {
 
 			throw new NoEnumRecordsFoundException("Engagement strategy not matched");
 		}
-		getProjectBackGround(id);
-		ProjectStakeholdersDto dto = mapRequestToDto(projDto);
-		dto.getProjectBackground().setId(Long.parseLong(id));
+
+		ProjectStakeholdersDto dto = projectStakeholdersService.getById(projDto.getId() == null ? 0 : projDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+
+		}
+		dto.setEngagementStrategy(projDto.getEngagementStrategy());
+		dto.setId(projDto.getId());
+		dto.setLevelOfInfluence(projDto.getLevelOfInfluence());
+		dto.setLocation(projDto.getLocation());
+		dto.setNumberImpacted(projDto.getNumberImpacted());
+		dto.setRole(projDto.getRole());
+		dto.setStakeholderName(projDto.getStakeholderName());
+		dto.setStakeholderType(projDto.getStakeholderType());
 		projectStakeholdersService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
@@ -109,21 +120,17 @@ public class ProjectStakeholdersController {
 
 	}
 
-	@ApiOperation(value = "Get project stake holder by Id and Project Id")
+	@ApiOperation(value = "Get project stake holder by Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetStakeHolderByIdandProjectId", method = RequestMethod.GET)
+	@RequestMapping(value = "/GetStakeHolderById", method = RequestMethod.GET)
 	public ResponseEntity getStakeHolderByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
-			throws NoRecordsFoundException, UnauthorizedException {
+			@RequestParam("id") String id) throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		getProjectBackGround(projectId);
 		ProjectStakeholdersDto dto = new ProjectStakeholdersDto();
-		dto.setId(Long.parseLong(id));
-		dto.setProjectBackground(new ProjectBackgroundDto());
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		dto = projectStakeholdersService.getStakeHolderByIdProjectId(dto);
+
+		dto = projectStakeholdersService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -157,13 +164,13 @@ public class ProjectStakeholdersController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
-	
+
 	@ApiOperation(value = "Delete project stake holder by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteStakeHolderById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException {
-		if(!apiKey.equals(MessageEnum.API_KEY))
-		{
+	public ResponseEntity deleteStakeHolderById(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") String id)
+			throws UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 		projectStakeholdersService.deleteById(Long.parseLong(id));

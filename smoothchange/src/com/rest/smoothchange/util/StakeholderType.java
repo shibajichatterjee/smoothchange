@@ -1,5 +1,8 @@
 package com.rest.smoothchange.util;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel
 public enum StakeholderType {
 
 	Internal("Internal"), External("External");

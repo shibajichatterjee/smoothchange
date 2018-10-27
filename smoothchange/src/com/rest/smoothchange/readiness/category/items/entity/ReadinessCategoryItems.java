@@ -40,7 +40,7 @@ public class ReadinessCategoryItems extends AbstractIdentifierObject{
 	@Column(name="change_readiness_date_1")
 	private Date changeReadinessDate1;
 	
-	@Column(name="hange_readiness_responsible")
+	@Column(name="change_readiness_responsible")
 	private String changeReadinessResponsible;
 	
 	@Temporal(TemporalType.DATE)
