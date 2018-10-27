@@ -32,7 +32,6 @@
 	     <mapping class="com.rest.smoothchange.readiness.category.master.entity.ReadinessCategoryMaster"/>
 	     <mapping class="com.rest.smoothchange.change.readiness.categories.entity.ChangeReadinessCategories"/>
 	     <mapping class="com.rest.smoothchange.readiness.category.items.master.entity.ReadinessCategoryItemsMaster"/>
-	     <mapping class="com.rest.smoothchange.readiness.assessment.data.entity.ReadinessAssessmentData"/>
 	     <mapping class="com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryItems"/>
 	     <mapping class="com.rest.smoothchange.support.plan.items.entity.SupportPlanItems"/>
 	     <mapping class="com.rest.smoothchange.cost.of.change.entity.CostOfChange"/>
@@ -43,7 +42,6 @@
 	     <mapping class="com.rest.smoothchange.training.plan.equipment.entity.TrainingPlanEquipment" />
 	     <mapping class="com.rest.smoothchange.communication.plan.entity.CommunicationPlan"/>
 	     <mapping class="com.rest.smoothchange.action.plan.items.entity.ActionPlanItems"/>
-	     <mapping class="com.rest.smoothchange.readiness.assessment.data.item.entity.ReadinessAssessmentDataItem"/>
 	     <mapping class="com.rest.smoothchange.training.plan.curriculum.lesson.plan.entity.TrainingPlanCurriculumLessonPlan"/>
 	     <mapping class="com.rest.smoothchange.training.plan.roles.responsibilities.entity.TrainingPlanRolesResponsibilities"/> 
 	      
