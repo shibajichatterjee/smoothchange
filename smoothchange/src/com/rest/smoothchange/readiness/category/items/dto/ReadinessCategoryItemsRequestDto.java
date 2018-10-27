@@ -1,7 +1,5 @@
 package com.rest.smoothchange.readiness.category.items.dto;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class ReadinessCategoryItemsRequestDto {

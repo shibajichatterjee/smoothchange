@@ -6,7 +6,6 @@ public class TrainingPlanVersionHistoryRequestDto {
 
 	private long trainingPlanVersionHistoryId;
 	
-
 	private String versionNo;
 	
 	private String author;
@@ -20,19 +19,6 @@ public class TrainingPlanVersionHistoryRequestDto {
 	private String approvalDate;
 	
 	private String reason;
-
-private Long id; 
-	
-
-
-	public Long getId() {
-		return id;
-	}
-
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getVersionNo() {
 		return versionNo;

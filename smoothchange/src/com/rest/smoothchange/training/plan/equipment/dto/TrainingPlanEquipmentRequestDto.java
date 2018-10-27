@@ -6,7 +6,6 @@ public class TrainingPlanEquipmentRequestDto {
 
 	private long trainingPlanEquipmentId;
 	
-
 	private String  equipmentType;
 	
 	private String  numberRequired;
