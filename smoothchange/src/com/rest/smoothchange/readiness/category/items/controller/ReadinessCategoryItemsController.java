@@ -1,7 +1,6 @@
 package com.rest.smoothchange.readiness.category.items.controller;
 
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,11 +19,6 @@ import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.change.readiness.categories.dto.ChangeReadinessCategoriesDto;
 import com.rest.smoothchange.change.readiness.categories.service.ChangeReadinessCategoriesService;
-import com.rest.smoothchange.readiness.assessment.data.dto.ReadinessAssessmentDataDto;
-import com.rest.smoothchange.readiness.assessment.data.item.dto.ReadinessAssessmentDataItemDto;
-import com.rest.smoothchange.readiness.assessment.data.item.dto.ReadinessAssessmentDataItemRequestDto;
-import com.rest.smoothchange.readiness.assessment.data.item.service.ReadinessAssessmentDataItemService;
-import com.rest.smoothchange.readiness.assessment.data.service.ReadinessAssessmentDataService;
 import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsDto;
 import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsRequestDto;
 import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryItemsService;
@@ -45,12 +39,6 @@ public class ReadinessCategoryItemsController {
 	@Autowired
 	private ChangeReadinessCategoriesService changeReadinessCategoriesService;
 
-	@Autowired
-	private ReadinessAssessmentDataService readinessAssessmentDataService;
-
-	@Autowired
-	private ReadinessAssessmentDataItemService readinessAssessmentDataItemService;
-
 	private static final String dateFormate = "yyyy-MM-dd";
 
 	@ApiOperation(value = "Add Readiness Category Items")
@@ -66,12 +54,9 @@ public class ReadinessCategoryItemsController {
 		ResponseBean responseBean = new ResponseBean();
 		ChangeReadinessCategoriesDto changeReadinessCategories = changeReadinessCategoriesService.getById(categoryId);
 		ReadinessCategoryItemsDto readinessCategoryItems = null;
-		ReadinessAssessmentDataDto readinessAssessmentDataDto = null;
 		if (changeReadinessCategories != null && changeReadinessCategories.getId() != null) {
 			readinessCategoryItems = createReadinessCategoryItems(changeReadinessCategories,
 					readinessCategoryItemsRequestDto);
-			readinessAssessmentDataDto = createReadinessAssessmentData(readinessCategoryItems);
-			createReadinessAssessmentDataItem(readinessAssessmentDataDto, readinessCategoryItemsRequestDto);
 		} else {
 			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -82,7 +67,7 @@ public class ReadinessCategoryItemsController {
 	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Item_Id")
 	@RequestMapping(value = "getRedinessCategoryItemDetailById", method = RequestMethod.GET)
 	public ResponseEntity getRedinessCategoryItemDetailById(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryItemId") long categoryItemId)
-			throws UnauthorizedException {
+			throws UnauthorizedException, ParseException {
 
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 		   throw new UnauthorizedException(MessageEnum.unathorized);
@@ -105,7 +90,7 @@ public class ReadinessCategoryItemsController {
 	public ResponseEntity getRedinessCategoryItemDetailByCategoryIdProjectId(
 			@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("categoryId") long categoryId, @RequestParam("projectId") long projectId)
-			throws UnauthorizedException {
+			throws UnauthorizedException, ParseException {
 
 		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -140,12 +125,23 @@ public class ReadinessCategoryItemsController {
 		ResponseBean responseBean = new ResponseBean();
 		ReadinessCategoryItemsDto readinessCategoryItemsDto = readinessCategoryItemService.getById(categoryItemId);
 		if (readinessCategoryItemsDto != null && readinessCategoryItemsDto.getId() != null) {
-				readinessCategoryItemsDto.setChangeReadinessCategoryItemCode(
+				
+			readinessCategoryItemsDto.setChangeReadinessCategoryItemCode(
 						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
-				readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(
+			
+			readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(
 						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
-
-				updateAssesmentDataItem(readinessCategoryItemsRequestDto );
+				
+			readinessCategoryItemsDto.setChangeReadinessApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
+						
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate1()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate1().trim().equals(""))
+				readinessCategoryItemsDto.setChangeReadinessDate1(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate1(), dateFormate));
+		
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate2()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate2().trim().equals(""))
+				readinessCategoryItemsDto.setChangeReadinessDate2(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate2(), dateFormate));
+			
+			readinessCategoryItemsDto.setChangeReadinessResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+			
 				readinessCategoryItemService.update(readinessCategoryItemsDto);
 												
 		} else {
@@ -158,12 +154,11 @@ public class ReadinessCategoryItemsController {
 	}
 	
 	
-	
 	//===================== Private Method ======================== 
 
 	private ReadinessCategoryItemsDto createReadinessCategoryItems(
 			ChangeReadinessCategoriesDto changeReadinessCategories,
-			ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) {
+			ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) throws ParseException {
 		ReadinessCategoryItemsDto readinessCategoryItems = mapReadinessCategoryItemsRequestDtoToReadinessCategoryItemsDto(
 				changeReadinessCategories, readinessCategoryItemsRequestDto);
 		if (readinessCategoryItems != null && readinessCategoryItems.getId() != null) {
@@ -176,47 +171,10 @@ public class ReadinessCategoryItemsController {
 		}
 	}
 
-	private ReadinessAssessmentDataDto createReadinessAssessmentData(ReadinessCategoryItemsDto readinessCategoryItems) {
-		ReadinessAssessmentDataDto readinessAssessmentDataDto = null;
-		readinessAssessmentDataDto = readinessAssessmentDataService.getReadinessAssessmentDataByItemId(readinessCategoryItems.getId());
-		if (readinessAssessmentDataDto == null) {
-			readinessAssessmentDataDto = new ReadinessAssessmentDataDto();
-			readinessAssessmentDataDto.setReadinessCategoryItems(readinessCategoryItems);
-			long readinessAssessmentDataId = (long) readinessAssessmentDataService.create(readinessAssessmentDataDto);
-			readinessAssessmentDataDto.setId(readinessAssessmentDataId);
-		}
-		return readinessAssessmentDataDto;
-	}
-
-	private void createReadinessAssessmentDataItem(ReadinessAssessmentDataDto readinessAssessmentDataDto,
-			ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) throws ParseException {
-		ReadinessAssessmentDataItemDto readinessAssessmentDataItemDto = null;
-		for (ReadinessAssessmentDataItemRequestDto readinessAssessmentDataItemRequestDto : readinessCategoryItemsRequestDto
-				.getReadinessAssessmentDataItemRequestDtoList()) {
-			readinessAssessmentDataItemDto = new ReadinessAssessmentDataItemDto();
-			readinessAssessmentDataItemDto
-					.setChangeReadinessApprover(readinessAssessmentDataItemRequestDto.getChangeReadinessApprover());
-			if (readinessAssessmentDataItemRequestDto.getChangeReadinessDate1() != null
-					&& !readinessAssessmentDataItemRequestDto.getChangeReadinessDate1().trim().equals("")) {
-				readinessAssessmentDataItemDto.setChangeReadinessDate1(DateUtil.getFormattedDate(
-						readinessAssessmentDataItemRequestDto.getChangeReadinessDate1(), dateFormate));
-			}
-			if (readinessAssessmentDataItemRequestDto.getChangeReadinessDate1() != null
-					&& !readinessAssessmentDataItemRequestDto.getChangeReadinessDate2().trim().equals("")) {
-				readinessAssessmentDataItemDto.setChangeReadinessDate2(DateUtil.getFormattedDate(
-						readinessAssessmentDataItemRequestDto.getChangeReadinessDate2(), dateFormate));
-			}
-			readinessAssessmentDataItemDto.setChangeReadinessResponsible(
-					readinessAssessmentDataItemRequestDto.getChangeReadinessResponsible());
-			readinessAssessmentDataItemDto.setReadinessAssessmentDataDto(readinessAssessmentDataDto);
-			readinessAssessmentDataItemService.create(readinessAssessmentDataItemDto);
-		}
-
-	}
 
 	private ReadinessCategoryItemsDto mapReadinessCategoryItemsRequestDtoToReadinessCategoryItemsDto(
 			ChangeReadinessCategoriesDto changeReadinessCategories,
-			ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) {
+			ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) throws ParseException {
 		ReadinessCategoryItemsDto readinessCategoryItemsDto = null;
 		if (readinessCategoryItemsRequestDto != null) {
 			readinessCategoryItemsDto = readinessCategoryItemService.getReadinessCategoryItemsByItemCodeAndCategoryId(
@@ -225,6 +183,17 @@ public class ReadinessCategoryItemsController {
 			if (readinessCategoryItemsDto != null && readinessCategoryItemsDto.getId() != null) {
 				readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(
 						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
+				
+				readinessCategoryItemsDto.setChangeReadinessApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
+				
+				if(readinessCategoryItemsRequestDto.getChangeReadinessDate1()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate1().trim().equals(""))
+				readinessCategoryItemsDto.setChangeReadinessDate1(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate1(), dateFormate));
+				
+				if(readinessCategoryItemsRequestDto.getChangeReadinessDate2()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate2().trim().equals(""))
+					readinessCategoryItemsDto.setChangeReadinessDate2(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate2(), dateFormate));		
+				
+				readinessCategoryItemsDto.setChangeReadinessResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+				
 			} else {
 				readinessCategoryItemsDto = new ReadinessCategoryItemsDto();
 				readinessCategoryItemsDto.setChangeReadinessCategories(changeReadinessCategories);
@@ -232,39 +201,18 @@ public class ReadinessCategoryItemsController {
 						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
 				readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(
 						readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
+				readinessCategoryItemsDto.setChangeReadinessApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate1()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate1().trim().equals(""))
+				readinessCategoryItemsDto.setChangeReadinessDate1(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate1(), dateFormate));
+			
+			if(readinessCategoryItemsRequestDto.getChangeReadinessDate2()!=null && !readinessCategoryItemsRequestDto.getChangeReadinessDate2().trim().equals(""))
+				readinessCategoryItemsDto.setChangeReadinessDate2(DateUtil.getFormattedDate(readinessCategoryItemsRequestDto.getChangeReadinessDate2(), dateFormate));
+			
+			readinessCategoryItemsDto.setChangeReadinessResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+			
 			}
 		}
 		return readinessCategoryItemsDto;
 	}
 
-	private void updateAssesmentDataItem(ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto) throws ParseException {
-		ReadinessAssessmentDataItemDto readinessAssessmentDataItemDto = null;
-		for (ReadinessAssessmentDataItemRequestDto readinessAssessmentDataItemRequestDto : readinessCategoryItemsRequestDto
-				.getReadinessAssessmentDataItemRequestDtoList()) {
-			
-			readinessAssessmentDataItemDto = readinessAssessmentDataItemService.getById(readinessAssessmentDataItemRequestDto.getReadinessAssessmentDataItemId());
-			
-			
-		   if(readinessAssessmentDataItemDto!=null && readinessAssessmentDataItemDto.getId()!=null) {	
-			
-			readinessAssessmentDataItemDto
-					.setChangeReadinessApprover(readinessAssessmentDataItemRequestDto.getChangeReadinessApprover());
-			if (readinessAssessmentDataItemRequestDto.getChangeReadinessDate1() != null
-					&& !readinessAssessmentDataItemRequestDto.getChangeReadinessDate1().trim().equals("")) {
-				readinessAssessmentDataItemDto.setChangeReadinessDate1(DateUtil
-						.getFormattedDate(readinessAssessmentDataItemRequestDto.getChangeReadinessDate1(), dateFormate));
-			}
-			if (readinessAssessmentDataItemRequestDto.getChangeReadinessDate1() != null
-					&& !readinessAssessmentDataItemRequestDto.getChangeReadinessDate2().trim().equals("")) {
-				readinessAssessmentDataItemDto.setChangeReadinessDate2(DateUtil
-						.getFormattedDate(readinessAssessmentDataItemRequestDto.getChangeReadinessDate2(), dateFormate));
-			}
-			readinessAssessmentDataItemDto
-					.setChangeReadinessResponsible(readinessAssessmentDataItemRequestDto.getChangeReadinessResponsible());
-			
-			readinessAssessmentDataItemService.update(readinessAssessmentDataItemDto);
-		
-		   }		
-		}
-	}
 }

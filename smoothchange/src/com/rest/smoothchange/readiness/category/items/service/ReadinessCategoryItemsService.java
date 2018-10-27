@@ -1,5 +1,6 @@
 package com.rest.smoothchange.readiness.category.items.service;
 
+import java.text.ParseException;
 import java.util.List;
 
 import com.rest.framework.service.Service;
@@ -13,7 +14,7 @@ public interface ReadinessCategoryItemsService extends Service<ReadinessCategory
      
 	 ReadinessCategoryItemsDto getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId , String itemCode);
 	
-	 ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId);
+	 ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) throws ParseException;
 	 
 	 List<ReadinessCategoryItemsRequestDto> getRedinessCategoryItemDetailByCategoryIdProjectId(long categoryId , long projectId);
 	

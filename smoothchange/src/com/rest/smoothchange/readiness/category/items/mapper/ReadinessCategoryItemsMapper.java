@@ -26,6 +26,10 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 			   readinessCategoryItems.setId(dto.getId());
 			   readinessCategoryItems.setChangeReadinessCategoryItemCode(dto.getChangeReadinessCategoryItemCode());
 			   readinessCategoryItems.setChangeReadinessCategoryItemDescription(dto.getChangeReadinessCategoryItemDescription());
+			   readinessCategoryItems.setChangeReadinessApprover(dto.getChangeReadinessApprover());
+			   readinessCategoryItems.setChangeReadinessDate1(dto.getChangeReadinessDate1());
+			   readinessCategoryItems.setChangeReadinessDate2(dto.getChangeReadinessDate2());
+			   readinessCategoryItems.setChangeReadinessResponsible(dto.getChangeReadinessResponsible());
 			   if(dto.getChangeReadinessCategories()!=null) {
 				   ProjectBackground projectBackground = null;
 					   changeReadinessCategories = new ChangeReadinessCategories();
@@ -53,7 +57,13 @@ public class ReadinessCategoryItemsMapper extends AbstractMapper<ReadinessCatego
 		ChangeReadinessCategoriesDto changeReadinessCategories = null;
 		   if(bo!=null) { 
 			   readinessCategoryItemsDto = new ReadinessCategoryItemsDto();
-			   readinessCategoryItemsDto.setId(bo.getId());			   
+			   readinessCategoryItemsDto.setId(bo.getId());		
+			   readinessCategoryItemsDto.setChangeReadinessCategoryItemCode(bo.getChangeReadinessCategoryItemCode());
+			   readinessCategoryItemsDto.setChangeReadinessCategoryItemDescription(bo.getChangeReadinessCategoryItemDescription());
+			   readinessCategoryItemsDto.setChangeReadinessApprover(bo.getChangeReadinessApprover());
+			   readinessCategoryItemsDto.setChangeReadinessDate1(bo.getChangeReadinessDate1());
+			   readinessCategoryItemsDto.setChangeReadinessDate2(bo.getChangeReadinessDate2());
+			   readinessCategoryItemsDto.setChangeReadinessResponsible(bo.getChangeReadinessResponsible());
 			   if(bo.getChangeReadinessCategories()!=null) {
 				   ProjectBackgroundDto projectBackground = null;
 					   changeReadinessCategories = new ChangeReadinessCategoriesDto();

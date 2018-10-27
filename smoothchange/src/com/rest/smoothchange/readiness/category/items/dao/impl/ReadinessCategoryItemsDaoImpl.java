@@ -1,16 +1,12 @@
 package com.rest.smoothchange.readiness.category.items.dao.impl;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.persistence.Column;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Projection;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -19,12 +15,10 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.rest.framework.dao.impl.AbstractDAO;
-import com.rest.smoothchange.readiness.assessment.data.item.dto.ReadinessAssessmentDataItemRequestDto;
-import com.rest.smoothchange.readiness.assessment.data.item.entity.ReadinessAssessmentDataItem;
 import com.rest.smoothchange.readiness.category.items.dao.ReadinessCategoryItemsDao;
-import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsDto;
 import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsRequestDto;
 import com.rest.smoothchange.readiness.category.items.entity.ReadinessCategoryItems;
+import com.rest.smoothchange.util.DateUtil;
 
 @Repository
 @Transactional
@@ -52,11 +46,9 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 		return (ReadinessCategoryItems)criteria.uniqueResult();
 	}
 	
-	public ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) {
-	    
+	public ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) throws ParseException {
+		 String dateFormate = "yyyy-MM-dd";
 		ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto = null;
-		List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList = new ArrayList<>();
-		
 		Criteria criteria = getSession().createCriteria(ReadinessCategoryItems.class);
 		criteria.add(Restrictions.eq("id", categoryItemId));
 		ReadinessCategoryItems readinessCategoryItems = (ReadinessCategoryItems)criteria.uniqueResult();
@@ -64,46 +56,24 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 			readinessCategoryItemsRequestDto = new ReadinessCategoryItemsRequestDto();
 			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemId(readinessCategoryItems.getId());
 			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemCode(readinessCategoryItems.getChangeReadinessCategoryItemCode());
-			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemDescription(readinessCategoryItems.getChangeReadinessCategoryItemDescription());	
-			Criteria criteria2 = getSession().createCriteria(ReadinessAssessmentDataItem.class);
-			criteria2.createAlias("readinessAssessmentData", "readinessAssessmentData", JoinType.LEFT_OUTER_JOIN);
-			criteria2.createAlias("readinessAssessmentData.readinessCategoryItems", "readinessCategoryItems", JoinType.LEFT_OUTER_JOIN);
-			ProjectionList pl = Projections.projectionList();	
-			pl.add(Projections.property("changeReadinessApprover"));
-			pl.add(Projections.property("changeReadinessDate1"));
-			pl.add(Projections.property("changeReadinessDate2"));
-			pl.add(Projections.property("changeReadinessResponsible"));
-			pl.add(Projections.property("id"));
-			pl.add(Projections.property("readinessAssessmentData.id"));	
-				
-			criteria2.setProjection(pl);
-			criteria2.add(Restrictions.eq("readinessCategoryItems.id", readinessCategoryItems.getId()));		
-			List<Object[]> result2 =  (List<Object[]>) criteria2.list();
-			ReadinessAssessmentDataItemRequestDto readinessAssessmentDataItemRequestDto = null;
-			if (result2!=null && result2.size()>0) {
-				Iterator<Object[]> iterator = result2.iterator();
-				while (iterator.hasNext()) {
-					Object[] objects = (Object[]) iterator.next();
-					readinessAssessmentDataItemRequestDto = new ReadinessAssessmentDataItemRequestDto();
-					readinessAssessmentDataItemRequestDto.setChangeReadinessApprover(String.valueOf(objects[0]));
-					readinessAssessmentDataItemRequestDto.setChangeReadinessDate1(String.valueOf(objects[1]));
-					readinessAssessmentDataItemRequestDto.setChangeReadinessDate2(String.valueOf(objects[2]));
-					readinessAssessmentDataItemRequestDto.setChangeReadinessResponsible(String.valueOf(objects[3]));
-					readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataId((Long)objects[4]);
-					readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataItemId((Long)objects[5]);
-					readinessAssessmentDataItemRequestDtoList.add(readinessAssessmentDataItemRequestDto);
-				}
-			}	
-			readinessCategoryItemsRequestDto.setReadinessAssessmentDataItemRequestDtoList(readinessAssessmentDataItemRequestDtoList);
-		}
+			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemDescription(readinessCategoryItems.getChangeReadinessCategoryItemDescription());
+			readinessCategoryItemsRequestDto.setChangeReadinessApprover(readinessCategoryItems.getChangeReadinessApprover());
+			
+			if(readinessCategoryItems.getChangeReadinessDate1()!=null) {
+			 readinessCategoryItemsRequestDto.setChangeReadinessDate1(DateUtil.getFormattedDateStringFromDate(readinessCategoryItems.getChangeReadinessDate1(), dateFormate));
+			}
+			if(readinessCategoryItems.getChangeReadinessDate2()!=null) {
+			readinessCategoryItemsRequestDto.setChangeReadinessDate2(DateUtil.getFormattedDateStringFromDate(readinessCategoryItems.getChangeReadinessDate2(), dateFormate));
+			}
+			readinessCategoryItemsRequestDto.setChangeReadinessResponsible(readinessCategoryItems.getChangeReadinessResponsible());
+		}				
 		return readinessCategoryItemsRequestDto;
 		
 	}
 	
 	
-	public List<ReadinessCategoryItemsRequestDto> getRedinessCategoryItemDetailByCategoryIdProjectId(long categoryId , long projectId ) {
+	public List<ReadinessCategoryItemsRequestDto> getRedinessCategoryItemDetailByCategoryIdProjectId(long categoryId , long projectId ){
 		List<ReadinessCategoryItemsRequestDto> readinessCategoryItemsRequestDtoList = new ArrayList<ReadinessCategoryItemsRequestDto>();
-		
 		Criteria criteria = getSession().createCriteria(ReadinessCategoryItems.class);
 		criteria.createAlias("changeReadinessCategories", "changeReadinessCategories" , JoinType.LEFT_OUTER_JOIN);
 		criteria.createAlias("changeReadinessCategories.projectBackground", "projectBackground" , JoinType.LEFT_OUTER_JOIN);
@@ -111,6 +81,11 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 		plList.add(Projections.property("id"));
 		plList.add(Projections.property("changeReadinessCategoryItemDescription"));
 		plList.add(Projections.property("changeReadinessCategoryItemCode"));
+		plList.add(Projections.property("changeReadinessApprover"));		
+		plList.add(Projections.property("changeReadinessDate1"));
+		plList.add(Projections.property("changeReadinessDate2"));
+		plList.add(Projections.property("changeReadinessResponsible"));
+		
 		criteria.setProjection(plList);
 		if (projectId > 0) {
 			criteria.add(Restrictions.eq("projectBackground.id", projectId));
@@ -128,45 +103,13 @@ public class ReadinessCategoryItemsDaoImpl extends AbstractDAO<ReadinessCategory
 			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemId((Long)(objects[0]));
 			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemDescription(String.valueOf(objects[1]));
 			readinessCategoryItemsRequestDto.setChangeReadinessCategoryItemCode(String.valueOf(objects[2]));
+			readinessCategoryItemsRequestDto.setChangeReadinessApprover(String.valueOf(objects[3]));
+			readinessCategoryItemsRequestDto.setChangeReadinessDate1(String.valueOf(objects[4]));		
+            readinessCategoryItemsRequestDto.setChangeReadinessDate2(String.valueOf(objects[5]));		
+			readinessCategoryItemsRequestDto.setChangeReadinessResponsible(String.valueOf(objects[6]));
 			readinessCategoryItemsRequestDtoList.add(readinessCategoryItemsRequestDto);
 		}
-	
-		for(int i =0; i<readinessCategoryItemsRequestDtoList.size() ; i++) {
-			List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList = getReadinessAssessmentDataItemByCategoryItemId(readinessCategoryItemsRequestDtoList.get(i).getChangeReadinessCategoryItemId());
-			readinessCategoryItemsRequestDtoList.get(i).setReadinessAssessmentDataItemRequestDtoList(readinessAssessmentDataItemRequestDtoList);
-		}
 		return readinessCategoryItemsRequestDtoList;		
-	}
-	
-	private List<ReadinessAssessmentDataItemRequestDto> getReadinessAssessmentDataItemByCategoryItemId(long changeReadinessCategoryItemId){
-		List<ReadinessAssessmentDataItemRequestDto> readinessAssessmentDataItemRequestDtoList = new ArrayList<>();
-		Criteria criteria2 = getSession().createCriteria(ReadinessAssessmentDataItem.class);
-		criteria2.createAlias("readinessAssessmentData", "readinessAssessmentData" , JoinType.LEFT_OUTER_JOIN);
-		criteria2.createAlias("readinessAssessmentData.readinessCategoryItems", "readinessCategoryItems" , JoinType.LEFT_OUTER_JOIN);
-		ProjectionList plList2 =  Projections.projectionList();
-		plList2.add(Projections.property("id"));
-		plList2.add(Projections.property("readinessAssessmentData.id"));	
-     	plList2.add(Projections.property("changeReadinessDate1"));
-		plList2.add(Projections.property("changeReadinessResponsible"));
-		plList2.add(Projections.property("changeReadinessDate2"));
-		plList2.add(Projections.property("changeReadinessApprover"));
-		criteria2.setProjection(plList2);
-		ReadinessAssessmentDataItemRequestDto readinessAssessmentDataItemRequestDto = null;
-			criteria2.add(Restrictions.eq("readinessCategoryItems.id", changeReadinessCategoryItemId));
-		    List<Object[]> result2 =  (List<Object[]>) criteria2.list();
-			Iterator<Object[]> iterator2 = result2.iterator();
-		    while (iterator2.hasNext()) {
-		    	readinessAssessmentDataItemRequestDto  = new ReadinessAssessmentDataItemRequestDto();
-				Object[] objects = (Object[]) iterator2.next();
-				readinessAssessmentDataItemRequestDto.setChangeReadinessApprover(String.valueOf(objects[5]));
-				readinessAssessmentDataItemRequestDto.setChangeReadinessDate1(String.valueOf(objects[2]));
-				readinessAssessmentDataItemRequestDto.setChangeReadinessDate2(String.valueOf(objects[4]));
-				readinessAssessmentDataItemRequestDto.setChangeReadinessResponsible(String.valueOf(objects[3]));
-				readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataId((Long)objects[1]);
-				readinessAssessmentDataItemRequestDto.setReadinessAssessmentDataItemId((Long)objects[0]);
-				readinessAssessmentDataItemRequestDtoList.add(readinessAssessmentDataItemRequestDto);
-			}
-		 return readinessAssessmentDataItemRequestDtoList;	
 	}
 		
 }

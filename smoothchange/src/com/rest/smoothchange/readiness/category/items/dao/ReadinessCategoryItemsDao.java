@@ -1,5 +1,6 @@
 package com.rest.smoothchange.readiness.category.items.dao;
 
+import java.text.ParseException;
 import java.util.List;
 
 import com.rest.framework.dao.DAO;
@@ -12,7 +13,7 @@ public interface ReadinessCategoryItemsDao extends DAO<ReadinessCategoryItems> {
 
 	ReadinessCategoryItems getReadinessCategoryItemsByItemCodeAndCategoryId(long categoryId, String itemCode);
 
-	ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId);
+	ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) throws ParseException;
 
 	List<ReadinessCategoryItemsRequestDto> getRedinessCategoryItemDetailByCategoryIdProjectId(long categoryId , long projectId);
 }

@@ -1,6 +1,7 @@
 package com.rest.smoothchange.readiness.category.items.service.impl;
 
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ReadinessCategoryItemsServiceImpl extends AbstractService<Readiness
 		return mapper.mapEntityToDto(dao.getReadinessCategoryItemsByItemCodeAndCategoryId(categoryId, itemCode));
 	}
 		
-	public ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) {
+	public ReadinessCategoryItemsRequestDto getRedinessCategoryItemDetailById(long categoryItemId) throws ParseException {
 		return dao.getRedinessCategoryItemDetailById(categoryItemId);
 	}	
 	

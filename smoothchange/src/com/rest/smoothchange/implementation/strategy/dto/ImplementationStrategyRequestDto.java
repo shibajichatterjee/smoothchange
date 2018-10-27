@@ -9,8 +9,10 @@ public class ImplementationStrategyRequestDto {
 	private String activity;
 
 	private String strategicObjective;
+	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date startDate;
+	
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
 	private Date endDate;
 
