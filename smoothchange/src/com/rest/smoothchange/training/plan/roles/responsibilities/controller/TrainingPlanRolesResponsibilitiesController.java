@@ -162,7 +162,7 @@ public class TrainingPlanRolesResponsibilitiesController {
 		if(trainingPlanRolesResponsibilitiesRequestDto!=null) {
 			trainingPlanRolesResponsibilitiesDto.setName(trainingPlanRolesResponsibilitiesRequestDto.getName());
 			trainingPlanRolesResponsibilitiesDto.setResponsibility(trainingPlanRolesResponsibilitiesRequestDto.getResponsibility());
-			trainingPlanRolesResponsibilitiesDto.setRole(trainingPlanRolesResponsibilitiesRequestDto.getName());
+			trainingPlanRolesResponsibilitiesDto.setRole(trainingPlanRolesResponsibilitiesRequestDto.getRole());
 		}		
 		return trainingPlanRolesResponsibilitiesDto;
 	}
