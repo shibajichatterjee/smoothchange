@@ -40,3 +40,42 @@ public class DocxContext {
     }
  
 }
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+public class Character {
+
+    private final String name;
+
+    private final String actor;
+
+    public Character(String name, String actor) {
+        this.name = name;
+        this.actor = actor;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getActor() {
+        return actor;
+    }
+}
+............................................................................
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CharactersContext {
+
+    private List<Character> characters = new ArrayList<>();
+
+    public List<Character> getCharacters() {
+        return characters;
+    }
+}
+-----------------------------------------------------------------------------------
+
+https://github.com/thombergs/docx-stamper/blob/master/src/test/java/org/wickedsource/docxstamper/RepeatTableRowTest.java
