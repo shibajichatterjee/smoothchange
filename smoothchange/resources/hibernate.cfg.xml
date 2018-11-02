@@ -44,7 +44,7 @@
 	     <mapping class="com.rest.smoothchange.action.plan.items.entity.ActionPlanItems"/>
 	     <mapping class="com.rest.smoothchange.training.plan.curriculum.lesson.plan.entity.TrainingPlanCurriculumLessonPlan"/>
 	     <mapping class="com.rest.smoothchange.training.plan.roles.responsibilities.entity.TrainingPlanRolesResponsibilities"/> 
-	      
+	     <mapping class="com.rest.smoothchange.reports.repository.entity.ReportsRepository"/>
 	      
 	       	     
     </session-factory>
