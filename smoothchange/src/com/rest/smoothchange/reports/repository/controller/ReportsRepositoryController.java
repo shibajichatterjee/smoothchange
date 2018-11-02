@@ -147,7 +147,7 @@ public class ReportsRepositoryController {
 	}
 
 	@ApiOperation(value = "Delete Report")
-	@RequestMapping(value = "getAllReportInfoByTypeAndProjectId", method = RequestMethod.DELETE)
+	@RequestMapping(value = "deleteReportInfo", method = RequestMethod.DELETE)
 	public ResponseEntity getAllReportInfoByTypeAndProjectId(@RequestParam("id") long id)
 			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException {
 		ResponseBean responseBean = new ResponseBean();
