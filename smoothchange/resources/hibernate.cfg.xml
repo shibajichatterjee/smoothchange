@@ -45,8 +45,8 @@
 	     <mapping class="com.rest.smoothchange.training.plan.curriculum.lesson.plan.entity.TrainingPlanCurriculumLessonPlan"/>
 	     <mapping class="com.rest.smoothchange.training.plan.roles.responsibilities.entity.TrainingPlanRolesResponsibilities"/> 
 	     <mapping class="com.rest.smoothchange.reports.repository.entity.ReportsRepository"/>
-	      
-	       	     
+	     <mapping class="com.rest.smoothchange.report.template.entity.ReportTemplate"/>
+	             	    
     </session-factory>
     
 </hibernate-configuration>
