@@ -34,6 +34,7 @@ public class ReportsRepositoryMapper extends AbstractMapper<ReportsRepositoryDto
 			   reportsRepository.setReportFileSize(dto.getReportFileSize());			   
 			   ReportType reportType = ReportType.getValue(dto.getReportType());
 			   reportsRepository.setReportType(reportType);
+			   reportsRepository.setUserId(dto.getUserId());
 			   if(dto.getProjectBackground()!=null) {
 				   projectBackground = new ProjectBackground();
 				   projectBackground.setContactPerson(dto.getProjectBackground().getContactPerson());
@@ -64,6 +65,7 @@ public class ReportsRepositoryMapper extends AbstractMapper<ReportsRepositoryDto
 			   reportsRepository.setId(bo.getId());
 			   reportsRepository.setReportFile(bo.getReportFile());
 			   reportsRepository.setReportFileSize(bo.getReportFileSize());	
+			   reportsRepository.setUserId(bo.getUserId());
 			   if(bo.getReportType()!=null) {
 				   reportsRepository.setReportType(bo.getReportType().getReportType());
 			   }
