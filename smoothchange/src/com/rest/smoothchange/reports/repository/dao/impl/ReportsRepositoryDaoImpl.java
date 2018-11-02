@@ -19,9 +19,15 @@ public class ReportsRepositoryDaoImpl extends AbstractDAO<ReportsRepository> imp
 
 	public List<ReportsRepository>  getReportReposetoryDetailByTypeAndProjectId(ReportType reportType , long projectId){
         Criteria criteria = getSession().createCriteria(ReportsRepository.class);
-        criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
-        criteria.add(Restrictions.eq("projectBackground.id", projectId));
-        criteria.add(Restrictions.eq("reportType", reportType));
+        
+        if(projectId>0) {
+        	criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);
+        	criteria.add(Restrictions.eq("projectBackground.id", projectId));
+        }
+        if(reportType!=null) {
+        	criteria.add(Restrictions.eq("reportType", reportType));
+        }
+       
         return criteria.list();
 	}
 	
