@@ -140,6 +140,36 @@ public class ReadinessCategoryController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
+	@ApiOperation(value = "Delete Readiness Category")
+	@RequestMapping(value = "deleteReadinessCategoryByID", method = RequestMethod.DELETE)
+	public ResponseEntity deleteReadinessCategoryByID(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("Id") long id) throws UnauthorizedException, ParseException, NoRecordsFoundException {
+
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		ResponseBean responseBean = new ResponseBean();
+		ChangeReadinessCategoriesDto dto = changeReadinessCategoriesService.getById(id);
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+
+		}
+
+		List<ReadinessCategoryItemsDto> dtoList = readinessCategoryItemService
+				.getReadinessCategoryItemsListByCategoryIdProjectId(dto.getId(), dto.getProjectBackgroundDto().getId());
+		if (dtoList == null || dtoList.size() == 0) {
+			changeReadinessCategoriesService.delete(dto);
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		}
+		else
+		{
+			responseBean.setBody(MessageEnum.enumMessage.NO_DELETE.getMessage());
+		}
+		
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+	}
+
 	private ChangeReadinessCategoriesDto mapRequestToDto(
 			ChangeReadinessCategoryrequestDTO changeReadinessCategoryrequestDTO) {
 		ChangeReadinessCategoriesDto dto = new ChangeReadinessCategoriesDto();

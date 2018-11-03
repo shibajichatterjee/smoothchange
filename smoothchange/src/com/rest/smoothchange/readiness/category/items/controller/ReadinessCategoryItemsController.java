@@ -64,7 +64,7 @@ public class ReadinessCategoryItemsController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Item_Id")
+	@ApiOperation(value = "Get Item by Category_Item_Id")
 	@RequestMapping(value = "getRedinessCategoryItemDetailById", method = RequestMethod.GET)
 	public ResponseEntity getRedinessCategoryItemDetailById(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryItemId") long categoryItemId)
 			throws UnauthorizedException, ParseException {
@@ -85,7 +85,7 @@ public class ReadinessCategoryItemsController {
 		}
 	}
 
-	@ApiOperation(value = "Get Item Code , Item Description , Change Readiness Approver ,Readiness Date-1  , Readiness Date-2 , Readiness Responsible by Category_Id and Project_Id")
+	@ApiOperation(value = "Get Category Item by Category_Id and Project_Id")
 	@RequestMapping(value = "getRedinessCategoryItemDetailByCategoryIdProjectId", method = RequestMethod.GET)
 	public ResponseEntity getRedinessCategoryItemDetailByCategoryIdProjectId(
 			@RequestHeader("API-KEY") String apiKey,
@@ -111,8 +111,8 @@ public class ReadinessCategoryItemsController {
 	}
 	
 	
-	@ApiOperation(value = "Update ReadinessCategoryItem and ReadinessAssessmentDataItem")
-	@RequestMapping(value = "updateReadinessCategoryItemWithAssessmentDataItem",method = RequestMethod.POST)
+	@ApiOperation(value = "Update ReadinessCategoryItem")
+	@RequestMapping(value = "updateReadinessCategoryItem",method = RequestMethod.POST)
 	public ResponseEntity updateRedinessCategoryItem(@RequestHeader("API-KEY") String apiKey,
 			@RequestBody ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto,
 			@RequestParam("categoryItemId") long categoryItemId)
@@ -152,6 +152,29 @@ public class ReadinessCategoryItemsController {
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);		
 	}
+	
+	@ApiOperation(value = "Delete Category Item By Id")
+	@RequestMapping(value = "deleteRedinessCategoryItemDetailById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteRedinessCategoryItemDetailById(@RequestHeader("API-KEY") String apiKey, @RequestParam("categoryItemId") long categoryItemId)
+			throws UnauthorizedException, ParseException {
+
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+		   throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		ResponseBean responseBean = new ResponseBean();
+		ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto = readinessCategoryItemService
+				.getRedinessCategoryItemDetailById(categoryItemId);
+		if (readinessCategoryItemsRequestDto != null) {
+			readinessCategoryItemService.deleteById(categoryItemId);
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());			
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		} else {
+			responseBean.setBody(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		}
+	}
+
 	
 	
 	//===================== Private Method ======================== 

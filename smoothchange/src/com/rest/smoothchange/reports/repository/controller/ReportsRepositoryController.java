@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryRequestDto;
 import com.rest.smoothchange.reports.repository.entity.ReportsRepository;
 import com.rest.smoothchange.reports.repository.service.ReportsRepositoryService;
+import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
 import com.rest.smoothchange.util.GeneratedOrUploaded;
 import com.rest.smoothchange.util.ImageUtil;
@@ -52,13 +54,21 @@ public class ReportsRepositoryController {
 	@Autowired
 	private ProjectBackgroundService projectBackgroundService;
 
+	@Autowired
+	private CommonUtil commonUtil;
+
 	@ApiOperation(value = "Upload Reports Repository")
 	@RequestMapping(value = "/uploadReportsRepository", method = RequestMethod.POST)
-	public ResponseEntity uploadReportsRepository(@RequestParam("report") MultipartFile file,
-			@RequestParam("projectId") long projectId, @RequestParam("reportType") String reportType,
-			@RequestParam("generatedOrUploaded") String generatedOrUploaded, @RequestParam("dateTime") String dateTime,
+	public ResponseEntity uploadReportsRepository(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("report") MultipartFile file, @RequestParam("projectId") long projectId,
+			@RequestParam("reportType") String reportType,
+
 			@RequestParam("comment") String comment, @RequestParam("userId") String userId) throws IOException,
 			UnauthorizedException, ParseException, NoRecordsFoundException, NoEnumRecordsFoundException {
+
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 
 		ResponseBean responseBean = new ResponseBean();
 
@@ -67,11 +77,7 @@ public class ReportsRepositoryController {
 			throw new NoEnumRecordsFoundException("Report type Not Present");
 		}
 
-		GeneratedOrUploaded generatedOrUploaded2 = GeneratedOrUploaded.getValue(generatedOrUploaded);
-		if (generatedOrUploaded2 == null) {
-			throw new NoEnumRecordsFoundException("Generated of Upload not found");
-		}
-
+		commonUtil.getProjectBackGround(Long.toString(projectId));
 		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
 		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
 			projectBackgroundDto.setId(projectId);
@@ -79,10 +85,8 @@ public class ReportsRepositoryController {
 			byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
 			ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
 			reportsRepositoryDto.setComment(comment);
-			if (dateTime != null && !dateTime.trim().equals("")) {
-				reportsRepositoryDto.setDateTime(DateUtil.getFormattedDate(dateTime, dateFormatter));
-			}
-			reportsRepositoryDto.setGeneratedOrUploaded(generatedOrUploaded);
+			reportsRepositoryDto.setDateTime(new Date());
+			reportsRepositoryDto.setGeneratedOrUploaded("Uploaded");
 			reportsRepositoryDto.setProjectBackground(projectBackgroundDto);
 			reportsRepositoryDto.setReportFile(byteArray);
 			reportsRepositoryDto.setReportFileSize(file.getSize());
@@ -91,7 +95,7 @@ public class ReportsRepositoryController {
 			long reportsRepositoryId = (Long) reportsRepositoryService.create(reportsRepositoryDto);
 			reportsRepository.setId(reportsRepositoryId);
 			reportsRepository.setReportFileSize(reportsRepositoryDto.getReportFileSize());
-			responseBean.setBody(reportsRepository);
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
@@ -101,13 +105,18 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "download Reports Repository")
 	@RequestMapping(value = "/downloadReportsRepository", method = RequestMethod.GET)
-	public ResponseEntity uploadReportsRepository(@RequestParam("id") long id, HttpServletResponse httpServletResponse)
+	public ResponseEntity uploadReportsRepository(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
+			HttpServletResponse httpServletResponse)
 			throws IOException, UnauthorizedException, ParseException, NoRecordsFoundException {
 
 		ResponseBean responseBean = new ResponseBean();
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
 		ReportsRepositoryDto reportsRepository = reportsRepositoryService.getById(id);
 		if (reportsRepository != null && reportsRepository.getId() != null) {
-			String fileName = DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter) + "-"
+			String fileName = "ReportRepository_"+DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter) + "-"
 					+ reportsRepository.getId();
 			ImageUtil.downloadFile(httpServletResponse, reportsRepository.getReportFile(), fileName);
 		} else {
@@ -118,15 +127,20 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "Get Report Detail By Report Type And Project Id")
 	@RequestMapping(value = "getAllReportInfoByTypeAndProjectId", method = RequestMethod.GET)
-	public ResponseEntity getAllReportInfoByTypeAndProjectId(@RequestParam("type") String reportType,
-			@RequestParam("projectId") long projectId)
-			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException {
+	public ResponseEntity getAllReportInfoByTypeAndProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("type") String reportType, @RequestParam("projectId") long projectId)
+			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {
 
 		ResponseBean responseBean = new ResponseBean();
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ReportType reportType2 = ReportType.getValue(reportType);
 		if (reportType2 == null) {
 			throw new NoEnumRecordsFoundException("Report type Not Present");
 		}
+		commonUtil.getProjectBackGround(Long.toString(projectId));
+
 		List<ReportsRepositoryRequestDto> reportsRepositoryRequestDtoList = new ArrayList<>();
 		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
 		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
@@ -148,9 +162,13 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "Delete Report")
 	@RequestMapping(value = "deleteReportInfo", method = RequestMethod.DELETE)
-	public ResponseEntity getAllReportInfoByTypeAndProjectId(@RequestParam("id") long id)
-			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException {
+	public ResponseEntity getAllReportInfoByTypeAndProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("id") long id)
+			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {
 		ResponseBean responseBean = new ResponseBean();
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ReportsRepositoryDto reportsRepository = reportsRepositoryService.getById(id);
 		if (reportsRepository != null && reportsRepository.getId() != null) {
 			reportsRepositoryService.delete(reportsRepository);

@@ -26,7 +26,8 @@ public class ReportTemplateMapper extends AbstractMapper<ReportTemplateDto , Rep
 			   reportTemplate.setUploadedOn(dto.getUploadedOn());
 			   reportTemplate.setId(dto.getId());
 			   reportTemplate.setTemplateFile(dto.getTemplateFile());
-			   reportTemplate.setTemplateFileSize(dto.getTemplateFileSize());		   
+			   reportTemplate.setTemplateFileSize(dto.getTemplateFileSize());	
+			   reportTemplate.setUserId(dto.getUserId());
 			   ReportType reportType = ReportType.getValue(dto.getReportType());
 			   reportTemplate.setReportType(reportType);
 			   if(dto.getProjectBackground()!=null) {
@@ -56,6 +57,7 @@ public class ReportTemplateMapper extends AbstractMapper<ReportTemplateDto , Rep
 			   reportTemplateDto.setId(bo.getId());
 			   reportTemplateDto.setTemplateFile(bo.getTemplateFile());
 			   reportTemplateDto.setTemplateFileSize(bo.getTemplateFileSize());
+			   reportTemplateDto.setUserId(bo.getUserId());
 			   if(bo.getReportType()!=null) {
 				   reportTemplateDto.setReportType(bo.getReportType().getReportType());
 			   }

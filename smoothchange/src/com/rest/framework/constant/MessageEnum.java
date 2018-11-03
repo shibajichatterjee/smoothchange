@@ -10,7 +10,8 @@ public class MessageEnum {
 		UnaAuthorizedAccess("S401", "Unauthorized Access"),
 		NO_RECORDS("","No Records Found"),
 		NO_RECORDS_BY_PROJECT_ID("","Project Id is not valid"),
-		ID_NOT_VALID("","Id is not Valid");
+		ID_NOT_VALID("","Id is not Valid"),
+		NO_DELETE("","Delete is not possible,It has child");
 		
 		public String getCode() {
 			return code;

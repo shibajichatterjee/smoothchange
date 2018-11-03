@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,38 +58,37 @@ public class ReportTemplateController {
 
 	@ApiOperation(value = "Upload Reports Template")
 	@RequestMapping(value = "/uploadReportsTemplate", method = RequestMethod.POST)
-	public ResponseEntity uploadReportsTemplate(@RequestParam("report") MultipartFile file,
-			@RequestParam("projectId") long projectId, @RequestParam("reportType") String reportType,
-			@RequestParam("uploadedOn") String uploadedOn,
-			@RequestParam("comment") String comment, @RequestParam("userId") String userId) throws IOException,
-			UnauthorizedException, ParseException, NoRecordsFoundException, NoEnumRecordsFoundException {
+	public ResponseEntity uploadReportsTemplate(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("report") MultipartFile file, @RequestParam("projectId") long projectId,
+			@RequestParam("reportType") String reportType, @RequestParam("comment") String comment,
+			@RequestParam("userId") String userId) throws IOException, UnauthorizedException, ParseException,
+			NoRecordsFoundException, NoEnumRecordsFoundException {
 
 		ResponseBean responseBean = new ResponseBean();
-
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ReportType reportType2 = ReportType.getValue(reportType);
 		if (reportType2 == null) {
 			throw new NoEnumRecordsFoundException("Report type Not Present");
 		}
 
-        ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
+		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
 		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
 			projectBackgroundDto.setId(projectId);
 			ReportsRepository reportsRepository = new ReportsRepository();
 			byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
 			ReportTemplateDto reportTemplateDto = new ReportTemplateDto();
 			reportTemplateDto.setComment(comment);
-			if (uploadedOn != null && !uploadedOn.trim().equals("")) {
-				reportTemplateDto.setUploadedOn(DateUtil.getFormattedDate(uploadedOn, dateFormatter));
-			}
+			reportTemplateDto.setUploadedOn(new Date());
 			reportTemplateDto.setProjectBackground(projectBackgroundDto);
 			reportTemplateDto.setTemplateFile(byteArray);
 			reportTemplateDto.setTemplateFileSize(file.getSize());
 			reportTemplateDto.setReportType(reportType);
 			reportTemplateDto.setUserId(userId);
 			long reportsRepositoryId = (Long) reportTemplateService.create(reportTemplateDto);
-			reportsRepository.setId(reportsRepositoryId);
-			reportsRepository.setReportFileSize(reportTemplateDto.getTemplateFileSize());
-			responseBean.setBody(reportsRepository);
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
@@ -98,14 +98,17 @@ public class ReportTemplateController {
 
 	@ApiOperation(value = "download Reports Template")
 	@RequestMapping(value = "/downloadReportsTemplate", method = RequestMethod.GET)
-	public ResponseEntity downloadReportsTemplate(@RequestParam("id") long id, HttpServletResponse httpServletResponse)
+	public ResponseEntity downloadReportsTemplate(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
+			HttpServletResponse httpServletResponse)
 			throws IOException, UnauthorizedException, ParseException, NoRecordsFoundException {
-
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ResponseBean responseBean = new ResponseBean();
 		ReportTemplateDto reportTemplateDto = reportTemplateService.getById(id);
 		if (reportTemplateDto != null && reportTemplateDto.getId() != null) {
-			String fileName = "ReportTemplate_"+DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter) + "-"
-					+ reportTemplateDto.getId();
+			String fileName = "ReportTemplate_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter)
+					+ "-" + reportTemplateDto.getId();
 			ImageUtil.downloadFile(httpServletResponse, reportTemplateDto.getTemplateFile(), fileName);
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
@@ -115,10 +118,12 @@ public class ReportTemplateController {
 
 	@ApiOperation(value = "Get Reports Template By Report Type And Project Id")
 	@RequestMapping(value = "getAllReportsTemplateByProjectId", method = RequestMethod.GET)
-	public ResponseEntity getAllReportsTemplateByProjectId(@RequestParam("type") String reportType,
-			@RequestParam("projectId") long projectId)
-			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException {
-
+	public ResponseEntity getAllReportsTemplateByProjectId(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("type") String reportType, @RequestParam("projectId") long projectId)
+			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ResponseBean responseBean = new ResponseBean();
 		ReportType reportType2 = ReportType.getValue(reportType);
 		if (reportType2 == null) {
@@ -145,9 +150,12 @@ public class ReportTemplateController {
 
 	@ApiOperation(value = "Delete Reports Template")
 	@RequestMapping(value = "deleteReportTemplate", method = RequestMethod.DELETE)
-	public ResponseEntity deleteReportTemplate(@RequestParam("id") long id)
-			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException {
+	public ResponseEntity deleteReportTemplate(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id)
+			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {
 		ResponseBean responseBean = new ResponseBean();
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
 		ReportTemplateDto reportTemplateDto = reportTemplateService.getById(id);
 		if (reportTemplateDto != null && reportTemplateDto.getId() != null) {
 			reportTemplateService.delete(reportTemplateDto);
