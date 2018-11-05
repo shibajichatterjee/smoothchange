@@ -77,5 +77,6 @@ public class CharactersContext {
     }
 }
 -----------------------------------------------------------------------------------
+https://javarevisited.blogspot.com/2014/04/how-to-convert-byte-array-to-inputstream-outputstream-java-example.html
 
 https://github.com/thombergs/docx-stamper/blob/master/src/test/java/org/wickedsource/docxstamper/RepeatTableRowTest.java
