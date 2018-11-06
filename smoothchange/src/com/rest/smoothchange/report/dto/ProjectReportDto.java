@@ -5,9 +5,9 @@ public class ProjectReportDto {
 	
 	String pname;
 	String pdescription;
-	String type;
-	String owner;
-	String person;
+	String ptype;
+	String powner;
+	String pcontact;
 	public String getPname() {
 		return pname;
 	}
@@ -20,23 +20,23 @@ public class ProjectReportDto {
 	public void setPdescription(String pdescription) {
 		this.pdescription = pdescription;
 	}
-	public String getType() {
-		return type;
+	public String getPtype() {
+		return ptype;
 	}
-	public void setType(String type) {
-		this.type = type;
+	public void setPtype(String ptype) {
+		this.ptype = ptype;
 	}
-	public String getOwner() {
-		return owner;
+	public String getPowner() {
+		return powner;
 	}
-	public void setOwner(String owner) {
-		this.owner = owner;
+	public void setPowner(String powner) {
+		this.powner = powner;
 	}
-	public String getPerson() {
-		return person;
+	public String getPcontact() {
+		return pcontact;
 	}
-	public void setPerson(String person) {
-		this.person = person;
+	public void setPcontact(String pcontact) {
+		this.pcontact = pcontact;
 	}
-
+	
 }

@@ -19,7 +19,7 @@ import com.rest.smoothchange.util.ReportType;
 public class ReportTemplateDaoImpl extends AbstractDAO<ReportTemplate> implements ReportTemplateDao{
 
 	public List<ReportTemplate>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType , long projectId){
-        Criteria criteria = getSession().createCriteria(ReportsRepository.class);
+        Criteria criteria = getSession().createCriteria(ReportTemplate.class);
         
         if(projectId>0) {
         	criteria.createAlias("projectBackground", "projectBackground", JoinType.LEFT_OUTER_JOIN);

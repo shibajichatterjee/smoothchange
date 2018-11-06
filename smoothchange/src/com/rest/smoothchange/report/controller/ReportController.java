@@ -1,25 +1,25 @@
 package com.rest.smoothchange.report.controller;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
+import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.wickedsource.docxstamper.DocxStamper;
@@ -27,12 +27,18 @@ import org.wickedsource.docxstamper.DocxStamperConfiguration;
 
 import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
+import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
-import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsDto;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.report.dto.ProjectReportDto;
+import com.rest.smoothchange.report.template.dto.ReportTemplateDto;
+import com.rest.smoothchange.report.template.service.ReportTemplateService;
+import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
+import com.rest.smoothchange.reports.repository.service.ReportsRepositoryService;
+import com.rest.smoothchange.util.CommonUtil;
+import com.rest.smoothchange.util.ReportType;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -44,38 +50,67 @@ import io.swagger.annotations.ApiOperation;
 @Transactional
 public class ReportController {
 	@Autowired
+	private ReportsRepositoryService reportsRepositoryService;
+	@Autowired
 	private ProjectBackgroundService projectService;
+	@Autowired
+	private CommonUtil commonUtil;
+	@Autowired
+	private ReportTemplateService reportTemplateService;
 
-	@ApiOperation(value = "Get Report For Stake Holder")
+	@ApiOperation(value = "Generate Report")
 	@SuppressWarnings("unchecked")
-	@GetMapping("/GetReportForStakeHolder")
-	public ResponseEntity GetReportForStakeHolder(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String id, HttpServletRequest req)
+	@GetMapping("/generateReport")
+	public ResponseEntity generateReport(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+			@RequestParam("reportType") String reportType,HttpServletRequest request)
 			throws NoRecordsFoundException, UnauthorizedException, IOException {
+		ResponseBean responseBean = new ResponseBean();
+
 		try {
+			DocxStamper stamper = new DocxStamper(new DocxStamperConfiguration());
 			if (!apiKey.equals(MessageEnum.API_KEY)) {
 				throw new UnauthorizedException(MessageEnum.unathorized);
 			}
+			ReportType reportType2 = ReportType.getValue(reportType);
+			if (reportType2 == null) {
+				throw new NoEnumRecordsFoundException("Report type Not Present");
+			}
+			commonUtil.getProjectBackGround(id);
 			ProjectBackgroundDto pr = projectService.getById(Long.parseLong(id));
 
 			ProjectReportDto context = new ProjectReportDto();
 			context.setPname(pr.getProjectName());
-			context.setOwner(pr.getOwnerOfChange());
+			context.setPowner(pr.getOwnerOfChange());
 			context.setPdescription(pr.getProjectDescription());
-			context.setPerson(pr.getContactPerson());
-			context.setType(pr.getTypeOfChange());
-			InputStream template = new FileInputStream(
-					new File(req.getContextPath() + "/resources/template/business_benifit.docx"));
-			OutputStream out = new FileOutputStream(
-					req.getContextPath() + "/resources/template/business_benifit_output.docx");
-			DocxStamper stamper = new DocxStamper(new DocxStamperConfiguration());
-			stamper.stamp(template, context, out);
-			out.close();
-			File file = new File(req.getContextPath() + "/resources/template/business_benifit_output.docx");
-			InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+			context.setPcontact(pr.getContactPerson());
+			context.setPtype(pr.getTypeOfChange());
+			List<ReportTemplateDto> reportTemplateDtoList = reportTemplateService
+					.getReportTemplateDetailByTypeAndProjectId(reportType2, Long.parseLong(id));
+			if (reportTemplateDtoList != null && reportTemplateDtoList.size() > 0) {
+				InputStream is = new ByteArrayInputStream(reportTemplateDtoList.get(0).getTemplateFile());
+				ServletContext sContext = request.getServletContext();
+		        String appPath = sContext.getRealPath("");
+		        //String fullPath = appPath + "/download/out.docx";
+		        OutputStream out = new FileOutputStream("out.docx");
 
-			return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName())
-					.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(file.length()).body(resource);
+				stamper.stamp(is, context, out);
+				out.close();
+				ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
+				reportsRepositoryDto.setComment("Auto");
+				reportsRepositoryDto.setDateTime(new Date());
+				reportsRepositoryDto.setGeneratedOrUploaded("Generated");
+				reportsRepositoryDto.setProjectBackground(new ProjectBackgroundDto());
+				reportsRepositoryDto.getProjectBackground().setId(Long.parseLong(id));
+				FileInputStream inputStream = new FileInputStream("out.docx");
+				reportsRepositoryDto.setReportFile(IOUtils.toByteArray(inputStream));
+				reportsRepositoryDto.setReportFileSize(inputStream.available());
+				reportsRepositoryDto.setReportType(reportType);
+				reportsRepositoryDto.setUserId("123456");
+				long reportsRepositoryId = (Long) reportsRepositoryService.create(reportsRepositoryDto);
+			}
+
+			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+			return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 		} catch (Exception e) {
 			e.printStackTrace();

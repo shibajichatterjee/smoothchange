@@ -38,8 +38,8 @@ public class ImageUtil {
 		ServletOutputStream servletOutputStream = httpServletResponse.getOutputStream();
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 		String contentType = new Tika().detect(byteArrayInputStream);
-		httpServletResponse.setContentType(contentType);
-		httpServletResponse.setHeader("Content-Disposition", "attachment; filename="+fileName+"."+getImageFormateContentType(contentType));
+		httpServletResponse.setContentType("Application/msword");
+		httpServletResponse.setHeader("Content-Disposition", "attachment; filename="+fileName+".docx");
 		servletOutputStream.write(bytes);
 		servletOutputStream.flush();
 	}
