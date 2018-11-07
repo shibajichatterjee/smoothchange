@@ -9,7 +9,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -98,7 +101,7 @@ public class ReportTemplateController {
 
 	@ApiOperation(value = "download Reports Template")
 	@RequestMapping(value = "/downloadReportsTemplate", method = RequestMethod.GET)
-	public ResponseEntity downloadReportsTemplate(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
+	public ResponseEntity<ByteArrayResource> downloadReportsTemplate(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
 			HttpServletResponse httpServletResponse)
 			throws IOException, UnauthorizedException, ParseException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -106,15 +109,28 @@ public class ReportTemplateController {
 		}
 		ResponseBean responseBean = new ResponseBean();
 		ReportTemplateDto reportTemplateDto = reportTemplateService.getById(id);
-		if (reportTemplateDto != null && reportTemplateDto.getId() != null) {
+		/*if (reportTemplateDto != null && reportTemplateDto.getId() != null) {
 			String fileName = "ReportTemplate_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter)
 					+ "-" + reportTemplateDto.getId();
-			ImageUtil.downloadFile(httpServletResponse, reportTemplateDto.getTemplateFile(), fileName);
+			//ImageUtil.downloadFile(httpServletResponse, reportTemplateDto.getTemplateFile(), fileName);
+			
 		} else {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+		}*/
+		if (reportTemplateDto == null && reportTemplateDto.getId() == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+
 		}
-		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
-	}
+		String fileName = "ReportTemplate_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter)
+		+ "-" + reportTemplateDto.getId();
+	      ByteArrayResource resource = new ByteArrayResource(reportTemplateDto.getTemplateFile());
+
+	      return ResponseEntity.ok()
+	              .header(HttpHeaders.CONTENT_DISPOSITION,
+	                    "attachment;filename=" + fileName+".docx")
+	              .contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(reportTemplateDto.getTemplateFile().length)
+	              .body(resource);
+	      }
 
 	@ApiOperation(value = "Get Reports Template By Report Type And Project Id")
 	@RequestMapping(value = "getAllReportsTemplateByProjectId", method = RequestMethod.GET)

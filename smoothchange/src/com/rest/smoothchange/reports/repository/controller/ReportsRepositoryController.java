@@ -9,7 +9,10 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -105,7 +108,7 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "download Reports Repository")
 	@RequestMapping(value = "/downloadReportsRepository", method = RequestMethod.GET)
-	public ResponseEntity uploadReportsRepository(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
+	public ResponseEntity<ByteArrayResource> uploadReportsRepository(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") long id,
 			HttpServletResponse httpServletResponse)
 			throws IOException, UnauthorizedException, ParseException, NoRecordsFoundException {
 
@@ -115,14 +118,17 @@ public class ReportsRepositoryController {
 		}
 
 		ReportsRepositoryDto reportsRepository = reportsRepositoryService.getById(id);
-		if (reportsRepository != null && reportsRepository.getId() != null) {
-			String fileName = "ReportRepository_"+DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter) + "-"
-					+ reportsRepository.getId();
-			ImageUtil.downloadFile(httpServletResponse, reportsRepository.getReportFile(), fileName);
-		} else {
+		if (reportsRepository == null && reportsRepository.getId() == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
+
 		}
-		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+		String fileName = "ReportRepository_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter) + "-"
+				+ reportsRepository.getId();
+		ByteArrayResource resource = new ByteArrayResource(reportsRepository.getReportFile());
+
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + ".docx")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(reportsRepository.getReportFile().length)
+				.body(resource);
 	}
 
 	@ApiOperation(value = "Get Report Detail By Report Type And Project Id")
