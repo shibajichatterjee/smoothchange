@@ -24,9 +24,78 @@ public class GenerateReport {
         out.close();
     }
 }
+------------------------------------------------------------------------------------------------------------------
+public class Generate{
+    public static void main(String[] args) throws FileNotFoundException, Docx4JException, IOException {
+        DocxStamper stamper = new DocxStamper(new DocxStamperConfiguration());
+        CharactersContext context = new CharactersContext();
+        context.getCharacters().add(new Character("Homer Simpson", "Dan Castellaneta"));
+        context.getCharacters().add(new Character("Marge Simpson", "Julie Kavner"));
+        context.getCharacters().add(new Character("Marge Simpson1", "Julie Kavner1"));
+        context.setS("Shibaji");
+        InputStream template = new FileInputStream(new File("src/resources/RepeatTableRowTest.docx"));
+       // File f=new File("src/resources/output_template.docx");
+       /* if(!f.exists())
+        	f.createNewFile();*/
+        OutputStream out = new FileOutputStream("src/resources/output_template.docx");
+        stamper.stamp(template, context, out);
+        out.close();
+    }
+}
 
 ----------------------------------------------------------------------------------------------------------------------------
+import java.io.File;
+import java.io.FileOutputStream;
 
+import org.apache.poi.xwpf.usermodel.VerticalAlign;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+public class GeneratePoi {
+	public static void main(String[] args) {
+		try {
+		  XWPFDocument document = new XWPFDocument(); 
+	      FileOutputStream out = new FileOutputStream(new File("src/resources/Echillyfacts.docx"));
+	      XWPFParagraph paragraph = document.createParagraph();
+	      XWPFParagraph paragraph1 = document.createParagraph();
+
+	      XWPFRun run = paragraph.createRun();
+	      XWPFRun run1 = paragraph1.createRun();
+	      run.setText("Welcome to my channel. Chillyfacts.com created word document. Test test");
+	      run1.setText("Welcome to my channel");
+	      //create table
+	      XWPFTable table = document.createTable();
+	      //create first row
+	      XWPFTableRow tableRowOne = table.getRow(0);
+	      tableRowOne.getCell(0).setText("col one, row one");
+	      tableRowOne.addNewTableCell().setText("col two, row one");
+	      tableRowOne.addNewTableCell().setText("col three, row one");
+	      //create second row
+	      XWPFTableRow tableRowTwo = table.createRow();
+	      tableRowTwo.getCell(0).setText("col one, row two");
+	      tableRowTwo.getCell(1).setText("col two, row two");
+	      tableRowTwo.getCell(2).setText("col three, row two");
+	      //create third row
+	      XWPFTableRow tableRowThree = table.createRow();
+	      tableRowThree.getCell(0).setText("col one, row three");
+	      tableRowThree.getCell(1).setText("col two, row three");
+	      tableRowThree.getCell(2).setText("col three, row three");
+	      XWPFRun paragraphOneRunThree = paragraph.createRun();
+	     // paragraphOneRunThree.setStrike(true);
+	      paragraphOneRunThree.setFontSize(30);
+	      paragraphOneRunThree.setSubscript(VerticalAlign.SUBSCRIPT);
+	      paragraphOneRunThree.setText(" Font Styles");
+		  document.write(out);
+	      out.close();
+	      System.out.println("createparagraph.docx written successfully");
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+}
+-----------------------------------------------------------------------------------------------------------------------
 public class DocxContext {
  
     private String name;
@@ -80,3 +149,5 @@ public class CharactersContext {
 https://javarevisited.blogspot.com/2014/04/how-to-convert-byte-array-to-inputstream-outputstream-java-example.html
 
 https://github.com/thombergs/docx-stamper/blob/master/src/test/java/org/wickedsource/docxstamper/RepeatTableRowTest.java
+
+https://www.boraji.com/spring-mvc-4-file-download-example
