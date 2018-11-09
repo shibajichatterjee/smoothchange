@@ -87,6 +87,21 @@ public class GeneratePoi {
 	      paragraphOneRunThree.setFontSize(30);
 	      paragraphOneRunThree.setSubscript(VerticalAlign.SUBSCRIPT);
 	      paragraphOneRunThree.setText(" Font Styles");
+	      
+	       XWPFTable table1 = document.createTable();
+		      XWPFTableRow row = table1.getRow(0); // First row  
+              // Columns  
+              row.getCell(0).setText("Sl. No.");  
+              row.addNewTableCell().setText("Name");  
+              row.addNewTableCell().setText("Email");  
+		     
+		      for(int i=0;i<5;i++)
+		      {
+		    	  row = table1.createRow();
+		    	  row.getCell(0).setText("test");
+		    	  row.getCell(1).setText("test");
+		    	  row.getCell(2).setText("test");
+		      }
 		  document.write(out);
 	      out.close();
 	      System.out.println("createparagraph.docx written successfully");
