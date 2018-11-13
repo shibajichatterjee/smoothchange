@@ -1,6 +1,7 @@
 package com.rest.smoothchange.organization.info.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class OrganizationInfoController {
 	@Autowired
 	private OrganizationInfoService organizationInfoService;
 
-	@ApiOperation(value = "Add Organisation Information")
+	/*@ApiOperation(value = "Add Organisation Information")
 	@RequestMapping(value = "/AddOrganizationInfo", method = RequestMethod.POST)
 	public ResponseEntity saveOrganizationInfo(@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName,
@@ -57,7 +58,7 @@ public class OrganizationInfoController {
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
-	}
+	}*/
 
 	@ApiOperation(value = "Get Organisation Information By ID")
 	@RequestMapping(value = "/getOrganizationInfoById", method = RequestMethod.GET)
@@ -79,31 +80,40 @@ public class OrganizationInfoController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Modify Organisation Information")
-	@RequestMapping(value = "/updateOrganizationInfo", method = RequestMethod.POST)
+	@ApiOperation(value = "Populate Organisation Information")
+	@RequestMapping(value = "/createOrUpdateOrganizationInfo", method = RequestMethod.POST)
 	public ResponseEntity updateOrganizationInfo(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("file") MultipartFile file, @RequestParam("organizationId") long organizationId,
-			@RequestParam("organisationName") String organisationName, @RequestParam("address") String address)
+			@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName,
+			@RequestParam("address") String address)
 			throws IOException, NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-
-		ResponseBean responseBean = new ResponseBean();
-		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
-		if (organizationInfoDto != null && organizationInfoDto.getId() != null) {
-			if (file != null) {
-				byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
-				organizationInfoDto.setLogo(byteArray);
-			}
-			organizationInfoDto.setAddress(address);
-			organizationInfoDto.setOrganisationName(organisationName);
-
-			organizationInfoService.update(organizationInfoDto);
-			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
-		} else {
-			throw new NoRecordsFoundException("Organization Info No Found");
+		OrganizationInfoDto organizationInfoDto = new OrganizationInfoDto();
+		List<OrganizationInfoDto> organizationInfoDtoList = organizationInfoService.getAll();
+		if (organizationInfoDtoList != null && organizationInfoDtoList.size() > 0) {
+			organizationInfoDto.setAddress(organizationInfoDtoList.get(0).getAddress());
+			organizationInfoDto.setId(organizationInfoDtoList.get(0).getId());
+			organizationInfoDto.setLogo(organizationInfoDtoList.get(0).getLogo());
+			organizationInfoDto.setOrganisationName(organizationInfoDtoList.get(0).getOrganisationName());
+		} 
+		
+		if (file != null) {
+			byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+			organizationInfoDto.setLogo(byteArray);
 		}
+		organizationInfoDto.setAddress(address);
+		organizationInfoDto.setOrganisationName(organisationName);
+		
+		if(organizationInfoDto.getId()!=null) {
+			organizationInfoService.update(organizationInfoDto);
+		}
+		else {
+			organizationInfoService.create(organizationInfoDto);
+		}
+		
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
