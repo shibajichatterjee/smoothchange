@@ -17,7 +17,11 @@ public class BusinessBenefitMappingDto extends AbstractDTO{
 	private String businessBenefit;
 	
 	private String affectedParty;
-
+	
+	//============ For Report Generatio ============
+	private String  SerialNumber;
+	
+   
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
 	}
@@ -45,6 +49,14 @@ public class BusinessBenefitMappingDto extends AbstractDTO{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
+
+	public String getSerialNumber() {
+		return SerialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		SerialNumber = serialNumber;
+	}
+
 
 }

@@ -16,6 +16,13 @@ public class OrganizationInfoDto extends AbstractDTO{
 
 	private byte[] logo;
 	
+	
+	
+	//============ For Reoprt Generation ===========
+	
+	private String name;
+	
+	
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
@@ -46,6 +53,12 @@ public class OrganizationInfoDto extends AbstractDTO{
 		this.logo = logo;
 	}
 
-	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 }

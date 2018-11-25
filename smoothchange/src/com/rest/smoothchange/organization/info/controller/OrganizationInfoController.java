@@ -96,22 +96,20 @@ public class OrganizationInfoController {
 			organizationInfoDto.setId(organizationInfoDtoList.get(0).getId());
 			organizationInfoDto.setLogo(organizationInfoDtoList.get(0).getLogo());
 			organizationInfoDto.setOrganisationName(organizationInfoDtoList.get(0).getOrganisationName());
-		} 
-		
+		}
+
 		if (file != null) {
 			byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
 			organizationInfoDto.setLogo(byteArray);
 		}
 		organizationInfoDto.setAddress(address);
 		organizationInfoDto.setOrganisationName(organisationName);
-		
-		if(organizationInfoDto.getId()!=null) {
+
+		if (organizationInfoDto.getId() != null) {
 			organizationInfoService.update(organizationInfoDto);
-		}
-		else {
+		} else {
 			organizationInfoService.create(organizationInfoDto);
 		}
-		
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);

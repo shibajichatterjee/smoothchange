@@ -23,6 +23,15 @@ public class ProjectBackgroundDto extends AbstractDTO{
 	private String contactPerson;
 	
 
+	//=============== For Report Generation ===========
+		private String name;
+		
+		private String description;
+		
+		private String owner;
+		
+	
+	
 	public String getContactPerson() {
 		return contactPerson;
 	}
@@ -86,6 +95,35 @@ public class ProjectBackgroundDto extends AbstractDTO{
 		this.typeOfChange = typeOfChange;
 	}
 
-	
+
+	public String getName() {
+		return name;
+	}
+
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+	public String getDescription() {
+		return description;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+
+	public String getOwner() {
+		return owner;
+	}
+
+
+	public void setOwner(String owner) {
+		this.owner = owner;
+	}
+
 	
 }

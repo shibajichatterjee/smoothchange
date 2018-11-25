@@ -42,10 +42,7 @@
 	
 	<mvc:resources mapping="/resources/**" location="/resources/" />
 	
-	<context:property-placeholder location="classpath*:item.properties"/>
-	
-	
-	
+	<context:property-placeholder location="classpath*:item.properties,classpath*:pathConfiguration.properties"/>
 	
 	
 </beans>  
