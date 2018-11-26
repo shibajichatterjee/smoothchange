@@ -1,14 +1,8 @@
 package com.rest.smoothchange.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.net.URLConnection;
 import java.util.Base64;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.tika.Tika;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ImageUtil {
@@ -34,15 +28,7 @@ public class ImageUtil {
 		return 0;	
 	}
 	
-	public static void downloadFile(HttpServletResponse httpServletResponse, byte[] bytes , String fileName) throws IOException {
-		ServletOutputStream servletOutputStream = httpServletResponse.getOutputStream();
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-		String contentType = new Tika().detect(byteArrayInputStream);
-		httpServletResponse.setContentType("Application/msword");
-		httpServletResponse.setHeader("Content-Disposition", "attachment; filename="+fileName+".docx");
-		servletOutputStream.write(bytes);
-		servletOutputStream.flush();
-	}
+	
 	
 	
 	public static String getImageFormateContentType(String contentType) {

@@ -49,6 +49,7 @@ import com.rest.smoothchange.reports.repository.entity.ReportsRepository;
 import com.rest.smoothchange.reports.repository.service.ReportsRepositoryService;
 import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
+import com.rest.smoothchange.util.GeneratedOrUploaded;
 import com.rest.smoothchange.util.ImageUtil;
 import com.rest.smoothchange.util.ReportType;
 
@@ -125,7 +126,7 @@ public class ReportsRepositoryController {
 			ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
 			reportsRepositoryDto.setComment(comment);
 			reportsRepositoryDto.setDateTime(new Date());
-			reportsRepositoryDto.setGeneratedOrUploaded("Uploaded");
+			reportsRepositoryDto.setGeneratedOrUploaded(GeneratedOrUploaded.Uploaded.getGeneratedUpload());
 			reportsRepositoryDto.setProjectBackground(projectBackgroundDto);
 			reportsRepositoryDto.setReportFile(byteArray);
 			reportsRepositoryDto.setReportFileSize(file.getSize());
@@ -221,7 +222,7 @@ public class ReportsRepositoryController {
 	}
 	
 	@ApiOperation(value="Generate Business Benifit Report")
-	@RequestMapping(value="businessBenifitMappingReport")
+	@RequestMapping(value="businessBenifitMappingReport",method = RequestMethod.POST)
 	public ResponseEntity businessBenifitMappingReport(@RequestParam("projectId") long projectId , @RequestParam("reportType") String reportType , @RequestParam("userId") String userId , @RequestParam("comment") String comment) throws ParseException, IOException, XDocReportException, NoRecordsFoundException, NoEnumRecordsFoundException {
 		
 		byte [] uploadFile = {};
@@ -252,7 +253,7 @@ public class ReportsRepositoryController {
         	ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
 			reportsRepositoryDto.setComment(comment);
 			reportsRepositoryDto.setDateTime(new Date());
-			reportsRepositoryDto.setGeneratedOrUploaded("Uploaded");
+			reportsRepositoryDto.setGeneratedOrUploaded(GeneratedOrUploaded.Generated.getGeneratedUpload());
 			reportsRepositoryDto.setProjectBackground(projectBackgroundDto);
 			reportsRepositoryDto.setReportFile(uploadFile);
 			reportsRepositoryDto.setReportFileSize(0l);

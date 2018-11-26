@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoRecordsFoundException;
@@ -19,6 +20,7 @@ import com.rest.smoothchange.project.background.service.ProjectBackgroundService
 import com.rest.smoothchange.project.background.service.impl.ProjectBackgroundServiceImpl;
 
 @Component
+@Transactional
 public class CommonUtil {
 	@Autowired
 	private ProjectBackgroundService projectService;

@@ -5,6 +5,8 @@ public class MessageEnum {
 	public static final String unathorized="Unauthorized access";
 	public static final String stakeHolderType="Stake holder type not matched";
 	public static final String levelOfInfluence="Level Of Influence not matched";
+	public static final String report_path="D:\\report\\";
+
 	public enum enumMessage {
 		SUCESS("S200", "SUCESS"),
 		UnaAuthorizedAccess("S401", "Unauthorized Access"),
