@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.MatchAlwaysTransactionAttributeSource;
@@ -113,6 +114,25 @@ public class OrganizationInfoController {
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+	}
+	@ApiOperation(value = "Get Organisation Logo By ID")
+	@RequestMapping(value = "/getOrganizationLogoById", method = RequestMethod.GET)
+	public ResponseEntity getOrganizationLogoById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("organizationId") long organizationId)
+			throws IOException, NoRecordsFoundException, UnauthorizedException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+
+		ResponseBean responseBean = new ResponseBean();
+		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(organizationId);
+		if (organizationInfoDto != null && organizationInfoDto.getId() != null) {
+			// OrganizationInfoRequestDto organizationInfoRequestDto =
+			// mapDtoToRequestDto(organizationInfoDto);
+			return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(organizationInfoDto.getLogo());
+		} else {
+			throw new NoRecordsFoundException("Organization Info No Found");
+		}
 	}
 
 	private OrganizationInfoRequestDto mapDtoToRequestDto(OrganizationInfoDto organizationInfoDto) {
