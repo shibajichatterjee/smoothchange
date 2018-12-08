@@ -31,6 +31,7 @@ public class PotiBlueprintMapper extends AbstractMapper<PotiBlueprintDto , PotiB
 			potiBlueprint.setInterimState(dto.getInterimState());
 			potiBlueprint.setInterimToTobeEndDate(dto.getInterimToTobeEndDate());
 			potiBlueprint.setInterimToTobeStartDate(dto.getInterimToTobeStartDate());
+			potiBlueprint.setToBeState(dto.getToBeState());
 			if (dto.getPotiComponent() != null) {
 				potiBlueprint.setPotiComponent(PotiComponentType.getValue(dto.getPotiComponent()));
 			}
@@ -67,6 +68,7 @@ public class PotiBlueprintMapper extends AbstractMapper<PotiBlueprintDto , PotiB
 			potiBlueprint.setInterimState(bo.getInterimState());
 			potiBlueprint.setInterimToTobeEndDate(bo.getInterimToTobeEndDate());
 			potiBlueprint.setInterimToTobeStartDate(bo.getInterimToTobeStartDate());
+			potiBlueprint.setToBeState(bo.getToBeState());
 			if (bo.getPotiComponent() != null) {
 				potiBlueprint.setPotiComponent(bo.getPotiComponent().getNumValue());
 			}

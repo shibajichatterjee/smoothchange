@@ -20,9 +20,9 @@ import com.rest.smoothchange.util.ReportType;
 @Transactional
 public class ReportTemplateServiceImpl extends AbstractService<ReportTemplateDao, ReportTemplateDto, ReportTemplateMapper, ReportTemplate>  implements ReportTemplateService{
 
-	public List<ReportTemplateDto>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType , long projectId){
+	public List<ReportTemplateDto>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType){
 		List<ReportTemplateDto> reportTemplateDtoList = new ArrayList<>();
-		List<ReportTemplate> reportTemplateList = dao.getReportTemplateDetailByTypeAndProjectId(reportType, projectId);
+		List<ReportTemplate> reportTemplateList = dao.getReportTemplateDetailByTypeAndProjectId(reportType);
 		for(ReportTemplate reportTemplate : reportTemplateList) {
 			reportTemplateDtoList.add(mapper.mapEntityToDto(reportTemplate));
 		}

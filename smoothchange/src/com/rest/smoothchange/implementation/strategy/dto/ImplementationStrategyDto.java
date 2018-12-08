@@ -30,6 +30,44 @@ public class ImplementationStrategyDto extends AbstractDTO{
 	private String leadContactDesignation;
 	
 	private long noOfRequiredResources;
+	
+	
+	private  String serialNumber;
+	private  String leadContactNameAndDesignation;
+	private  String noOfResources;
+	private  String expectedResults;
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
+	public String getLeadContactNameAndDesignation() {
+		return leadContactNameAndDesignation;
+	}
+
+	public void setLeadContactNameAndDesignation(String leadContactNameAndDesignation) {
+		this.leadContactNameAndDesignation = leadContactNameAndDesignation;
+	}
+
+	public String getNoOfResources() {
+		return noOfResources;
+	}
+
+	public void setNoOfResources(String noOfResources) {
+		this.noOfResources = noOfResources;
+	}
+
+	public String getExpectedResults() {
+		return expectedResults;
+	}
+
+	public void setExpectedResults(String expectedResults) {
+		this.expectedResults = expectedResults;
+	}
 
 	public String getLeadContactDesignation() {
 		return leadContactDesignation;

@@ -9,6 +9,6 @@ import com.rest.smoothchange.util.ReportType;
 
 public interface ReportTemplateService extends Service<ReportTemplateDto>{
 	
-	public List<ReportTemplateDto>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType2, long projectId);
+	public List<ReportTemplateDto>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType2);
 
 }

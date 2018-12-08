@@ -62,7 +62,7 @@ public class ReportTemplateController {
 	@ApiOperation(value = "Upload Reports Template")
 	@RequestMapping(value = "/uploadReportsTemplate", method = RequestMethod.POST)
 	public ResponseEntity uploadReportsTemplate(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("report") MultipartFile file, @RequestParam("projectId") long projectId,
+			@RequestParam("report") MultipartFile file,
 			@RequestParam("reportType") String reportType, @RequestParam("comment") String comment,
 			@RequestParam("userId") String userId) throws IOException, UnauthorizedException, ParseException,
 			NoRecordsFoundException, NoEnumRecordsFoundException {
@@ -75,26 +75,24 @@ public class ReportTemplateController {
 		if (reportType2 == null) {
 			throw new NoEnumRecordsFoundException("Report type Not Present");
 		}
+		List<ReportTemplateDto> reportTemplateDtoList = reportTemplateService.getReportTemplateDetailByTypeAndProjectId(reportType2);
+		byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
+		ReportTemplateDto reportTemplateDto = new ReportTemplateDto();
+		reportTemplateDto.setComment(comment);
+		reportTemplateDto.setUploadedOn(new Date());
+		reportTemplateDto.setTemplateFile(byteArray);
+		reportTemplateDto.setTemplateFileSize(file.getSize());
+		reportTemplateDto.setReportType(reportType);
+		reportTemplateDto.setUserId(userId);
+		reportTemplateDto.setId(reportTemplateDtoList.get(0).getId());
+		if (reportTemplateDtoList == null || reportTemplateDtoList.size() == 0) {
 
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
-		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
-			projectBackgroundDto.setId(projectId);
-			ReportsRepository reportsRepository = new ReportsRepository();
-			byte[] byteArray = ImageUtil.getByteArrayFromMaltipartFormData(file);
-			ReportTemplateDto reportTemplateDto = new ReportTemplateDto();
-			reportTemplateDto.setComment(comment);
-			reportTemplateDto.setUploadedOn(new Date());
-			reportTemplateDto.setProjectBackground(projectBackgroundDto);
-			reportTemplateDto.setTemplateFile(byteArray);
-			reportTemplateDto.setTemplateFileSize(file.getSize());
-			reportTemplateDto.setReportType(reportType);
-			reportTemplateDto.setUserId(userId);
 			long reportsRepositoryId = (Long) reportTemplateService.create(reportTemplateDto);
-			responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
-
 		} else {
-			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
+			reportTemplateService.update(reportTemplateDto);
 		}
+
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
@@ -132,10 +130,10 @@ public class ReportTemplateController {
 	              .body(resource);
 	      }
 
-	@ApiOperation(value = "Get Reports Template By Report Type And Project Id")
+	@ApiOperation(value = "Get Reports Template By Report Type")
 	@RequestMapping(value = "getAllReportsTemplateByProjectId", method = RequestMethod.GET)
 	public ResponseEntity getAllReportsTemplateByProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("type") String reportType, @RequestParam("projectId") long projectId)
+			@RequestParam("type") String reportType)
 			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -146,10 +144,9 @@ public class ReportTemplateController {
 			throw new NoEnumRecordsFoundException("Report type Not Present");
 		}
 		List<ReportTemplateRequestDto> reportTemplateRequestDtoList = new ArrayList<>();
-		ProjectBackgroundDto projectBackgroundDto = projectBackgroundService.getById(projectId);
-		if (projectBackgroundDto != null && projectBackgroundDto.getId() != null) {
+		
 			List<ReportTemplateDto> reportTemplateDtoList = reportTemplateService
-					.getReportTemplateDetailByTypeAndProjectId(reportType2, projectId);
+					.getReportTemplateDetailByTypeAndProjectId(reportType2);
 			if (reportTemplateDtoList != null && reportTemplateDtoList.size() > 0) {
 				for (ReportTemplateDto reportTemplateDto : reportTemplateDtoList) {
 					reportTemplateRequestDtoList.add(mapReportsTemplateDtoToRequestDto(reportTemplateDto));
@@ -158,9 +155,7 @@ public class ReportTemplateController {
 			} else {
 				throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 			}
-		} else {
-			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
-		}
+		
 		return new ResponseEntity(responseBean, HttpStatus.OK);
 	}
 

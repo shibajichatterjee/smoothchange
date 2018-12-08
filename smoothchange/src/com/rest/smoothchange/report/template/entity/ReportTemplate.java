@@ -25,10 +25,6 @@ public class ReportTemplate extends AbstractIdentifierObject{
 	
 	private static final long serialVersionUID = 1L;
 	
-	@ManyToOne
-	@JoinColumn(name="project_id")
-	private ProjectBackground projectBackground;
-	
 	@Enumerated(EnumType.ORDINAL)
     private ReportType reportType;
 	
@@ -48,13 +44,7 @@ public class ReportTemplate extends AbstractIdentifierObject{
 	@Column(name="user_id")
 	private String userId;
 
-	public ProjectBackground getProjectBackground() {
-		return projectBackground;
-	}
-
-	public void setProjectBackground(ProjectBackground projectBackground) {
-		this.projectBackground = projectBackground;
-	}
+	
 
 	public ReportType getReportType() {
 		return reportType;

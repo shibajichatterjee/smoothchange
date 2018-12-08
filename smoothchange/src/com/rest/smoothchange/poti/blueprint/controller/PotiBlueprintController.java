@@ -25,6 +25,7 @@ import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsRequestDto;
 import com.rest.smoothchange.poti.blueprint.dto.PotiBlueprintDto;
 import com.rest.smoothchange.poti.blueprint.dto.PotiBlueprintRequestDto;
 import com.rest.smoothchange.poti.blueprint.service.PotiBlueprintService;
+import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.util.ActionType;
 import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
@@ -36,7 +37,7 @@ import io.swagger.annotations.ApiOperation;
 @RestController
 @RequestMapping(value = "/potiBlueprintAPI")
 @Transactional
-@Api(value = "Action Plan Items", description = "Operations For Action Plan Items")
+@Api(value = "POTI Blue print API", description = "Operations For Poti Blue print")
 public class PotiBlueprintController {
 
 	@Autowired
@@ -57,12 +58,37 @@ public class PotiBlueprintController {
 		}
 		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent());
 		if (potiComponentType == null) {
-			throw new NoEnumRecordsFoundException("ActionType not matched");
+			throw new NoEnumRecordsFoundException("PotiComponentType not matched");
 		}
 		commonUtil.getProjectBackGround(projectId);
 		PotiBlueprintDto dto = mapRequestToDto(potiBlueprintRequestDto);
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		potiBlueprintService.create(dto);
+		if(dto!=null){
+			dto.getProjectBackground().setId(Long.parseLong(projectId));
+			potiBlueprintService.create(dto);
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, HttpStatus.OK);
+	}
+	
+	@ApiOperation(value = "Modify POTI Blueprint")
+	@RequestMapping(value = "/ModifyPotiBlueprintAPI", method = RequestMethod.POST)
+	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String projectId,
+			@RequestBody PotiBlueprintRequestDto potiBlueprintRequestDto)
+			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException, ParseException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
+			throw new UnauthorizedException(MessageEnum.unathorized);
+		}
+		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent());
+		if (potiComponentType == null) {
+			throw new NoEnumRecordsFoundException("PotiComponentType not matched");
+		}
+		commonUtil.getProjectBackGround(projectId);
+		PotiBlueprintDto dto = mapRequestToDto(potiBlueprintRequestDto);
+		if(dto!=null){
+			dto.getProjectBackground().setId(Long.parseLong(projectId));
+			potiBlueprintService.update(dto);
+		}
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, HttpStatus.OK);
@@ -133,6 +159,8 @@ public class PotiBlueprintController {
 	   PotiBlueprintDto potiBlueprintDto = null;
 	   if(potiBlueprintRequestDto !=null) {
 		   potiBlueprintDto = new PotiBlueprintDto();
+		   potiBlueprintDto.setProjectBackground(new ProjectBackgroundDto());
+		   potiBlueprintDto.setId(potiBlueprintRequestDto.getId());
 		   potiBlueprintDto.setAsIsState(potiBlueprintRequestDto.getAsIsState());
 		   if(potiBlueprintRequestDto.getAsIsToInterimEndDate()!=null && !potiBlueprintRequestDto.getAsIsToInterimEndDate().equals("")) {
 			   potiBlueprintDto.setAsIsToInterimEndDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getAsIsToInterimEndDate(), dateFormate));	  

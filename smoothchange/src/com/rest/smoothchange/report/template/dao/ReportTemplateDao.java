@@ -9,5 +9,5 @@ import com.rest.smoothchange.util.ReportType;
 
 public interface ReportTemplateDao extends DAO<ReportTemplate>{
 
-	public List<ReportTemplate>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType , long projectId);
+	public List<ReportTemplate>  getReportTemplateDetailByTypeAndProjectId(ReportType reportType);
 }

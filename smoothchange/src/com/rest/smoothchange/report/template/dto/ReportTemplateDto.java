@@ -11,7 +11,6 @@ import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 
 public class ReportTemplateDto extends AbstractIdentifierDTO{
 	
-	private ProjectBackgroundDto projectBackground;
 	
     private String reportType;
 	
@@ -25,13 +24,7 @@ public class ReportTemplateDto extends AbstractIdentifierDTO{
 	
 	private String userId;
 
-	public ProjectBackgroundDto getProjectBackground() {
-		return projectBackground;
-	}
-
-	public void setProjectBackground(ProjectBackgroundDto projectBackground) {
-		this.projectBackground = projectBackground;
-	}
+	
 
 	public String getReportType() {
 		return reportType;
