@@ -19,6 +19,10 @@ public class TrainingPlanEquipmentDto extends AbstractIdentifierDTO{
 	private String  numberRequired;
 	
 	private Date dateRequired;
+	
+	//============ Report Generation =============
+	   private String serialNumber;	
+	// =========== End Report Generation ========
 
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
@@ -51,7 +55,13 @@ public class TrainingPlanEquipmentDto extends AbstractIdentifierDTO{
 	public void setDateRequired(Date dateRequired) {
 		this.dateRequired = dateRequired;
 	}
-	
-	
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
 	
 }

@@ -25,6 +25,10 @@ public class TrainingPlanScheduleDto extends AbstractIdentifierDTO{
 	private Date dateTime;
 
 	private String duration;
+	
+	//============ Report Generation =============
+	   private String serialNumber;	
+	// =========== End Report Generation ========
 
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
@@ -81,5 +85,13 @@ public class TrainingPlanScheduleDto extends AbstractIdentifierDTO{
 	public void setDuration(String duration) {
 		this.duration = duration;
 	}
-	
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+
 }

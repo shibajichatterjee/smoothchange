@@ -24,6 +24,12 @@ public class TrainingPlanVersionHistoryDto extends AbstractIdentifierDTO{
 	private Date approvalDate;
 	
 	private String reason;
+	
+	//============ Report Generation =============
+	
+		private String versionNumber;
+		
+    // =========== End Report Generation ========		
 
 
 	public ProjectBackgroundDto getProjectBackground() {
@@ -81,8 +87,14 @@ public class TrainingPlanVersionHistoryDto extends AbstractIdentifierDTO{
 	public void setReason(String reason) {
 		this.reason = reason;
 	}
-	
-	
+
+	public String getVersionNumber() {
+		return versionNumber;
+	}
+
+	public void setVersionNumber(String versionNumber) {
+		this.versionNumber = versionNumber;
+	}
 	
 	
 }

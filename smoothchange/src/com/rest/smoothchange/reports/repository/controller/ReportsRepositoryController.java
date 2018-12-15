@@ -2,12 +2,8 @@ package com.rest.smoothchange.reports.repository.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +11,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,7 +32,6 @@ import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMappingDto;
-import com.rest.smoothchange.business.benefit.mapping.entity.BusinessBenefitMapping;
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysis;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysisDto;
@@ -50,13 +44,23 @@ import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.project.stakeholders.service.ProjectStakeholdersService;
-import com.rest.smoothchange.report.dto.StakeHolder;
 import com.rest.smoothchange.report.template.dto.ReportTemplateDto;
 import com.rest.smoothchange.report.template.service.ReportTemplateService;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryRequestDto;
 import com.rest.smoothchange.reports.repository.entity.ReportsRepository;
 import com.rest.smoothchange.reports.repository.service.ReportsRepositoryService;
+import com.rest.smoothchange.training.plan.curriculum.lesson.plan.dto.TrainingPlanCurriculumLessonPlanDto;
+import com.rest.smoothchange.training.plan.curriculum.lesson.plan.service.TrainingPlanCurriculumLessonPlanService;
+import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentDto;
+import com.rest.smoothchange.training.plan.equipment.service.TrainingPlanEquipmentService;
+import com.rest.smoothchange.training.plan.roles.responsibilities.dto.TrainingPlanRolesResponsibilitiesDto;
+import com.rest.smoothchange.training.plan.roles.responsibilities.service.TrainingPlanRolesResponsibilitiesService;
+import com.rest.smoothchange.training.plan.schedule.dto.TrainingPlanScheduleDto;
+import com.rest.smoothchange.training.plan.schedule.service.TrainingPlanScheduleService;
+import com.rest.smoothchange.training.plan.service.TrainingPlanService;
+import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersionHistoryDto;
+import com.rest.smoothchange.training.plan.version.history.service.TrainingPlanVersionHistoryService;
 import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
 import com.rest.smoothchange.util.GeneratedOrUploaded;
@@ -106,10 +110,32 @@ public class ReportsRepositoryController {
 
 	@Autowired
 	private ProjectStakeholdersService projectStakeholdersService;
+	
 	@Autowired
 	private ImpactAnalysisService impactAnalysisService;
+	
 	@Autowired
 	private ImplementationStrategyService implementationStrategyService;
+	
+	@Autowired
+	private TrainingPlanService trainingPlanService;
+	
+	@Autowired
+	private TrainingPlanVersionHistoryService trainingPlanVersionHistoryService;
+	
+	@Autowired
+	private TrainingPlanRolesResponsibilitiesService trainingPlanRolesResponsibilitiesService;
+	
+	@Autowired
+	private TrainingPlanEquipmentService trainingPlanEquipmentService;
+	
+	@Autowired
+	private TrainingPlanScheduleService trainingPlanScheduleService;
+	
+	@Autowired
+	private TrainingPlanCurriculumLessonPlanService trainingPlanCurriculumLessonPlanService;
+	
+	
 	@Autowired
 	private CommonUtil commonUtil;
 
@@ -381,6 +407,18 @@ public class ReportsRepositoryController {
 			uploadFile = generateChangeImplementationStrategy(reportTemplateDtoList.get(0),
 					implementationStrategyDtolist, organizationInfoDto, projectBackgroundDto);
 		}
+		
+		if ("Training Plan".equalsIgnoreCase(reportType2.getReportType())) {
+			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);	
+			List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList = trainingPlanVersionHistoryService.getTrainingPlanVersionHistoryListByProjectId(projectId);
+			List<TrainingPlanRolesResponsibilitiesDto> trainingPlanRolesResponsibilitiesDtoList = trainingPlanRolesResponsibilitiesService.getTrainingPlanRolesResponsibilitiesListByProjectId(projectId);
+			List<TrainingPlanEquipmentDto> trainingPlanEquipmentDtoList = trainingPlanEquipmentService.getTrainingPlanEquipmentListByProjectId(projectId);
+			List<TrainingPlanScheduleDto> trainingPlanScheduleDtoList  = trainingPlanScheduleService.getTrainingPlanScheduleListByProjectId(projectId);
+			List<TrainingPlanCurriculumLessonPlanDto> trainingPlanCurriculumLessonPlanDtoList = trainingPlanCurriculumLessonPlanService.getTrainingPlanCurriculumLessonPlanListByProjectId(projectId);
+			 uploadFile = generateTrainingPlan(reportTemplateDtoList.get(0),  organizationInfoDto,trainingPlanVersionHistoryDtoList,trainingPlanRolesResponsibilitiesDtoList,
+						 trainingPlanEquipmentDtoList, trainingPlanScheduleDtoList, trainingPlanCurriculumLessonPlanDtoList, projectBackgroundDto);
+		}
+		
 
 		if (uploadFile != null && uploadFile.length > 0) {
 			ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
@@ -477,6 +515,39 @@ public class ReportsRepositoryController {
 		byte[] byteArray = out.toByteArray();
 		return byteArray;
 	}
+	
+	
+	private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, OrganizationInfoDto organizationObj,
+			List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList,
+			List<TrainingPlanRolesResponsibilitiesDto> trainingPlanRolesResponsibilitiesDtoList,
+			List<TrainingPlanEquipmentDto> trainingPlanEquipmentDtoList,
+			List<TrainingPlanScheduleDto> trainingPlanScheduleDtoList,
+			List<TrainingPlanCurriculumLessonPlanDto> trainingPlanCurriculumLessonPlanDtoList,
+			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
+		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
+		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(targetStream, TemplateEngineKind.Velocity);
+		FieldsMetadata metadata = report.createFieldsMetadata();
+		metadata.load("versionHistory", TrainingPlanVersionHistoryDto.class, true);
+		metadata.load("rolesAndResponsibilities", TrainingPlanRolesResponsibilitiesDto.class, true);
+		metadata.load("equipment", TrainingPlanEquipmentDto.class, true);
+		metadata.load("schedule", TrainingPlanScheduleDto.class, true);
+		metadata.load("lessonPlan", TrainingPlanCurriculumLessonPlanDto.class, true);
+		IContext context = report.createContext();
+		generateTrainingPlanData( organizationObj, trainingPlanVersionHistoryDtoList, trainingPlanRolesResponsibilitiesDtoList, trainingPlanEquipmentDtoList,
+				trainingPlanScheduleDtoList, trainingPlanCurriculumLessonPlanDtoList, projectObj);
+		context.put("organization", organizationObj);
+		context.put("project", projectObj);
+		context.put("versionHistory", trainingPlanVersionHistoryDtoList);
+		context.put("rolesAndResponsibilities", trainingPlanRolesResponsibilitiesDtoList);
+		context.put("equipment", trainingPlanEquipmentDtoList);
+		context.put("schedule", trainingPlanScheduleDtoList);
+		context.put("lessonPlan", trainingPlanCurriculumLessonPlanDtoList);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.process(context, out);
+		byte[] byteArray = out.toByteArray();
+		return byteArray;
+	}
+	
 
 	private void generationBusinessBenifitMappingReportData(
 			List<BusinessBenefitMappingDto> businessBenefitMappingDtolist, ProjectBackgroundDto projectObj,
@@ -604,6 +675,59 @@ public class ReportsRepositoryController {
 			}
 		}
 		return reportsRepositoryRequestDto;
+	}
+	
+	private void generateTrainingPlanData(OrganizationInfoDto organizationInfoDto,
+			List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList,
+			List<TrainingPlanRolesResponsibilitiesDto> trainingPlanRolesResponsibilitiesDtoList,
+			List<TrainingPlanEquipmentDto> trainingPlanEquipmentDtoList,
+			List<TrainingPlanScheduleDto> trainingPlanScheduleDtoList,
+			List<TrainingPlanCurriculumLessonPlanDto> trainingPlanCurriculumLessonPlanDtoList,
+			ProjectBackgroundDto projectObj) {
+		
+		if (projectObj != null) {
+			projectObj.setName(projectObj.getProjectName());
+			projectObj.setDescription(projectObj.getProjectDescription());
+			projectObj.setOwner(projectObj.getOwnerOfChange());
+		}
+
+		if (organizationInfoDto != null) {
+			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
+		}
+		
+		if(trainingPlanCurriculumLessonPlanDtoList!=null && trainingPlanCurriculumLessonPlanDtoList.size()>0) {
+			for(int i = 0 ; i<trainingPlanCurriculumLessonPlanDtoList.size();i++) {
+				trainingPlanCurriculumLessonPlanDtoList.get(i).setSerialNumber((i+1)+"");
+				trainingPlanCurriculumLessonPlanDtoList.get(i).setUnitNumber(trainingPlanCurriculumLessonPlanDtoList.get(i).getCurriculumUnitNo());
+				trainingPlanCurriculumLessonPlanDtoList.get(i).setUnitName(trainingPlanCurriculumLessonPlanDtoList.get(i).getCurriculumUnitName());
+				trainingPlanCurriculumLessonPlanDtoList.get(i).setLessonUnitlNumber(trainingPlanCurriculumLessonPlanDtoList.get(i).getUnitNumber());
+			}
+		}
+		
+		if(trainingPlanVersionHistoryDtoList!=null && trainingPlanVersionHistoryDtoList.size()>0) {
+			for(int i = 0 ; i<trainingPlanVersionHistoryDtoList.size();i++) {
+				trainingPlanVersionHistoryDtoList.get(i).setVersionNumber(trainingPlanVersionHistoryDtoList.get(i).getVersionNo());
+			}
+		}
+		
+		if(trainingPlanRolesResponsibilitiesDtoList!=null && trainingPlanRolesResponsibilitiesDtoList.size()>0) {
+			for(int i = 0 ; i<trainingPlanRolesResponsibilitiesDtoList.size();i++) {
+				trainingPlanRolesResponsibilitiesDtoList.get(i).setSerialNumber((i+1)+"");
+			}
+		}
+		
+		if(trainingPlanEquipmentDtoList!=null && trainingPlanEquipmentDtoList.size()>0) {
+			for(int i = 0 ; i<trainingPlanEquipmentDtoList.size();i++) {
+				trainingPlanEquipmentDtoList.get(i).setSerialNumber((i+1)+"");
+			}
+		}
+		
+		if(trainingPlanScheduleDtoList!=null && trainingPlanScheduleDtoList.size()>0) {
+			for(int i = 0 ; i<trainingPlanScheduleDtoList.size();i++) {
+				trainingPlanScheduleDtoList.get(i).setSerialNumber((i+1)+"");
+			}
+		}
+	
 	}
 
 }
