@@ -118,5 +118,52 @@ public class CommunicationPlanDto extends AbstractDTO {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+	
+	private String stakeHolder;
+	public String getStakeHolder() {
+		return stakeHolder;
+	}
+
+	public void setStakeHolder(String stakeHolder) {
+		this.stakeHolder = stakeHolder;
+	}
+
+	public String getStakeHolderType() {
+		return stakeHolderType;
+	}
+
+	public void setStakeHolderType(String stakeHolderType) {
+		this.stakeHolderType = stakeHolderType;
+	}
+
+	public String getPurpose() {
+		return purpose;
+	}
+
+	public void setPurpose(String purpose) {
+		this.purpose = purpose;
+	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
+	public String getTiming() {
+		return timing;
+	}
+
+	public void setTiming(String timing) {
+		this.timing = timing;
+	}
+
+	private String stakeHolderType;
+	private String purpose;
+	private String channel;
+	private String timing;
+
 
 }

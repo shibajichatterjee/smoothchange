@@ -56,7 +56,7 @@ public class PotiBlueprintController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent());
+		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent().toUpperCase());
 		if (potiComponentType == null) {
 			throw new NoEnumRecordsFoundException("PotiComponentType not matched");
 		}
@@ -79,7 +79,7 @@ public class PotiBlueprintController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent());
+		PotiComponentType potiComponentType = PotiComponentType.getValue(potiBlueprintRequestDto.getPotiComponent().toUpperCase());
 		if (potiComponentType == null) {
 			throw new NoEnumRecordsFoundException("PotiComponentType not matched");
 		}
@@ -104,9 +104,9 @@ public class PotiBlueprintController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		PotiComponentType potiComponentTypeEnum = PotiComponentType.getValue(potiComponentType);
-		if (potiComponentType == null) {
-			throw new NoEnumRecordsFoundException("ActionType not matched");
+		PotiComponentType potiComponentTypeEnum = PotiComponentType.getValue(potiComponentType.toUpperCase());
+		if (potiComponentTypeEnum == null) {
+			throw new NoEnumRecordsFoundException("PotiComponentType not matched");
 		}
 		List<PotiBlueprintRequestDto> potiBlueprintRequestDtos = new ArrayList<>();
 		List<PotiBlueprintDto> potiBlueprintDtos = potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(Long.parseLong(projectId), potiComponentTypeEnum);
@@ -122,7 +122,7 @@ public class PotiBlueprintController {
 	}
 	
 	
-	@ApiOperation(value = "Get POTI Component Detail Id")
+	@ApiOperation(value = "Get POTI Detail By Id")
 	@RequestMapping(value = "/getPotiBluePrientById", method = RequestMethod.GET)
 	public  ResponseEntity getPotiBluePrientById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") long id) throws UnauthorizedException, NoEnumRecordsFoundException, NoRecordsFoundException, ParseException{	
 		ResponseBean responseBean = new ResponseBean();		
@@ -138,8 +138,8 @@ public class PotiBlueprintController {
 		 return  new ResponseEntity(responseBean , HttpStatus.OK);	
 	}
 	
-	@ApiOperation(value = "Delete POTI Component Detail Id")
-	@RequestMapping(value = "/deletePotiBluePrientById", method = RequestMethod.GET)
+	@ApiOperation(value = "Delete POTI Detail By Id")
+	@RequestMapping(value = "/deletePotiBluePrientById", method = RequestMethod.DELETE)
 	public  ResponseEntity deletePotiComponent(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") long id) throws UnauthorizedException, NoEnumRecordsFoundException, NoRecordsFoundException, ParseException{	
 		ResponseBean responseBean = new ResponseBean();		
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -177,7 +177,7 @@ public class PotiBlueprintController {
 		   if(potiBlueprintRequestDto.getInterimToTobeStartDate()!=null && !potiBlueprintRequestDto.getInterimToTobeStartDate().equals("")) {
 			   potiBlueprintDto.setInterimToTobeStartDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getInterimToTobeStartDate(), dateFormate));
 		   }
-		   potiBlueprintDto.setPotiComponent(potiBlueprintRequestDto.getPotiComponent());
+		   potiBlueprintDto.setPotiComponent(potiBlueprintRequestDto.getPotiComponent().toUpperCase());
 		   potiBlueprintDto.setToBeState(potiBlueprintRequestDto.getToBeState());		   
 	   }
 	   return potiBlueprintDto;	   

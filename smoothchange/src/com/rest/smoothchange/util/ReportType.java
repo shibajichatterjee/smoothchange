@@ -10,7 +10,8 @@ public enum ReportType {
 	ChangeReadinessChecklist("Change Readiness Checklist"),
 	CommunicationPlan("Communication Plan"),
 	ChangeManagementPlan("Change Management Plan"),
-	TrainingPlan("Training Plan");
+	TrainingPlan("Training Plan"),
+	POTI("POTI");
 	
 	
 	private String reportType;

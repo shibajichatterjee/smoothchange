@@ -84,7 +84,7 @@ public class OrganizationInfoController {
 	@ApiOperation(value = "Populate Organisation Information")
 	@RequestMapping(value = "/createOrUpdateOrganizationInfo", method = RequestMethod.POST)
 	public ResponseEntity updateOrganizationInfo(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("file") MultipartFile file, @RequestParam("organisationName") String organisationName,
+			@RequestParam(value="file",required = false) MultipartFile file, @RequestParam("organisationName") String organisationName,
 			@RequestParam("address") String address)
 			throws IOException, NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {

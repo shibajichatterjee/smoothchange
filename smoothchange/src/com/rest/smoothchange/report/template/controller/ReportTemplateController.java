@@ -83,12 +83,12 @@ public class ReportTemplateController {
 		reportTemplateDto.setTemplateFile(byteArray);
 		reportTemplateDto.setTemplateFileSize(file.getSize());
 		reportTemplateDto.setReportType(reportType);
-		reportTemplateDto.setUserId(userId);
-		reportTemplateDto.setId(reportTemplateDtoList.get(0).getId());
+		reportTemplateDto.setUserId(userId);		
 		if (reportTemplateDtoList == null || reportTemplateDtoList.size() == 0) {
 
 			long reportsRepositoryId = (Long) reportTemplateService.create(reportTemplateDto);
 		} else {
+			reportTemplateDto.setId(reportTemplateDtoList.get(0).getId());
 			reportTemplateService.update(reportTemplateDto);
 		}
 
@@ -119,7 +119,7 @@ public class ReportTemplateController {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
 
 		}
-		String fileName = "ReportTemplate_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter)
+		String fileName = "ReportTemplate_"+reportTemplateDto.getReportType()+"_" + DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter)
 		+ "-" + reportTemplateDto.getId();
 	      ByteArrayResource resource = new ByteArrayResource(reportTemplateDto.getTemplateFile());
 
@@ -131,7 +131,7 @@ public class ReportTemplateController {
 	      }
 
 	@ApiOperation(value = "Get Reports Template By Report Type")
-	@RequestMapping(value = "getAllReportsTemplateByProjectId", method = RequestMethod.GET)
+	@RequestMapping(value = "getAllReportsTemplateByReportType", method = RequestMethod.GET)
 	public ResponseEntity getAllReportsTemplateByProjectId(@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("type") String reportType)
 			throws NoEnumRecordsFoundException, NoRecordsFoundException, ParseException, UnauthorizedException {

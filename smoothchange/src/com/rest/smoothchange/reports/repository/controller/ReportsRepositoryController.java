@@ -2,12 +2,8 @@ package com.rest.smoothchange.reports.repository.controller;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,7 +11,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
@@ -37,8 +32,10 @@ import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
 import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMappingDto;
-import com.rest.smoothchange.business.benefit.mapping.entity.BusinessBenefitMapping;
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
+import com.rest.smoothchange.communication.plan.dto.CommunicationPlan;
+import com.rest.smoothchange.communication.plan.dto.CommunicationPlanDto;
+import com.rest.smoothchange.communication.plan.service.CommunicationPlanService;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysis;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysisDto;
 import com.rest.smoothchange.impact.analysis.service.ImpactAnalysisService;
@@ -50,7 +47,6 @@ import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.project.stakeholders.service.ProjectStakeholdersService;
-import com.rest.smoothchange.report.dto.StakeHolder;
 import com.rest.smoothchange.report.template.dto.ReportTemplateDto;
 import com.rest.smoothchange.report.template.service.ReportTemplateService;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
@@ -112,6 +108,8 @@ public class ReportsRepositoryController {
 	private ImplementationStrategyService implementationStrategyService;
 	@Autowired
 	private CommonUtil commonUtil;
+	@Autowired
+	private CommunicationPlanService communicationPlanService;
 
 	@ApiOperation(value = "Upload Reports Repository")
 	@RequestMapping(value = "/uploadReportsRepository", method = RequestMethod.POST)
@@ -160,7 +158,7 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "download Reports Repository")
 	@RequestMapping(value = "downloadReportsRepository", method = RequestMethod.GET)
-	public ResponseEntity<ByteArrayResource> downloadReportsRepository(@RequestParam("API-KEY") String apiKey,
+	public ResponseEntity<ByteArrayResource> downloadReportsRepository(@RequestHeader("API-KEY") String apiKey,
 			@RequestParam("id") long id, HttpServletResponse httpServletResponse)
 			throws IOException, UnauthorizedException, ParseException, NoRecordsFoundException {
 
@@ -170,7 +168,7 @@ public class ReportsRepositoryController {
 		}
 
 		ReportsRepositoryDto reportsRepository = reportsRepositoryService.getById(id);
-		if (reportsRepository == null && reportsRepository.getId() == null) {
+		if (reportsRepository == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
 
 		}
@@ -179,7 +177,7 @@ public class ReportsRepositoryController {
 				+ reportsRepository.getId();
 		ByteArrayResource resource = new ByteArrayResource(reportsRepository.getReportFile());
 
-		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + ".docx")
+		return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + fileName + "_DownLoadReport.docx")
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(reportsRepository.getReportFile().length)
 				.body(resource);
 	}
@@ -327,10 +325,11 @@ public class ReportsRepositoryController {
 
 	@ApiOperation(value = "Generate and Download Report")
 	@RequestMapping(value = "generateDownloadReport", method = RequestMethod.POST)
-	public ResponseEntity generateDownloadReport(@RequestHeader("API-KEY") String apiKey,@RequestParam("projectId") long projectId,
-			@RequestParam("reportType") String reportType, @RequestParam("userId") String userId,
-			@RequestParam("comment") String comment) throws ParseException, IOException, XDocReportException,
-			NoRecordsFoundException, NoEnumRecordsFoundException, UnauthorizedException {
+	public ResponseEntity generateDownloadReport(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("projectId") long projectId, @RequestParam("reportType") String reportType,
+			@RequestParam("userId") String userId, @RequestParam("comment") String comment)
+			throws ParseException, IOException, XDocReportException, NoRecordsFoundException,
+			NoEnumRecordsFoundException, UnauthorizedException {
 
 		byte[] uploadFile = {};
 		ResponseBean responseBean = new ResponseBean();
@@ -381,6 +380,13 @@ public class ReportsRepositoryController {
 			uploadFile = generateChangeImplementationStrategy(reportTemplateDtoList.get(0),
 					implementationStrategyDtolist, organizationInfoDto, projectBackgroundDto);
 		}
+		if ("Communication Plan".equalsIgnoreCase(reportType2.getReportType())) {
+			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
+			List<CommunicationPlanDto> communicationPlanlist = communicationPlanService
+					.getCommunicationPlanListByProjectId(projectId);
+			uploadFile = generateCommunicationPlan(reportTemplateDtoList.get(0), communicationPlanlist,
+					organizationInfoDto, projectBackgroundDto);
+		}
 
 		if (uploadFile != null && uploadFile.length > 0) {
 			ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
@@ -398,7 +404,7 @@ public class ReportsRepositoryController {
 		ByteArrayResource resource = new ByteArrayResource(uploadFile);
 
 		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + reportType2.getReportType() + ".docx")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + reportType2.getReportType() + "_DownLoadReport.docx")
 				.contentType(MediaType.APPLICATION_OCTET_STREAM).contentLength(uploadFile.length).body(resource);
 	}
 
@@ -472,6 +478,25 @@ public class ReportsRepositoryController {
 		context.put("organization", organizationObj);
 		context.put("project", projectObj);
 		context.put("changeimplementationstrategy", implementationStrategyDtolist);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.process(context, out);
+		byte[] byteArray = out.toByteArray();
+		return byteArray;
+	}
+
+	private byte[] generateCommunicationPlan(ReportTemplateDto reportTemplateDto,
+			List<CommunicationPlanDto> communicationPlanlist, OrganizationInfoDto organizationObj,
+			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
+		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
+		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(targetStream, TemplateEngineKind.Velocity);
+		FieldsMetadata metadata = report.createFieldsMetadata();
+		metadata.load("communication", CommunicationPlan.class, true);
+		IContext context = report.createContext();
+		List<CommunicationPlan> ll=generationCommunicationPlanReportData(communicationPlanlist, projectObj, organizationObj);
+
+		context.put("organization", organizationObj);
+		context.put("project", projectObj);
+		context.put("communication", ll);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.process(context, out);
 		byte[] byteArray = out.toByteArray();
@@ -581,6 +606,43 @@ public class ReportsRepositoryController {
 			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
 		}
 		return listImpactAnalysis;
+	}
+
+	private List<CommunicationPlan> generationCommunicationPlanReportData(
+			List<CommunicationPlanDto> communicationPlanlist, ProjectBackgroundDto projectObj,
+			OrganizationInfoDto organizationInfoDto) {
+		List<CommunicationPlan> listCommunicationPlan = new ArrayList<>();
+		if (communicationPlanlist != null && communicationPlanlist.size() > 0) {
+			for (int i = 0; i < communicationPlanlist.size(); i++) {
+				CommunicationPlan communicationPlan=new CommunicationPlan();
+				communicationPlan
+						.setStakeHolder(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderName());
+				communicationPlan
+						.setStakeHolderType(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderType());
+				communicationPlan
+						.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal());
+				communicationPlan
+						.setChannel(communicationPlanlist.get(i).getCommunicationChannel().getNumVal());
+				communicationPlan.setFrequency(communicationPlanlist.get(i).getFrequency().getNumVal());
+				communicationPlan.setPreparedBy(communicationPlanlist.get(i).getPreparedBy());
+				communicationPlan.setSentBy(communicationPlanlist.get(i).getSentBy());
+				communicationPlan.setStatus(communicationPlanlist.get(i).getStatus().getNumVal());
+				communicationPlan.setMessage(communicationPlanlist.get(i).getMessage());
+				communicationPlan.setTiming(communicationPlanlist.get(i).getTiming());
+				listCommunicationPlan.add(communicationPlan);
+			}
+		}
+
+		if (projectObj != null) {
+			projectObj.setName(projectObj.getProjectName());
+			projectObj.setDescription(projectObj.getProjectDescription());
+			projectObj.setOwner(projectObj.getOwnerOfChange());
+		}
+
+		if (organizationInfoDto != null) {
+			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
+		}
+		return listCommunicationPlan;
 	}
 
 	private ReportsRepositoryRequestDto mapReportsRepositoryDtoToRequestDto(ReportsRepositoryDto reportsRepository)
