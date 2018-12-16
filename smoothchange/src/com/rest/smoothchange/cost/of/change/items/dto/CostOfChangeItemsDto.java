@@ -19,7 +19,14 @@ public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
 	
 	private String approver;
 	
-	private ApprovalStatus approvalStatus;
+	private ApprovalStatus approvalStatusObj;
+	
+	//========== Report  ========
+	
+	private String serialNumber;
+	
+	private String approvalStatus;
+	//=========== End Report =========
 
 	
 	public CostOfChangeDto getCostOfChange() {
@@ -54,16 +61,28 @@ public class CostOfChangeItemsDto extends AbstractIdentifierDTO{
 		this.approver = approver;
 	}
 
-	public ApprovalStatus getApprovalStatus() {
+	public ApprovalStatus getApprovalStatusObj() {
+		return approvalStatusObj;
+	}
+
+	public void setApprovalStatusObj(ApprovalStatus approvalStatusObj) {
+		this.approvalStatusObj = approvalStatusObj;
+	}
+
+	public String getApprovalStatus() {
 		return approvalStatus;
 	}
 
-	public void setApprovalStatus(ApprovalStatus approvalStatus) {
+	public void setApprovalStatus(String approvalStatus) {
 		this.approvalStatus = approvalStatus;
 	}
 
-	
+	public String getSerialNumber() {
+		return serialNumber;
+	}
 
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
 	
-		
 }

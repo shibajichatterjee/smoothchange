@@ -31,8 +31,14 @@ import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
+import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsDto;
+import com.rest.smoothchange.action.plan.items.service.ActionPlanItemsService;
 import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMappingDto;
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
+import com.rest.smoothchange.cost.of.change.dto.CostOfChangeDto;
+import com.rest.smoothchange.cost.of.change.items.dto.CostOfChangeItemsDto;
+import com.rest.smoothchange.cost.of.change.items.service.CostOfChangeItemsService;
+import com.rest.smoothchange.cost.of.change.service.CostOfChangeService;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysis;
 import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysisDto;
 import com.rest.smoothchange.impact.analysis.service.ImpactAnalysisService;
@@ -50,6 +56,8 @@ import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryRequestDto;
 import com.rest.smoothchange.reports.repository.entity.ReportsRepository;
 import com.rest.smoothchange.reports.repository.service.ReportsRepositoryService;
+import com.rest.smoothchange.support.plan.items.dto.SupportPlanItemsDto;
+import com.rest.smoothchange.support.plan.items.service.SupportPlanItemsService;
 import com.rest.smoothchange.training.plan.curriculum.lesson.plan.dto.TrainingPlanCurriculumLessonPlanDto;
 import com.rest.smoothchange.training.plan.curriculum.lesson.plan.service.TrainingPlanCurriculumLessonPlanService;
 import com.rest.smoothchange.training.plan.equipment.dto.TrainingPlanEquipmentDto;
@@ -135,6 +143,17 @@ public class ReportsRepositoryController {
 	@Autowired
 	private TrainingPlanCurriculumLessonPlanService trainingPlanCurriculumLessonPlanService;
 	
+	@Autowired
+	private ActionPlanItemsService actionPlanItemsService;
+	
+	@Autowired
+	private CostOfChangeItemsService costOfChangeItemsService;
+	
+	@Autowired
+	private CostOfChangeService costOfChangeService;
+	
+	@Autowired
+	private SupportPlanItemsService supportPlanItemsService;
 	
 	@Autowired
 	private CommonUtil commonUtil;
@@ -198,7 +217,6 @@ public class ReportsRepositoryController {
 		ReportsRepositoryDto reportsRepository = reportsRepositoryService.getById(id);
 		if (reportsRepository == null && reportsRepository.getId() == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
-
 		}
 		String fileName = reportsRepository.getReportType()
 				+ DateUtil.getFormattedDateStringFromDate(new Date(), dateFormatter_with_min_ss) + "-"
@@ -419,6 +437,15 @@ public class ReportsRepositoryController {
 						 trainingPlanEquipmentDtoList, trainingPlanScheduleDtoList, trainingPlanCurriculumLessonPlanDtoList, projectBackgroundDto);
 		}
 		
+		if("Change Management Plan".equals(reportType2.getReportType())) {
+			List<ActionPlanItemsDto> actionPlanDtoList = actionPlanItemsService.getActionPlanItemsListByProjectId(projectId);
+			List<CostOfChangeDto> costOfChangeDtoList = costOfChangeService.getCostOfChangeListByProjectId(projectId);
+			List<CostOfChangeItemsDto> costOfChangeItemsDtoList = costOfChangeItemsService.getCostOfChangeItemListByProjectIdCostOfChageId(projectId, costOfChangeDtoList.get(0).getId());
+			List<SupportPlanItemsDto> supportPlanItemsDtoList = supportPlanItemsService.getSupportPlanItemsListByProjectId(projectId);
+			uploadFile = generateChangeManagementPlan(reportTemplateDtoList.get(0),  actionPlanDtoList, costOfChangeDtoList.get(0),
+						 costOfChangeItemsDtoList, supportPlanItemsDtoList, projectBackgroundDto);
+		}
+		
 
 		if (uploadFile != null && uploadFile.length > 0) {
 			ReportsRepositoryDto reportsRepositoryDto = new ReportsRepositoryDto();
@@ -516,7 +543,6 @@ public class ReportsRepositoryController {
 		return byteArray;
 	}
 	
-	
 	private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, OrganizationInfoDto organizationObj,
 			List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList,
 			List<TrainingPlanRolesResponsibilitiesDto> trainingPlanRolesResponsibilitiesDtoList,
@@ -547,8 +573,36 @@ public class ReportsRepositoryController {
 		byte[] byteArray = out.toByteArray();
 		return byteArray;
 	}
-	
 
+	private byte[] generateChangeManagementPlan(ReportTemplateDto reportTemplateDto,
+			List<ActionPlanItemsDto> actionPlanDtoList, CostOfChangeDto costOfChangeDto,
+			List<CostOfChangeItemsDto> costOfChangeItemsDtoList, List<SupportPlanItemsDto> supportPlanItemsDtoList,
+			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
+		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
+		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(targetStream, TemplateEngineKind.Velocity);
+		FieldsMetadata metadata = report.createFieldsMetadata();
+		metadata.load("actionPlan", ActionPlanItemsDto.class, true);
+		metadata.load("costOfChangeItems", CostOfChangeItemsDto.class, true);
+		metadata.load("supportPlan", SupportPlanItemsDto.class, true);
+		IContext context = report.createContext();
+		generateChangeManagementPlanData(projectObj,actionPlanDtoList, costOfChangeDto,
+				costOfChangeItemsDtoList, supportPlanItemsDtoList);
+
+		
+		context.put("project", projectObj);
+		context.put("actionPlan", actionPlanDtoList);
+		context.put("costOfChangeItems", costOfChangeItemsDtoList);
+		context.put("costOfChange", costOfChangeDto);
+		context.put("supportPlan", supportPlanItemsDtoList);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.process(context, out);
+		byte[] byteArray = out.toByteArray();
+		return byteArray;
+	}
+	
+	
+	
+	
 	private void generationBusinessBenifitMappingReportData(
 			List<BusinessBenefitMappingDto> businessBenefitMappingDtolist, ProjectBackgroundDto projectObj,
 			OrganizationInfoDto organizationInfoDto) {
@@ -728,6 +782,36 @@ public class ReportsRepositoryController {
 			}
 		}
 	
+	}
+	
+	public void generateChangeManagementPlanData(ProjectBackgroundDto projectObj,List<ActionPlanItemsDto> actionPlanDtoList, CostOfChangeDto costOfChangeDto,
+			List<CostOfChangeItemsDto> costOfChangeItemsDtoList, List<SupportPlanItemsDto> supportPlanItemsDtoList) {
+		
+		if (projectObj != null) {
+			projectObj.setName(projectObj.getProjectName());
+			projectObj.setDescription(projectObj.getProjectDescription());
+			projectObj.setOwner(projectObj.getOwnerOfChange());
+		}
+		
+		if(actionPlanDtoList!=null &&  actionPlanDtoList.size()>0) {
+			for(int i = 0 ; i<actionPlanDtoList.size() ; i++) {
+				actionPlanDtoList.get(i).setSerialNumber((i+1)+"");
+			}
+		}
+		
+		if(supportPlanItemsDtoList!=null &&  supportPlanItemsDtoList.size()>0) {
+			for(int i = 0 ; i<supportPlanItemsDtoList.size(); i++) {
+				supportPlanItemsDtoList.get(i).setSerialNumber((i+1)+"");
+				supportPlanItemsDtoList.get(i).setSupportedStakeholderStatus(supportPlanItemsDtoList.get(i).getSupportedStackHolderStatusObj().getNumVal());
+			}
+		}
+		
+		if(costOfChangeItemsDtoList!=null &&  costOfChangeItemsDtoList.size()>0) {
+			for(int i = 0 ; i<costOfChangeItemsDtoList.size(); i++) {
+				costOfChangeItemsDtoList.get(i).setSerialNumber((i+1)+"");
+				costOfChangeItemsDtoList.get(i).setApprovalStatus(costOfChangeItemsDtoList.get(i).getApprovalStatusObj().getNumVal());
+			}
+		}
 	}
 
 }

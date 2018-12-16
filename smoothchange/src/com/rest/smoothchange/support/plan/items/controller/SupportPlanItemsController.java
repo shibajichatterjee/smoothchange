@@ -172,7 +172,7 @@ public class SupportPlanItemsController {
 		SupportPlanItemsDto supportPlanItemsDto = new SupportPlanItemsDto();
 		supportPlanItemsDto.setSupportActivity(supportPlanItemsRequestDto.getSupportActivity());
 		supportPlanItemsDto.setDuration(supportPlanItemsRequestDto.getDuration());
-		supportPlanItemsDto.setSupportedStackHolderStatus(
+		supportPlanItemsDto.setSupportedStackHolderStatusObj(
 				SupportedStackHolderStatus.getValue(supportPlanItemsRequestDto.getSupportedStackHolderStatus()));
 		supportPlanItemsDto.setPersonResponsible(supportPlanItemsRequestDto.getPersonResponsible());
 		supportPlanItemsDto.setComments(supportPlanItemsRequestDto.getComments());
@@ -186,7 +186,7 @@ public class SupportPlanItemsController {
 		supportPlanItemsRequestDto.setComments(supportPlanItemsDto.getComments());
 		supportPlanItemsRequestDto.setDuration(supportPlanItemsDto.getDuration());
 		supportPlanItemsRequestDto
-				.setSupportedStackHolderStatus(supportPlanItemsDto.getSupportedStackHolderStatus().getNumVal());
+				.setSupportedStackHolderStatus(supportPlanItemsDto.getSupportedStackHolderStatusObj().getNumVal());
 		supportPlanItemsRequestDto.setSupportActivity(supportPlanItemsDto.getSupportActivity());
 		supportPlanItemsRequestDto.setPersonResponsible(supportPlanItemsDto.getPersonResponsible());
 		supportPlanItemsRequestDto.setId(supportPlanItemsDto.getId());

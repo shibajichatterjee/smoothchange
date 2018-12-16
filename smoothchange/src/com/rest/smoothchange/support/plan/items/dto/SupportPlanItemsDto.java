@@ -17,11 +17,18 @@ public class SupportPlanItemsDto extends AbstractIdentifierDTO{
 	
 	private String  duration;
 	
-	private SupportedStackHolderStatus supportedStackHolderStatus;
+	private SupportedStackHolderStatus supportedStackHolderStatusObj;
 	
 	private String  personResponsible;
 	
     private String  comments;
+    
+  //========== Report  ========
+	
+  	private String serialNumber;
+  	private String supportedStakeholderStatus;
+  	
+  //========= End Report =====	
 
 	
 	public ProjectBackgroundDto getProjectBackgroundDto() {
@@ -48,12 +55,21 @@ public class SupportPlanItemsDto extends AbstractIdentifierDTO{
 		this.duration = duration;
 	}
 
-	public SupportedStackHolderStatus getSupportedStackHolderStatus() {
-		return supportedStackHolderStatus;
+
+	public SupportedStackHolderStatus getSupportedStackHolderStatusObj() {
+		return supportedStackHolderStatusObj;
 	}
 
-	public void setSupportedStackHolderStatus(SupportedStackHolderStatus supportedStackHolderStatus) {
-		this.supportedStackHolderStatus = supportedStackHolderStatus;
+	public void setSupportedStackHolderStatusObj(SupportedStackHolderStatus supportedStackHolderStatusObj) {
+		this.supportedStackHolderStatusObj = supportedStackHolderStatusObj;
+	}
+
+	public String getSupportedStakeholderStatus() {
+		return supportedStakeholderStatus;
+	}
+
+	public void setSupportedStakeholderStatus(String supportedStakeholderStatus) {
+		this.supportedStakeholderStatus = supportedStakeholderStatus;
 	}
 
 	public String getPersonResponsible() {
@@ -71,7 +87,14 @@ public class SupportPlanItemsDto extends AbstractIdentifierDTO{
 	public void setComments(String comments) {
 		this.comments = comments;
 	}
-    
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
     
 	
 }
