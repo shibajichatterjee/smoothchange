@@ -16,6 +16,10 @@ public class TrainingPlanRolesResponsibilitiesDto extends AbstractIdentifierDTO{
 	private String role;
 	
 	private String responsibility;
+	
+	//============ Report Generation =============
+	   private String serialNumber;	
+	// =========== End Report Generation ========	
 
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
@@ -47,6 +51,14 @@ public class TrainingPlanRolesResponsibilitiesDto extends AbstractIdentifierDTO{
 
 	public void setResponsibility(String responsibility) {
 		this.responsibility = responsibility;
+	}
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
 	}
 	
 }

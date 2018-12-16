@@ -20,7 +20,11 @@ public class ActionPlanItemsDto extends AbstractDTO{
 
 	private String responsible;
 	
-	private String timeframe;
+	private String timeFrame;
+	
+	//======== For Report =======
+	private String serialNumber;
+	//======== End Of Report =====
 
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
@@ -56,17 +60,24 @@ public class ActionPlanItemsDto extends AbstractDTO{
 		this.responsible = responsible;
 	}
 
-	public String getTimeframe() {
-		return timeframe;
+	public String getTimeFrame() {
+		return timeFrame;
 	}
 
-	public void setTimeframe(String timeframe) {
-		this.timeframe = timeframe;
+	public void setTimeFrame(String timeFrame) {
+		this.timeFrame = timeFrame;
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	
-	
+
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+		
 }

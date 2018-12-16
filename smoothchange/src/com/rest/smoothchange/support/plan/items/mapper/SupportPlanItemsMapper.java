@@ -26,7 +26,7 @@ public class SupportPlanItemsMapper extends AbstractMapper<SupportPlanItemsDto ,
 			   supportPlanItems.setId(dto.getId());
 			   supportPlanItems.setPersonResponsible(dto.getPersonResponsible());
 			   supportPlanItems.setSupportActivity(dto.getSupportActivity());
-			   supportPlanItems.setSupportedStackHolderStatus(dto.getSupportedStackHolderStatus());
+			   supportPlanItems.setSupportedStackHolderStatus(dto.getSupportedStackHolderStatusObj());
 			   if(dto.getProjectBackgroundDto()!=null) {
 				   projectBackground = new ProjectBackground();
 				   projectBackground.setId(dto.getProjectBackgroundDto().getId());
@@ -54,7 +54,7 @@ public class SupportPlanItemsMapper extends AbstractMapper<SupportPlanItemsDto ,
 			   supportPlanItems.setId(bo.getId());
 			   supportPlanItems.setPersonResponsible(bo.getPersonResponsible());
 			   supportPlanItems.setSupportActivity(bo.getSupportActivity());
-			   supportPlanItems.setSupportedStackHolderStatus(bo.getSupportedStackHolderStatus());
+			   supportPlanItems.setSupportedStackHolderStatusObj(bo.getSupportedStackHolderStatus());
 			   if(bo.getProjectBackground()!=null) {
 				   projectBackground = new ProjectBackgroundDto();
 				   projectBackground.setId(bo.getProjectBackground().getId());

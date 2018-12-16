@@ -205,7 +205,7 @@ public class CostOfChangeController {
 
 	private CostOfChangeItemsDto mapRequestToDto(CostOfChangeItemsRequestDto costOfChangeItemsRequestDto) {
 		CostOfChangeItemsDto dto = new CostOfChangeItemsDto();
-		dto.setApprovalStatus(ApprovalStatus.getValue(costOfChangeItemsRequestDto.getApprovalStatus()));
+		dto.setApprovalStatusObj(ApprovalStatus.getValue(costOfChangeItemsRequestDto.getApprovalStatus()));
 		dto.setApprover(costOfChangeItemsRequestDto.getApprover());
 		dto.setChangeActivity(costOfChangeItemsRequestDto.getChangeActivity());
 		dto.setCost(costOfChangeItemsRequestDto.getCost());
@@ -217,7 +217,7 @@ public class CostOfChangeController {
 
 	private CostOfChangeItemsRequestDto mapDtoToRequestDto(CostOfChangeItemsDto costOfChangeItemsDto) {
 		CostOfChangeItemsRequestDto dto = new CostOfChangeItemsRequestDto();
-		dto.setApprovalStatus(costOfChangeItemsDto.getApprovalStatus().getNumVal());
+		dto.setApprovalStatus(costOfChangeItemsDto.getApprovalStatusObj().getNumVal());
 		dto.setApprover(costOfChangeItemsDto.getApprover());
 		dto.setChangeActivity(costOfChangeItemsDto.getChangeActivity());
 		dto.setCost(costOfChangeItemsDto.getCost());

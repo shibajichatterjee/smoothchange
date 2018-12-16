@@ -166,7 +166,7 @@ public class ActionPlanItemsController {
 		dto.setId(actionPlanItemsRequestDto.getId());
 		dto.setProjectBackground(new ProjectBackgroundDto());
 		dto.setResponsible(actionPlanItemsRequestDto.getResponsible());
-		dto.setTimeframe(actionPlanItemsRequestDto.getTimeframe());
+		dto.setTimeFrame(actionPlanItemsRequestDto.getTimeframe());
 
 		return dto;
 	}
@@ -177,7 +177,7 @@ public class ActionPlanItemsController {
 		dto.setActionType(actionPlanItemsDto.getActionType().getNumVal());
 		dto.setId(actionPlanItemsDto.getId());
 		dto.setResponsible(actionPlanItemsDto.getResponsible());
-		dto.setTimeframe(actionPlanItemsDto.getTimeframe());
+		dto.setTimeframe(actionPlanItemsDto.getTimeFrame());
 
 		return dto;
 	}

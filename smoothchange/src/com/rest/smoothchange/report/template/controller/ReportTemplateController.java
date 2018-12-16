@@ -83,10 +83,9 @@ public class ReportTemplateController {
 		reportTemplateDto.setTemplateFile(byteArray);
 		reportTemplateDto.setTemplateFileSize(file.getSize());
 		reportTemplateDto.setReportType(reportType);
-		reportTemplateDto.setUserId(userId);		
-		if (reportTemplateDtoList == null || reportTemplateDtoList.size() == 0) {
-
-			long reportsRepositoryId = (Long) reportTemplateService.create(reportTemplateDto);
+		reportTemplateDto.setUserId(userId);
+	    if (reportTemplateDtoList == null || reportTemplateDtoList.size() == 0) {
+           long reportsRepositoryId = (Long) reportTemplateService.create(reportTemplateDto);
 		} else {
 			reportTemplateDto.setId(reportTemplateDtoList.get(0).getId());
 			reportTemplateService.update(reportTemplateDto);
