@@ -172,10 +172,10 @@ public class PotiBlueprintController {
 		    potiBlueprintDto.setAsIsToInterimStartDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getAsIsToInterimStartDate(), dateFormate));
 		   }
 		   if(potiBlueprintRequestDto.getInterimToTobeEndDate()!=null && !potiBlueprintRequestDto.getInterimToTobeEndDate().equals("")) {
-		    potiBlueprintDto.setInterimToTobeEndDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getInterimToTobeEndDate(), dateFormate));
+		    potiBlueprintDto.setInterimToToBeEndDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getInterimToTobeEndDate(), dateFormate));
 		   }
 		   if(potiBlueprintRequestDto.getInterimToTobeStartDate()!=null && !potiBlueprintRequestDto.getInterimToTobeStartDate().equals("")) {
-			   potiBlueprintDto.setInterimToTobeStartDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getInterimToTobeStartDate(), dateFormate));
+			   potiBlueprintDto.setInterimToToBeStartDate(DateUtil.getFormattedDate(potiBlueprintRequestDto.getInterimToTobeStartDate(), dateFormate));
 		   }
 		   potiBlueprintDto.setPotiComponent(potiBlueprintRequestDto.getPotiComponent().toUpperCase());
 		   potiBlueprintDto.setToBeState(potiBlueprintRequestDto.getToBeState());		   
@@ -198,11 +198,11 @@ public class PotiBlueprintController {
 			   if(potiBlueprintDto.getAsIsToInterimStartDate()!=null && !potiBlueprintDto.getAsIsToInterimStartDate().equals("")) {
 				   potiBlueprintRequestDto.setAsIsToInterimStartDate(DateUtil.getFormattedDateStringFromDate(potiBlueprintDto.getAsIsToInterimStartDate(), dateFormate));
 			   }
-			   if(potiBlueprintDto.getInterimToTobeEndDate()!=null && !potiBlueprintDto.getInterimToTobeEndDate().equals("")) {
-				   potiBlueprintRequestDto.setInterimToTobeEndDate(DateUtil.getFormattedDateStringFromDate(potiBlueprintDto.getInterimToTobeEndDate(), dateFormate));
+			   if(potiBlueprintDto.getInterimToToBeEndDate()!=null && !potiBlueprintDto.getInterimToToBeEndDate().equals("")) {
+				   potiBlueprintRequestDto.setInterimToTobeEndDate(DateUtil.getFormattedDateStringFromDate(potiBlueprintDto.getInterimToToBeEndDate(), dateFormate));
 			   }
-			   if(potiBlueprintDto.getInterimToTobeStartDate()!=null && !potiBlueprintDto.getInterimToTobeStartDate().equals("")) {
-				   potiBlueprintRequestDto.setInterimToTobeStartDate(DateUtil.getFormattedDateStringFromDate(potiBlueprintDto.getInterimToTobeStartDate(), dateFormate));
+			   if(potiBlueprintDto.getInterimToToBeStartDate()!=null && !potiBlueprintDto.getInterimToToBeStartDate().equals("")) {
+				   potiBlueprintRequestDto.setInterimToTobeStartDate(DateUtil.getFormattedDateStringFromDate(potiBlueprintDto.getInterimToToBeStartDate(), dateFormate));
 			   }
 			   potiBlueprintRequestDto.setPotiComponent(potiBlueprintDto.getPotiComponent());
 			   potiBlueprintRequestDto.setToBeState(potiBlueprintDto.getToBeState());	

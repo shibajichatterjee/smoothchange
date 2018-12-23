@@ -29,8 +29,8 @@ public class PotiBlueprintMapper extends AbstractMapper<PotiBlueprintDto , PotiB
 			potiBlueprint.setHowToAchieve(dto.getHowToAchieve());
 			potiBlueprint.setId(dto.getId());
 			potiBlueprint.setInterimState(dto.getInterimState());
-			potiBlueprint.setInterimToTobeEndDate(dto.getInterimToTobeEndDate());
-			potiBlueprint.setInterimToTobeStartDate(dto.getInterimToTobeStartDate());
+			potiBlueprint.setInterimToTobeEndDate(dto.getInterimToToBeEndDate());
+			potiBlueprint.setInterimToTobeStartDate(dto.getInterimToToBeStartDate());
 			potiBlueprint.setToBeState(dto.getToBeState());
 			if (dto.getPotiComponent() != null) {
 				potiBlueprint.setPotiComponent(PotiComponentType.getValue(dto.getPotiComponent()));
@@ -66,8 +66,8 @@ public class PotiBlueprintMapper extends AbstractMapper<PotiBlueprintDto , PotiB
 			potiBlueprint.setHowToAchieve(bo.getHowToAchieve());
 			potiBlueprint.setId(bo.getId());
 			potiBlueprint.setInterimState(bo.getInterimState());
-			potiBlueprint.setInterimToTobeEndDate(bo.getInterimToTobeEndDate());
-			potiBlueprint.setInterimToTobeStartDate(bo.getInterimToTobeStartDate());
+			potiBlueprint.setInterimToToBeEndDate(bo.getInterimToTobeEndDate());
+			potiBlueprint.setInterimToToBeStartDate(bo.getInterimToTobeStartDate());
 			potiBlueprint.setToBeState(bo.getToBeState());
 			if (bo.getPotiComponent() != null) {
 				potiBlueprint.setPotiComponent(bo.getPotiComponent().getNumValue());

@@ -35,6 +35,9 @@ import com.rest.smoothchange.action.plan.items.dto.ActionPlanItemsDto;
 import com.rest.smoothchange.action.plan.items.service.ActionPlanItemsService;
 import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMappingDto;
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
+import com.rest.smoothchange.change.readiness.categories.dto.ChangeReadinessCategoriesDto;
+import com.rest.smoothchange.change.readiness.categories.dto.ChangeReadinessCategoryReportDto;
+import com.rest.smoothchange.change.readiness.categories.service.ChangeReadinessCategoriesService;
 import com.rest.smoothchange.communication.plan.dto.CommunicationPlan;
 import com.rest.smoothchange.communication.plan.dto.CommunicationPlanDto;
 import com.rest.smoothchange.communication.plan.service.CommunicationPlanService;
@@ -49,10 +52,14 @@ import com.rest.smoothchange.implementation.strategy.dto.ImplementationStrategyD
 import com.rest.smoothchange.implementation.strategy.service.ImplementationStrategyService;
 import com.rest.smoothchange.organization.info.dto.OrganizationInfoDto;
 import com.rest.smoothchange.organization.info.service.OrganizationInfoService;
+import com.rest.smoothchange.poti.blueprint.dto.PotiBlueprintDto;
+import com.rest.smoothchange.poti.blueprint.service.PotiBlueprintService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.project.stakeholders.service.ProjectStakeholdersService;
+import com.rest.smoothchange.readiness.category.items.dto.ReadinessCategoryItemsRequestDto;
+import com.rest.smoothchange.readiness.category.items.service.ReadinessCategoryItemsService;
 import com.rest.smoothchange.report.template.dto.ReportTemplateDto;
 import com.rest.smoothchange.report.template.service.ReportTemplateService;
 import com.rest.smoothchange.reports.repository.dto.ReportsRepositoryDto;
@@ -76,6 +83,7 @@ import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
 import com.rest.smoothchange.util.GeneratedOrUploaded;
 import com.rest.smoothchange.util.ImageUtil;
+import com.rest.smoothchange.util.PotiComponentType;
 import com.rest.smoothchange.util.ReportType;
 
 import fr.opensagres.xdocreport.core.XDocReportException;
@@ -158,6 +166,15 @@ public class ReportsRepositoryController {
 	
 	@Autowired
 	private SupportPlanItemsService supportPlanItemsService;
+	
+	@Autowired
+	private PotiBlueprintService potiBlueprintService;
+	@Autowired
+	private ReadinessCategoryItemsService readinessCategoryItemService;
+
+	@Autowired
+	private ChangeReadinessCategoriesService changeReadinessCategoriesService;
+
 
 	@ApiOperation(value = "Upload Reports Repository")
 	@RequestMapping(value = "/uploadReportsRepository", method = RequestMethod.POST)
@@ -399,37 +416,34 @@ public class ReportsRepositoryController {
 		if (projectBackgroundDto == null || projectBackgroundDto.getId() == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
 		}
+		OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
+
 
 		if ("Business Benefits Mapping".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
 			List<BusinessBenefitMappingDto> businessBenefitMappingDtolist = bsinessBenefitMappingService
 					.getBusinessBenefitMappingListByProjectId(projectId);
 			uploadFile = generateBusinessBenefitMapping(reportTemplateDtoList.get(0), businessBenefitMappingDtolist,
 					organizationInfoDto, projectBackgroundDto);
 		}
 		if ("Stakeholder Analysis".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
 			List<ProjectStakeholdersDto> stakeHolderDtolist = projectStakeholdersService
 					.getStakeHolderListByProjectId(projectId);
 			uploadFile = generateStakeHolderAnalysis(reportTemplateDtoList.get(0), stakeHolderDtolist,
 					organizationInfoDto, projectBackgroundDto);
 		}
 		if ("Impact Analysis".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
 			List<ImpactAnalysisDto> impactAnalysisDtolist = impactAnalysisService
 					.getImpactAnalysisListByProjectId(projectId);
 			uploadFile = generateImpactAnalysis(reportTemplateDtoList.get(0), impactAnalysisDtolist,
 					organizationInfoDto, projectBackgroundDto);
 		}
 		if ("Change Implementation Strategy".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
 			List<ImplementationStrategyDto> implementationStrategyDtolist = implementationStrategyService
 					.getImplementationStrategyListByProjectId(projectId);
 			uploadFile = generateChangeImplementationStrategy(reportTemplateDtoList.get(0),
 					implementationStrategyDtolist, organizationInfoDto, projectBackgroundDto);
 		}
 		if ("Training Plan".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);	
 			List<TrainingPlanVersionHistoryDto> trainingPlanVersionHistoryDtoList = trainingPlanVersionHistoryService.getTrainingPlanVersionHistoryListByProjectId(projectId);
 			List<TrainingPlanRolesResponsibilitiesDto> trainingPlanRolesResponsibilitiesDtoList = trainingPlanRolesResponsibilitiesService.getTrainingPlanRolesResponsibilitiesListByProjectId(projectId);
 			List<TrainingPlanEquipmentDto> trainingPlanEquipmentDtoList = trainingPlanEquipmentService.getTrainingPlanEquipmentListByProjectId(projectId);
@@ -448,11 +462,45 @@ public class ReportsRepositoryController {
 						 costOfChangeItemsDtoList, supportPlanItemsDtoList, projectBackgroundDto);
 		}
 		if ("Communication Plan".equalsIgnoreCase(reportType2.getReportType())) {
-			OrganizationInfoDto organizationInfoDto = organizationInfoService.getById(1L);
 			List<CommunicationPlanDto> communicationPlanlist = communicationPlanService
 					.getCommunicationPlanListByProjectId(projectId);
 			uploadFile = generateCommunicationPlan(reportTemplateDtoList.get(0), communicationPlanlist,
 					organizationInfoDto, projectBackgroundDto);
+		}
+		if ("POTI".equalsIgnoreCase(reportType2.getReportType())) {
+			List<PotiBlueprintDto> information= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.INFORMATION);
+			List<PotiBlueprintDto> process= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.PROCESS);
+			List<PotiBlueprintDto> technology= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.TECHNOLOGY);
+			List<PotiBlueprintDto> organization= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.ORGANIZATION);
+
+			uploadFile = generatePOTI(reportTemplateDtoList.get(0), information,process,technology,organization,
+					organizationInfoDto, projectBackgroundDto);
+		}
+		if ("Change Readiness Checklist".equalsIgnoreCase(reportType2.getReportType())) {
+			List<ChangeReadinessCategoriesDto> changeReadinessCategoriesList = changeReadinessCategoriesService
+					.getChangeReadinessCategoriesListByProjectId(projectId);
+			List<ChangeReadinessCategoryReportDto> changeReadinessCategoryReportDtoList =new ArrayList<>();
+			for (ChangeReadinessCategoriesDto changeReadinessCategoriesDto : changeReadinessCategoriesList) {
+				ChangeReadinessCategoryReportDto changeReadinessCategoryReportDto = new ChangeReadinessCategoryReportDto();
+				changeReadinessCategoryReportDto
+						.setCategory(changeReadinessCategoriesDto.getChangeReadinessCategoryName());
+				List<ReadinessCategoryItemsRequestDto> readinessCategoryItemsRequestDtoList = readinessCategoryItemService
+						.getRedinessCategoryItemDetailByCategoryIdProjectId(changeReadinessCategoriesDto.getId(),
+								projectId);
+				for(ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto:readinessCategoryItemsRequestDtoList)
+				{
+					changeReadinessCategoryReportDto.setApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
+					changeReadinessCategoryReportDto.setDate1(readinessCategoryItemsRequestDto.getChangeReadinessDate1());
+					changeReadinessCategoryReportDto.setDate2(readinessCategoryItemsRequestDto.getChangeReadinessDate2());
+					changeReadinessCategoryReportDto.setItemCode(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
+					changeReadinessCategoryReportDto.setItemDescription(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
+					changeReadinessCategoryReportDto.setResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+				}
+				changeReadinessCategoryReportDtoList.add(changeReadinessCategoryReportDto);
+			}
+			uploadFile = generateChangeReadinessChecklist(reportTemplateDtoList.get(0), changeReadinessCategoryReportDtoList,
+					organizationInfoDto, projectBackgroundDto);
+
 		}
 
 		if (uploadFile != null && uploadFile.length > 0) {
@@ -625,6 +673,54 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		byte[] byteArray = out.toByteArray();
 		return byteArray;
 	}
+	
+	private byte[] generatePOTI(ReportTemplateDto reportTemplateDto,
+			List<PotiBlueprintDto> information,List<PotiBlueprintDto> process,List<PotiBlueprintDto> technology,List<PotiBlueprintDto> organization, OrganizationInfoDto organizationObj,
+			
+			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
+		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
+		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(targetStream, TemplateEngineKind.Velocity);
+		FieldsMetadata metadata = report.createFieldsMetadata();
+		metadata.load("information", PotiBlueprintDto.class, true);
+		metadata.load("process", PotiBlueprintDto.class, true);
+		metadata.load("technology", PotiBlueprintDto.class, true);
+		metadata.load("organization", PotiBlueprintDto.class, true);
+
+		IContext context = report.createContext();
+		generationPOTIData(projectObj, organizationObj);
+
+		context.put("organization", organizationObj);
+		context.put("project", projectObj);
+		context.put("information", information);
+		context.put("technology", technology);
+
+		context.put("process", process);
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.process(context, out);
+		byte[] byteArray = out.toByteArray();
+		return byteArray;
+	}
+	
+	private byte[] generateChangeReadinessChecklist(ReportTemplateDto reportTemplateDto,List<ChangeReadinessCategoryReportDto>changeReadinessCategoryReportDtoList,OrganizationInfoDto organizationObj,
+			
+			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
+		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
+		IXDocReport report = XDocReportRegistry.getRegistry().loadReport(targetStream, TemplateEngineKind.Velocity);
+		FieldsMetadata metadata = report.createFieldsMetadata();
+		metadata.load("readiness", ChangeReadinessCategoryReportDto.class, true);
+		
+		IContext context = report.createContext();
+		ChangeReadinessCheckData(projectObj, organizationObj);
+		context.put("readiness", changeReadinessCategoryReportDtoList);
+		context.put("organization", organizationObj);
+		context.put("project", projectObj);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.process(context, out);
+		byte[] byteArray = out.toByteArray();
+		return byteArray;
+	}
+
 
 	private void generationBusinessBenifitMappingReportData(
 			List<BusinessBenefitMappingDto> businessBenefitMappingDtolist, ProjectBackgroundDto projectObj,
@@ -872,5 +968,34 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
 		}
 		return listCommunicationPlan;
+	}
+	
+	private void generationPOTIData(ProjectBackgroundDto projectObj,
+			OrganizationInfoDto organizationInfoDto) {
+		
+
+		if (projectObj != null) {
+			projectObj.setName(projectObj.getProjectName());
+			projectObj.setDescription(projectObj.getProjectDescription());
+			projectObj.setOwner(projectObj.getOwnerOfChange());
+		}
+
+		if (organizationInfoDto != null) {
+			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
+		}
+	}
+	private void ChangeReadinessCheckData(ProjectBackgroundDto projectObj,
+			OrganizationInfoDto organizationInfoDto) {
+		
+
+		if (projectObj != null) {
+			projectObj.setName(projectObj.getProjectName());
+			projectObj.setDescription(projectObj.getProjectDescription());
+			projectObj.setOwner(projectObj.getOwnerOfChange());
+		}
+
+		if (organizationInfoDto != null) {
+			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
+		}
 	}
 }
