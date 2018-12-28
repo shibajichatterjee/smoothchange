@@ -10,6 +10,7 @@ import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMapping
 import com.rest.smoothchange.business.benefit.mapping.entity.BusinessBenefitMapping;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
+import com.rest.smoothchange.util.BusinessBenefit;
 import com.rest.smoothchange.util.TypeOfChange;
 
 @Component
@@ -23,8 +24,8 @@ public class BusinessBenefitMappingMapper extends AbstractMapper<BusinessBenefit
 		if(dto!=null) {
 			businessBenefitMapping = new BusinessBenefitMapping();
 			ProjectBackground projectBackground =null;
-			businessBenefitMapping.setId(dto.getId());
-			businessBenefitMapping.setBusinessBenefit(dto.getBusinessBenefit());
+			businessBenefitMapping.setId(dto.getId());	
+			businessBenefitMapping.setBusinessBenefit(BusinessBenefit.getValue(dto.getBusinessBenefit()));		
 			businessBenefitMapping.setAffectedParty(dto.getAffectedParty());
 			
 			if(dto.getProjectBackground()!=null) {
@@ -48,7 +49,9 @@ public class BusinessBenefitMappingMapper extends AbstractMapper<BusinessBenefit
 			businessBenefitMappingDto = new BusinessBenefitMappingDto();
 			ProjectBackgroundDto projectBackground =null;
 			businessBenefitMappingDto.setId(bo.getId());
-			businessBenefitMappingDto.setBusinessBenefit(bo.getBusinessBenefit());
+			if(bo.getBusinessBenefit()!=null) {
+			 businessBenefitMappingDto.setBusinessBenefit(bo.getBusinessBenefit().getValue());
+			}
 			businessBenefitMappingDto.setAffectedParty(bo.getAffectedParty());
 			if(bo.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackgroundDto();			

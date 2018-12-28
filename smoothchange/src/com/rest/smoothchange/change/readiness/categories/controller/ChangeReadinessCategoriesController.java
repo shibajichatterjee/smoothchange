@@ -1,6 +1,5 @@
 package com.rest.smoothchange.change.readiness.categories.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import com.rest.framework.bean.ResponseBean;
 import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
-import com.rest.smoothchange.admin.service.AdminService;
 import com.rest.smoothchange.change.readiness.categories.dto.ChangeReadinessCategoriesDto;
 import com.rest.smoothchange.change.readiness.categories.service.ChangeReadinessCategoriesService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
