@@ -34,6 +34,7 @@ public class ProjectStakeholdersMapper extends AbstractMapper<ProjectStakeholder
 			projectStakeholders.setNumberImpacted(dto.getNumberImpacted());
 			projectStakeholders.setRole(dto.getRole());
 			projectStakeholders.setStakeholderName(dto.getStakeholderName());
+			projectStakeholders.setEngagementStrategyOther(dto.getEngagementStrategyOther());
 			StakeholderType stakeholderType = StakeholderType.getValue(dto.getStakeholderType());
 
 			projectStakeholders.setStakeholderType(stakeholderType);
@@ -66,6 +67,7 @@ public class ProjectStakeholdersMapper extends AbstractMapper<ProjectStakeholder
 			projectStakeholdersDto.setRole(bo.getRole());
 			projectStakeholdersDto.setStakeholderName(bo.getStakeholderName());
 			projectStakeholdersDto.setStakeholderType(bo.getStakeholderType().getType());
+			projectStakeholdersDto.setEngagementStrategyOther(bo.getEngagementStrategyOther());
 			if (bo.getProjectBackground() != null) {
 				projectBackground = new ProjectBackgroundDto();
 				projectBackground.setId(bo.getProjectBackground().getId());

@@ -20,6 +20,15 @@ public class ProjectStackeHolderRequestDto {
 	private String LevelOfInfluence;
 
 	private String engagementStrategy;
+private String engagementStrategyOther;
+
+	public String getEngagementStrategyOther() {
+	return engagementStrategyOther;
+}
+
+public void setEngagementStrategyOther(String engagementStrategyOther) {
+	this.engagementStrategyOther = engagementStrategyOther;
+}
 
 	public String getStakeholderName() {
 		return stakeholderName;

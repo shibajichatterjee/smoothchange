@@ -23,6 +23,8 @@ import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMapping
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
+import com.rest.smoothchange.util.BusinessBenefit;
+import com.rest.smoothchange.util.ImplementationActivity;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +50,12 @@ public class BusinessBenefitMappingController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		BusinessBenefit type=BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
+		if (type == null) {
+
+			throw new NoEnumRecordsFoundException("Business Benefit not matched");
+		}
+
 
 		getProjectBackGround(id);
 		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
@@ -68,6 +76,12 @@ public class BusinessBenefitMappingController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		BusinessBenefit type=BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
+		if (type == null) {
+
+			throw new NoEnumRecordsFoundException("Business Benefit not matched");
+		}
+
 
 		getProjectBackGround(id);
 		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
@@ -88,6 +102,7 @@ public class BusinessBenefitMappingController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		
 		getProjectBackGround(projectId);
 		BusinessBenefitMappingDto dto = new BusinessBenefitMappingDto();
 		dto.setId(Long.parseLong(id));

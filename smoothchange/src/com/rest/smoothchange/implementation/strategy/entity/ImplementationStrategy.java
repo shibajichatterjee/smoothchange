@@ -7,6 +7,8 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -15,6 +17,7 @@ import javax.persistence.TemporalType;
 
 import com.rest.framework.entity.AbstractPersistentObject;
 import com.rest.smoothchange.project.background.entity.ProjectBackground;
+import com.rest.smoothchange.util.ImplementationActivity;
 
 @Entity
 @Table(name = "IMPLEMENTATION_STRATEGY")
@@ -26,8 +29,8 @@ public class ImplementationStrategy extends AbstractPersistentObject{
 	@JoinColumn(name="project_id")
 	private ProjectBackground projectBackground;
 	
-	@Column(name="activity")
-	private String activity;
+	@Enumerated(EnumType.ORDINAL)
+	private ImplementationActivity activity;
 	
 	@Column(name="strategic_objective")
 	private String strategicObjective;
@@ -60,11 +63,13 @@ public class ImplementationStrategy extends AbstractPersistentObject{
 		return projectBackground;
 	}
 
-	public String getActivity() {
+	
+
+	public ImplementationActivity getActivity() {
 		return activity;
 	}
 
-	public void setActivity(String activity) {
+	public void setActivity(ImplementationActivity activity) {
 		this.activity = activity;
 	}
 

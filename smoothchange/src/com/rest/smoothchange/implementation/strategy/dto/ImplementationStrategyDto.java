@@ -7,6 +7,7 @@ import java.util.Date;
 
 import com.rest.framework.dto.AbstractDTO;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
+import com.rest.smoothchange.util.ImplementationActivity;
 
 
 public class ImplementationStrategyDto extends AbstractDTO{
@@ -15,6 +16,7 @@ public class ImplementationStrategyDto extends AbstractDTO{
 
 	private ProjectBackgroundDto projectBackground;
 
+	private ImplementationActivity activityEnum;
 	private String activity;
 	
 	private String strategicObjective;
@@ -93,6 +95,18 @@ public class ImplementationStrategyDto extends AbstractDTO{
 
 	public void setProjectBackground(ProjectBackgroundDto projectBackground) {
 		this.projectBackground = projectBackground;
+	}
+
+	
+
+	
+
+	public ImplementationActivity getActivityEnum() {
+		return activityEnum;
+	}
+
+	public void setActivityEnum(ImplementationActivity activityEnum) {
+		this.activityEnum = activityEnum;
 	}
 
 	public String getActivity() {

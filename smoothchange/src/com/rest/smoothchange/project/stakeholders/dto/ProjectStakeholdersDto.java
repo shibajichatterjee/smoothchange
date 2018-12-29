@@ -25,7 +25,16 @@ public class ProjectStakeholdersDto extends AbstractDTO {
 	private String LevelOfInfluence;
 
 	private String engagementStrategy;
+	private String engagementStrategyOther;
 	
+	public String getEngagementStrategyOther() {
+		return engagementStrategyOther;
+	}
+
+	public void setEngagementStrategyOther(String engagementStrategyOther) {
+		this.engagementStrategyOther = engagementStrategyOther;
+	}
+
 	private  String serialNumber;
 	private  String type;
 	private  String name;

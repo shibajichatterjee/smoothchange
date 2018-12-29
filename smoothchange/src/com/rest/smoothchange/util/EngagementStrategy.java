@@ -2,7 +2,7 @@ package com.rest.smoothchange.util;
 
 public enum EngagementStrategy {
 
-	KeyPlayer("Key Player"), KeyInfluencer("Key Influencer"), KeepInformed("Keep Informed");
+	Training("Training"), Communication("Communication"), Both("Both"),TrainingAndOther("Training And Other"),CommunicationAndOther("Communication And Other"),BothAndOther("Both And Other");
 
 	private String numVal;
 

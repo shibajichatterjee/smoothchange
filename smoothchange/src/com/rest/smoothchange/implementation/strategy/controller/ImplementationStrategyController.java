@@ -23,6 +23,7 @@ import com.rest.smoothchange.implementation.strategy.dto.ImplementationStrategyR
 import com.rest.smoothchange.implementation.strategy.service.ImplementationStrategyService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
+import com.rest.smoothchange.util.ImplementationActivity;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -48,6 +49,11 @@ public class ImplementationStrategyController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		ImplementationActivity type=ImplementationActivity.getValue(implementationStrategyRequestDto.getActivity());
+		if (type == null) {
+
+			throw new NoEnumRecordsFoundException("Implementation Activity not matched");
+		}
 
 		getProjectBackGround(id);
 		ImplementationStrategyDto dto = mapRequestToDto(implementationStrategyRequestDto);
@@ -68,6 +74,12 @@ public class ImplementationStrategyController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
+		ImplementationActivity type=ImplementationActivity.getValue(implementationStrategyRequestDto.getActivity());
+		if (type == null) {
+
+			throw new NoEnumRecordsFoundException("Implementation Activity not matched");
+		}
+
 
 		getProjectBackGround(id);
 		ImplementationStrategyDto dto = mapRequestToDto(implementationStrategyRequestDto);
@@ -153,7 +165,7 @@ public class ImplementationStrategyController {
 			ImplementationStrategyRequestDto implementationStrategyRequestDto) {
 		ImplementationStrategyDto implementationStrategyDto = new ImplementationStrategyDto();
 		implementationStrategyDto.setId(implementationStrategyRequestDto.getId());
-		implementationStrategyDto.setActivity(implementationStrategyRequestDto.getActivity());
+		implementationStrategyDto.setActivityEnum(ImplementationActivity.getValue(implementationStrategyRequestDto.getActivity()));
 		implementationStrategyDto.setExpectedResult(implementationStrategyRequestDto.getExpectedResult());
 		implementationStrategyDto.setLeadContactDesignation(implementationStrategyRequestDto.getLeadContactDesignation());
 		implementationStrategyDto.setLeadContactName(implementationStrategyRequestDto.getLeadContactName());
@@ -168,7 +180,7 @@ implementationStrategyDto.setNoOfRequiredResources(implementationStrategyRequest
 	private ImplementationStrategyRequestDto mapDtoToRequestDto(ImplementationStrategyDto implementationStrategyDto) {
 		ImplementationStrategyRequestDto implementationStrategyRequestDto = new ImplementationStrategyRequestDto();
 		implementationStrategyRequestDto.setId(implementationStrategyDto.getId());
-		implementationStrategyRequestDto.setActivity(implementationStrategyDto.getActivity());
+		implementationStrategyRequestDto.setActivity(implementationStrategyDto.getActivityEnum().getNumVal());
 		implementationStrategyRequestDto.setExpectedResult(implementationStrategyDto.getExpectedResult());
 		implementationStrategyRequestDto.setLeadContactDesignation(implementationStrategyDto.getLeadContactDesignation());
 		implementationStrategyRequestDto.setLeadContactName(implementationStrategyDto.getLeadContactName());

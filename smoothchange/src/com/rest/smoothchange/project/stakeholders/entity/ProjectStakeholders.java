@@ -29,7 +29,18 @@ public class ProjectStakeholders extends AbstractPersistentObject{
 
 	@Column(name = "stakeholder_name")
 	private String stakeholderName;
+	@Column(name = "engagement_strategy_other")
+	private String engagementStrategyOther;
 	
+	
+	public String getEngagementStrategyOther() {
+		return engagementStrategyOther;
+	}
+
+	public void setEngagementStrategyOther(String engagementStrategyOther) {
+		this.engagementStrategyOther = engagementStrategyOther;
+	}
+
 	@Enumerated(EnumType.ORDINAL)
 	private StakeholderType stakeholderType;
 	

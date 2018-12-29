@@ -24,7 +24,7 @@ public class ImplementationStrategyMapper extends AbstractMapper<ImplementationS
 			implementationStrategy = new ImplementationStrategy();
 			ProjectBackground projectBackground =null;
 			implementationStrategy.setId(dto.getId());
-			implementationStrategy.setActivity(dto.getActivity());
+			implementationStrategy.setActivity(dto.getActivityEnum());
 			implementationStrategy.setExpectedResult(dto.getExpectedResult());
 			implementationStrategy.setStrategicObjective(dto.getStrategicObjective());
 			implementationStrategy.setStartDate(dto.getStartDate());
@@ -55,7 +55,8 @@ public class ImplementationStrategyMapper extends AbstractMapper<ImplementationS
 			implementationStrategy = new ImplementationStrategyDto();
 			ProjectBackgroundDto projectBackground =null;
 			implementationStrategy.setId(bo.getId());
-			implementationStrategy.setActivity(bo.getActivity());
+			implementationStrategy.setActivityEnum(bo.getActivity());
+			implementationStrategy.setActivity(bo.getActivity().getNumVal());
 			implementationStrategy.setExpectedResult(bo.getExpectedResult());
 			implementationStrategy.setStrategicObjective(bo.getStrategicObjective());
 			implementationStrategy.setStartDate(bo.getStartDate());
