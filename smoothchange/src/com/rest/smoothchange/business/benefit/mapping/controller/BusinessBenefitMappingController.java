@@ -23,8 +23,9 @@ import com.rest.smoothchange.business.benefit.mapping.dto.BusinessBenefitMapping
 import com.rest.smoothchange.business.benefit.mapping.service.BusinessBenefitMappingService;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.background.service.ProjectBackgroundService;
+import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
+import com.rest.smoothchange.project.stakeholders.service.ProjectStakeholdersService;
 import com.rest.smoothchange.util.BusinessBenefit;
-import com.rest.smoothchange.util.ImplementationActivity;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -38,27 +39,36 @@ public class BusinessBenefitMappingController {
 
 	@Autowired
 	private BusinessBenefitMappingService businessBenefitMappingService;
+
 	@Autowired
 	private ProjectBackgroundService projectService;
+
+	@Autowired
+	private ProjectStakeholdersService projectStakeholdersService;
 
 	@ApiOperation(value = "Add a Business Benefit Mapping")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/AddBusinessBenefitMapping", method = RequestMethod.POST)
 	public ResponseEntity create(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+			@RequestParam("stackHolderId") long stackHolderId,
 			@RequestBody BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		BusinessBenefit type=BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
+		BusinessBenefit type = BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
 		if (type == null) {
-
 			throw new NoEnumRecordsFoundException("Business Benefit not matched");
 		}
 
+		ProjectStakeholdersDto projectStakeholdersDto = projectStakeholdersService.getById(stackHolderId);
+		if (projectStakeholdersDto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 
 		getProjectBackGround(id);
 		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
+		dto.setProjectStakeholders(projectStakeholdersDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		businessBenefitMappingService.create(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -71,26 +81,31 @@ public class BusinessBenefitMappingController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyBusinessBenefitMapping", method = RequestMethod.POST)
 	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+			@RequestParam("stackHolderId") long stackHolderId,
 			@RequestBody BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		BusinessBenefit type=BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
-		if (type == null) {
 
+		BusinessBenefit type = BusinessBenefit.getValue(businessBenefitMappingRequestDto.getBusinessBenefit());
+		if (type == null) {
 			throw new NoEnumRecordsFoundException("Business Benefit not matched");
 		}
 
+		ProjectStakeholdersDto projectStakeholdersDto = projectStakeholdersService.getById(stackHolderId);
+		if (projectStakeholdersDto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+		}
 
 		getProjectBackGround(id);
 		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
+		dto.setProjectStakeholders(projectStakeholdersDto);
 		businessBenefitMappingService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
-
 	}
 
 	@ApiOperation(value = "Get Business Benefit Mapping by Id and Project Id")
@@ -102,7 +117,7 @@ public class BusinessBenefitMappingController {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		
+
 		getProjectBackGround(projectId);
 		BusinessBenefitMappingDto dto = new BusinessBenefitMappingDto();
 		dto.setId(Long.parseLong(id));
@@ -142,18 +157,17 @@ public class BusinessBenefitMappingController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
-	
+
 	@ApiOperation(value = "Delete Business Benefit Mapping by Id")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/DeleteBusinessBenefitMappingById", method = RequestMethod.DELETE)
-	public ResponseEntity deleteBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
-		if(!apiKey.equals(MessageEnum.API_KEY))
-		{
+	public ResponseEntity deleteBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,
+			@RequestParam("id") String id) throws UnauthorizedException, NoRecordsFoundException {
+		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		BusinessBenefitMappingDto businessBenefitMappingDto=businessBenefitMappingService.getById(Long.parseLong(id));
-		if(businessBenefitMappingDto==null)
-		{
+		BusinessBenefitMappingDto businessBenefitMappingDto = businessBenefitMappingService.getById(Long.parseLong(id));
+		if (businessBenefitMappingDto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.ID_NOT_VALID.getMessage());
 		}
 		businessBenefitMappingService.deleteById(Long.parseLong(id));
@@ -167,7 +181,8 @@ public class BusinessBenefitMappingController {
 			BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto) {
 		BusinessBenefitMappingDto businessBenefitMappingDto = new BusinessBenefitMappingDto();
 		businessBenefitMappingDto.setId(businessBenefitMappingRequestDto.getId());
-		businessBenefitMappingDto.setBusiness_benefit_other(businessBenefitMappingRequestDto.getBusiness_benefit_other());
+		businessBenefitMappingDto
+				.setBusiness_benefit_other(businessBenefitMappingRequestDto.getBusiness_benefit_other());
 		businessBenefitMappingDto.setBusinessBenefit(businessBenefitMappingRequestDto.getBusinessBenefit());
 		businessBenefitMappingDto.setProjectBackground(new ProjectBackgroundDto());
 		return businessBenefitMappingDto;
@@ -178,6 +193,18 @@ public class BusinessBenefitMappingController {
 		businessBenefitMappingRequestDto.setId(rdto.getId());
 		businessBenefitMappingRequestDto.setBusiness_benefit_other(rdto.getBusiness_benefit_other());
 		businessBenefitMappingRequestDto.setBusinessBenefit(rdto.getBusinessBenefit());
+		if (rdto.getProjectStakeholders() != null) {
+			businessBenefitMappingRequestDto.setStakeholderName(rdto.getProjectStakeholders().getStakeholderName());
+			businessBenefitMappingRequestDto.setStakeholderType(rdto.getProjectStakeholders().getStakeholderType());
+			businessBenefitMappingRequestDto.setRole(rdto.getProjectStakeholders().getRole());
+			businessBenefitMappingRequestDto.setLocation(rdto.getProjectStakeholders().getLocation());
+			businessBenefitMappingRequestDto.setNumberImpacted(rdto.getProjectStakeholders().getNumberImpacted());
+			businessBenefitMappingRequestDto.setLevelOfInfluence(rdto.getProjectStakeholders().getLevelOfInfluence());
+			businessBenefitMappingRequestDto
+					.setEngagementStrategy(rdto.getProjectStakeholders().getEngagementStrategy());
+			businessBenefitMappingRequestDto
+					.setEngagementStrategyOther(rdto.getProjectStakeholders().getEngagementStrategyOther());
+		}
 		return businessBenefitMappingRequestDto;
 	}
 

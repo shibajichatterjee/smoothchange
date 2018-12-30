@@ -25,6 +25,7 @@ public class ProjectStakeholdersDto extends AbstractDTO {
 	private String LevelOfInfluence;
 
 	private String engagementStrategy;
+	
 	private String engagementStrategyOther;
 	
 	public String getEngagementStrategyOther() {
@@ -38,7 +39,6 @@ public class ProjectStakeholdersDto extends AbstractDTO {
 	private  String serialNumber;
 	private  String type;
 	private  String name;
-	private  String levelOfInfluence;
 	private  String noOfPersonsImpacted;
 	private  String strategyOfEngagement;
 
