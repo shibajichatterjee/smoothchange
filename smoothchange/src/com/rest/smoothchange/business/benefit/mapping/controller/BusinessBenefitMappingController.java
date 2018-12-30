@@ -167,7 +167,7 @@ public class BusinessBenefitMappingController {
 			BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto) {
 		BusinessBenefitMappingDto businessBenefitMappingDto = new BusinessBenefitMappingDto();
 		businessBenefitMappingDto.setId(businessBenefitMappingRequestDto.getId());
-		businessBenefitMappingDto.setAffectedParty(businessBenefitMappingRequestDto.getAffectedParty());
+		businessBenefitMappingDto.setBusiness_benefit_other(businessBenefitMappingRequestDto.getBusiness_benefit_other());
 		businessBenefitMappingDto.setBusinessBenefit(businessBenefitMappingRequestDto.getBusinessBenefit());
 		businessBenefitMappingDto.setProjectBackground(new ProjectBackgroundDto());
 		return businessBenefitMappingDto;
@@ -176,7 +176,7 @@ public class BusinessBenefitMappingController {
 	private BusinessBenefitMappingRequestDto mapDtoToRequestDto(BusinessBenefitMappingDto rdto) {
 		BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto = new BusinessBenefitMappingRequestDto();
 		businessBenefitMappingRequestDto.setId(rdto.getId());
-		businessBenefitMappingRequestDto.setAffectedParty(rdto.getAffectedParty());
+		businessBenefitMappingRequestDto.setBusiness_benefit_other(rdto.getBusiness_benefit_other());
 		businessBenefitMappingRequestDto.setBusinessBenefit(rdto.getBusinessBenefit());
 		return businessBenefitMappingRequestDto;
 	}

@@ -26,7 +26,7 @@ public class BusinessBenefitMappingMapper extends AbstractMapper<BusinessBenefit
 			ProjectBackground projectBackground =null;
 			businessBenefitMapping.setId(dto.getId());	
 			businessBenefitMapping.setBusinessBenefit(BusinessBenefit.getValue(dto.getBusinessBenefit()));		
-			businessBenefitMapping.setAffectedParty(dto.getAffectedParty());
+			businessBenefitMapping.setBusiness_benefit_other(dto.getBusiness_benefit_other());
 			
 			if(dto.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackground();
@@ -52,7 +52,7 @@ public class BusinessBenefitMappingMapper extends AbstractMapper<BusinessBenefit
 			if(bo.getBusinessBenefit()!=null) {
 			 businessBenefitMappingDto.setBusinessBenefit(bo.getBusinessBenefit().getValue());
 			}
-			businessBenefitMappingDto.setAffectedParty(bo.getAffectedParty());
+			businessBenefitMappingDto.setBusiness_benefit_other(bo.getBusiness_benefit_other());
 			if(bo.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackgroundDto();			
 				projectBackground.setId(bo.getProjectBackground().getId());

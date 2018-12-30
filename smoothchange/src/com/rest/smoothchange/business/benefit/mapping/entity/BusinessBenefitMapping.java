@@ -28,8 +28,8 @@ public class BusinessBenefitMapping extends AbstractPersistentObject{
 	@Enumerated(EnumType.ORDINAL)
 	private BusinessBenefit businessBenefit;
 	
-	@Column(name="affected_party")
-	private String affectedParty;
+	@Column(name="business_benefit_other")
+	private String business_benefit_other;
 
 	public ProjectBackground getProjectBackground() {
 		return projectBackground;
@@ -39,12 +39,14 @@ public class BusinessBenefitMapping extends AbstractPersistentObject{
 		this.projectBackground = projectBackground;
 	}
 
-	public String getAffectedParty() {
-		return affectedParty;
+	
+
+	public String getBusiness_benefit_other() {
+		return business_benefit_other;
 	}
 
-	public void setAffectedParty(String affectedParty) {
-		this.affectedParty = affectedParty;
+	public void setBusiness_benefit_other(String business_benefit_other) {
+		this.business_benefit_other = business_benefit_other;
 	}
 
 	public static long getSerialversionuid() {

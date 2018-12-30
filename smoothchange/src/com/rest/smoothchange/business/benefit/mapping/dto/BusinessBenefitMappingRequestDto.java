@@ -3,7 +3,7 @@ package com.rest.smoothchange.business.benefit.mapping.dto;
 public class BusinessBenefitMappingRequestDto {
 private String businessBenefit;
 	
-	private String affectedParty;
+	private String business_benefit_other;
 
 	
 
@@ -15,14 +15,18 @@ private String businessBenefit;
 		this.businessBenefit = businessBenefit;
 	}
 
-	public String getAffectedParty() {
-		return affectedParty;
+	
+	
+	public String getBusiness_benefit_other() {
+		return business_benefit_other;
 	}
 
-	public void setAffectedParty(String affectedParty) {
-		this.affectedParty = affectedParty;
+	public void setBusiness_benefit_other(String business_benefit_other) {
+		this.business_benefit_other = business_benefit_other;
 	}
-	
+
+
+
 	private Long id; 
 
 	public Long getId() {

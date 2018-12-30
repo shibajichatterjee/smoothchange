@@ -102,7 +102,11 @@ public class PotiBlueprintDto extends AbstractIdentifierDTO{
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
-	private final String serialNumber="0";
+	private String serialNumber;
+
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
 
 	public Date getInterimToToBeStartDate() {
 		return interimToToBeStartDate;

@@ -663,11 +663,12 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		FieldsMetadata metadata = report.createFieldsMetadata();
 		metadata.load("communication", CommunicationPlan.class, true);
 		IContext context = report.createContext();
-		List<CommunicationPlan> ll=generationCommunicationPlanReportData(communicationPlanlist, projectObj, organizationObj);
+		List<CommunicationPlan> updated=new ArrayList<>();
+		generationCommunicationPlanReportData(communicationPlanlist, projectObj, organizationObj,updated);
 
 		context.put("organization", organizationObj);
 		context.put("project", projectObj);
-		context.put("communication", ll);
+		context.put("communication", updated);
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.process(context, out);
 		byte[] byteArray = out.toByteArray();
@@ -691,10 +692,10 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 
 		context.put("organization", organizationObj);
 		context.put("project", projectObj);
-		context.put("information", information);
-		context.put("technology", technology);
+		context.put("information", generateSerial(information));
+		context.put("technology", generateSerial(technology));
 
-		context.put("process", process);
+		context.put("process", generateSerial(process));
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.process(context, out);
@@ -933,28 +934,28 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 			}
 		}
 	}
-	private List<CommunicationPlan> generationCommunicationPlanReportData(
+	private void generationCommunicationPlanReportData(
 			List<CommunicationPlanDto> communicationPlanlist, ProjectBackgroundDto projectObj,
-			OrganizationInfoDto organizationInfoDto) {
+			OrganizationInfoDto organizationInfoDto,List<CommunicationPlan> updated) {
 		List<CommunicationPlan> listCommunicationPlan = new ArrayList<>();
 		if (communicationPlanlist != null && communicationPlanlist.size() > 0) {
 			for (int i = 0; i < communicationPlanlist.size(); i++) {
-				CommunicationPlan communicationPlan=new CommunicationPlan();
-				communicationPlan
+				CommunicationPlan communication=new CommunicationPlan();
+				communication
 						.setStakeHolder(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderName());
-				communicationPlan
+				communication
 						.setStakeHolderType(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderType());
-				communicationPlan
+				communication
 						.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal());
-				communicationPlan
+				communication
 						.setChannel(communicationPlanlist.get(i).getCommunicationChannel().getNumVal());
-				communicationPlan.setFrequency(communicationPlanlist.get(i).getFrequency().getNumVal());
-				communicationPlan.setPreparedBy(communicationPlanlist.get(i).getPreparedBy());
-				communicationPlan.setSentBy(communicationPlanlist.get(i).getSentBy());
-				communicationPlan.setStatus(communicationPlanlist.get(i).getStatus().getNumVal());
-				communicationPlan.setMessage(communicationPlanlist.get(i).getMessage());
-				communicationPlan.setTiming(communicationPlanlist.get(i).getTiming());
-				listCommunicationPlan.add(communicationPlan);
+				communication.setFrequency(communicationPlanlist.get(i).getFrequency().getNumVal());
+				communication.setPreparedBy(communicationPlanlist.get(i).getPreparedBy());
+				communication.setSentBy(communicationPlanlist.get(i).getSentBy());
+				communication.setStatus(communicationPlanlist.get(i).getStatus().getNumVal());
+				communication.setMessage(communicationPlanlist.get(i).getMessage());
+				communication.setTiming(communicationPlanlist.get(i).getTiming()==null?"":communicationPlanlist.get(i).getTiming());
+				updated.add(communication);
 			}
 		}
 
@@ -967,7 +968,6 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		if (organizationInfoDto != null) {
 			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
 		}
-		return listCommunicationPlan;
 	}
 	
 	private void generationPOTIData(ProjectBackgroundDto projectObj,
@@ -983,6 +983,13 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		if (organizationInfoDto != null) {
 			organizationInfoDto.setName(organizationInfoDto.getOrganisationName());
 		}
+	}
+	private List<PotiBlueprintDto> generateSerial(List<PotiBlueprintDto> information)
+	{
+		for(int i = 0 ; i<information.size() ; i++) {
+			information.get(i).setSerialNumber(Integer.toString(i + 1));
+		}
+		return information;
 	}
 	private void ChangeReadinessCheckData(ProjectBackgroundDto projectObj,
 			OrganizationInfoDto organizationInfoDto) {
