@@ -1,1 +1,705 @@
 
+CREATE OR REPLACE TYPE tRec_AccountUpdateDetail AS OBJECT
+(
+  SOU              VARCHAR2(100),
+  ID            VARCHAR2(200),
+  ID                NUMBER,
+  ACTIVITY        VARCHAR2(40),
+  OBJECT_NAME          VARCHAR2(255),
+  SECTION              VARCHAR2(20),
+  CD              VARCHAR2(20),
+  TYPE        VARCHAR(255),
+  DESCRIPTION VARCHAR(255),
+  DATE      VARCHAR2(40),
+  DATE       VARCHAR2(40),
+  AMOUNT               VARCHAR2(255),
+  STATUS               VARCHAR2(255),
+  WORKG          VARCHAR2(255),
+
+  CONSTRUCTOR FUNCTION tRec_AccountUpdateDetail RETURN SELF AS RESULT
+)
+;
+/ 
+CREATE OR REPLACE TYPE tTab_AccountUpdateDetail AS TABLE OF tRec_AccountUpdateDetail;
+/
+
+=======================================================================================================================
+DROP TYPE tTab_AccountUpdateDetail;
+/
+DROP TYPE tRec_AccountUpdateDetail;
+/
+
+========================================================================================================================
+
+FUNCTION START
+
+==========================================================
+CREATE OR REPLACE FUNCTION Recent_txnActivity(inEeId   IN NUMBER,
+                                              inErId   IN NUMBER,
+                                              inAdmnId IN NUMBER,
+                                              inUserId IN NUMBER,
+                                              inDays   IN NUMBER)
+  RETURN tTab_AccountUpdateDetail IS
+
+  tblAccountUpdateDetail tTab_AccountUpdateDetail := tTab_AccountUpdateDetail();
+  v_claimsdata           TBL_CLAIMSDATA := TBL_CLAIMSDATA();
+  cActivityType          VARCHAR2(255);
+  cObjectName            VARCHAR2(255);
+  cHasHSAViewPriv        VARCHAR2(3) := 'No';
+  nUserId                NUMBER := inUserId;
+  cProvider              VARCHAR2(255);
+  cActivityDesc          VARCHAR2(255);
+  cResult                VARCHAR2(5);
+  cErrorCategory         VARCHAR2(255);
+  nErrorCode             NUMBER;
+  cErrorArea             VARCHAR2(255);
+  cOtherMessage          VARCHAR2(4000);
+  dElectionBegins        DATE;
+  dElectionEnds          DATE;
+  dServiceBegins         DATE; -- Minimum Date of Service Grace period
+  dServiceEnds           DATE; -- Maximum Date of Service Grace period
+  dMaxFutureServiceEnds  DATE;
+  dSubmitEnds            DATE; -- RunOffDate
+  cElectionEndReason     VARCHAR2(255);
+  cStackExists           VARCHAR2(3);
+  dTruncSysdate          DATE := trunc(SYSDATE);
+  eNoInput   EXCEPTION;
+  eException EXCEPTION;
+
+  -- Non Claim Activities(RKP)
+  CURSOR curRKPNonClaimActivity(inEeId IN NUMBER,
+                                inDays IN NUMBER) IS
+  
+    SELECT 'Non Claim Activities(RKP)' "SOURCE",
+           D.ID "SOURCE_ID",
+           A.EE_ID,
+           TO_CHAR(COALESCE(D.CONFIRMED_ON,
+                            D.POSTED_ON,
+                            D.CREATED_ON,
+                            D.TXN_DATE),
+                   'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           D.DR_CR_IND,
+           NVL(TO_CHAR(DECODE(D.DR_CR_IND, 'DR', -1 * D.TXN_AMT, D.TXN_AMT)),
+               '') "AMOUNT",
+           C.TXN_CATEGORY,
+           NVL(C.TXN_CATEGORY_DISPLAY, C.TXN_TYPE) TXN_CATEGORY_DISPLAY,
+           C.TXN_TYPE,
+           C.TXN_CODE_SHORT_DESC,
+           DECODE(UPPER(D.TXN_STATUS),
+                  'CONFIRMED',
+                  'Processed',
+                  'Processing') "STATUS",
+           D.POSTED_ON "PROCESSING_DATE",
+           D.CONFIRMED_ON "PROCESSED_DATE",
+           A.ACTP_CD
+      FROM RKP_TRANSACTION_DTL D, RKP_TRANSACTION_CODE C, RKP_ACCOUNT A
+     WHERE D.TXN_CODE = C.TXN_CODE
+       AND D.TXN_STATUS IN ('Posted', 'Confirmed')
+       AND NVL(D.LINK_REC_TYPE, 'X') != 'CLAIM'
+       AND ((C.TXN_CATEGORY != 'Distribution' AND
+           NVL(D.SOURCE_REC_TYPE, 'X') NOT IN
+           ('CLAIM', 'DEBIT_CARD_IN_FILE_DTL', 'DEBIT_CARD_AUTH_TRXN_DTL')) OR
+           (C.TXN_CATEGORY = 'Distribution' AND
+           NVL(D.SOURCE_REC_TYPE, 'X') = 'RKP_TXN_ADJUSTMENT_DTL' AND
+           NVL(D.SOURCE_SYSTEM, 'X') != 'BOA-FIS-Data' AND
+           C.TXN_MODE = 'NA'))
+       AND A.EE_ID = INEEID
+       AND A.ID = D.ACCOUNT_ID
+       AND COALESCE(D.CONFIRMED_ON, D.POSTED_ON, D.CREATED_ON, D.TXN_DATE) >=
+           SYSDATE - inDays;
+
+  -- Non Claim Activities(Notional)
+  CURSOR curNotionalNonClaimActivity(inEeId IN NUMBER,
+                                     inDays IN NUMBER) IS
+    SELECT 'Non Claim Activities(Notional)' "SOURCE",
+           D.ID "SOURCE_ID",
+           TO_CHAR(DS.EFFECTIVE_DATE, 'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           DT.DEPOSIT_TYPE TXN_TYPE,
+           D.STATUS,
+           (nvl(D.AMT, 0) + nvl(D.ADJUSTMENT_AMT, 0)) "AMOUNT",
+           DECODE(DT.WEB_CODE,
+                  'Distribution',
+                  'distribution',
+                  'Interest',
+                  'interest',
+                  'Contribution',
+                  'deposit',
+                  'Fee',
+                  'fees',
+                  'others') "TXN_CATEGORY",
+           DS.EFFECTIVE_DATE "PROCESSING_DATE",
+           DS.EFFECTIVE_DATE "PROCESSED_DATE",
+           E.ERAC_ACTP_CD
+      FROM DEPOSIT          D,
+           DEPOSIT_TYPE     DT,
+           DEPOSIT_FILE     DFL,
+           DEPOSIT_SCHEDULE DS,
+           ELECTION         E
+     WHERE D.DEPOSIT_TYPE = DT.DEPOSIT_TYPE
+       AND D.DPFL_ID = DFL.ID
+       AND DFL.DPSC_ID = DS.ID
+       AND D.ELCT_ID = E.ID
+       AND D.EE_ID = INEEID
+       AND DS.EFFECTIVE_DATE >= SYSDATE - inDays
+       AND E.ERAC_ACTP_CD NOT IN ('HSA');
+
+  -- Debit Card Activity
+  CURSOR curDebitCardActivity(inEeId IN NUMBER,
+                              inDays IN NUMBER) IS
+  
+    SELECT 'Debit Card Activity' "SOURCE",
+           '' "SOURCE_ID",
+           DCAL.EE_ID,
+           TO_CHAR(DCAL.ACTIVITY_ON, 'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           '' "PROCESSING_DATE",
+           '' "PROCESSED_DATE",
+           '' "OBJECT_NAME",
+           '' "SECTION",
+           '' "ACTP_CD",
+           DECODE(DCAL.ACTIVITY_CD,
+                  'Issue-New-Card',
+                  'New Card Request',
+                  'ReIssue-Card',
+                  'New Card Request',
+                  'Mark-Card-LostStolen',
+                  'Card Reported Lost/Stolen',
+                  'Suspend-Card',
+                  'Debit Card Suspended',
+                  'UnSuspend-Card',
+                  'Debit Card Reactivated',
+                  'Close-Card',
+                  'Debit Card Closed',
+                  'Request-PIN',
+                  'New Pin Request',
+                  'Activate-Card',
+                  'Card Activated',
+                  '') "ACTIVITY_TYPE",
+           'Debit Card Activity' "ACTIVITY_DESCRIPTION",
+           '' "AMOUNT",
+           DECODE(DCAL.ACTIVITY_CD,
+                  'Issue-New-Card',
+                  'Requested',
+                  'ReIssue-Card',
+                  'Requested',
+                  'Mark-Card-LostStolen',
+                  'Closed',
+                  'Suspend-Card',
+                  'Suspended',
+                  'UnSuspend-Card',
+                  'Active',
+                  'Close-Card',
+                  'Closed',
+                  'Request-PIN',
+                  'Requested',
+                  'Activate-Card',
+                  'Activated',
+                  '') "STATUS",
+           'NA' "WORKGROUP"
+      FROM DEBIT_CARD_ACTIVITY_LOG DCAL, EMPLOYEE EE
+     WHERE EE.ID = DCAL.EE_ID
+       AND EE.Id = inEeId
+       AND DCAL.ACTIVITY_CD IN ('Issue-New-Card',
+                                'ReIssue-Card',
+                                'Mark-Card-LostStolen',
+                                'Suspend-Card',
+                                'UnSuspend-Card',
+                                'Close-Card',
+                                'Request-PIN',
+                                'Activate-Card')
+       AND DCAL.ACTIVITY_ON >= SYSDATE - inDays;
+
+  -- Debit Card Unsettled Transactions Activity
+  CURSOR curDebitCardUnsettledActivity(inEeId IN NUMBER,
+                                       inDays IN NUMBER) IS
+    SELECT 'DBCard Unsettled Txn' "SOURCE",
+           TO_CHAR(VWUDB.DEBIT_CARD_AUTH_TXN_ID) "SOURCE_ID",
+           VWUDB.EE_ID,
+           VWUDB.TRXN_DATE "ACTIVITY_ON",
+           '' "PROCESSING_DATE",
+           '' "PROCESSED_DATE",
+           DECODE(VWUDB.STATUS,
+                  'Approved',
+                  'UNSETTLEDDBCARDTRXN',
+                  'Declined',
+                  'DENIEDDBCARDTRXN',
+                  '') "OBJECT_NAME",
+           'Section' "SECTION",
+           VWUDB.ACTP_CD "ACTP_CD",
+           VWUDB.PROVIDER_NAME "ACTIVITY_TYPE",
+           TO_CHAR(TO_DATE(VWUDB.TRXN_DATE, 'MM/DD/YYYY HH24:MI:SS'),
+                   'MON-DD-YYYY') "ACTIVITY_DESCRIPTION",
+           VWUDB.CLAIM_AMT "AMOUNT",
+           decode(VWUDB.STATUS,
+                  'Approved',
+                  'Processing',
+                  'Declined',
+                  'Card Declined',
+                  VWUDB.STATUS) "STATUS",
+           'NA' "WORKGROUP"
+      FROM VW_UNSETTLED_DBCARD_TRXN_TSYS VWUDB
+     WHERE VWUDB.EE_ID = inEeId
+       AND VWUDB.TRXN_DATE >= SYSDATE - inDays;
+
+  -- Contribution Schedule activity
+  CURSOR curContribScheduleActivity(inEeId IN NUMBER,
+                                    inDays IN NUMBER) IS
+    SELECT 'Contribution Schedule' "SOURCE",
+           '' "SOURCE_ID",
+           RA.EE_ID "EE_ID",
+           TO_CHAR(ECR.REQUESTED_ON, 'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           '' "PROCESSING_DATE",
+           '' "PROCESSED_DATE",
+           'HSAROLE' "OBJECT_NAME",
+           'Section' "SECTION",
+           RA.ACTP_CD "ACTP_CD",
+           DECODE(ECR.STATUS,
+                  'Requested',
+                  'HSA Contribution Scheduled',
+                  'RequestFailed',
+                  'Contribution rejected',
+                  'HSA Contribution') "ACTIVITY_TYPE",
+           DECODE(ECR.STATUS, 'Requested', '', 'HSA') "ACTIVITY_DESCRIPTION",
+           NVL(TO_CHAR(DECODE(ECR.STATUS, 'Requested', ECR.REQUESTED_ON),
+                       ''),
+               '') AMOUNT,
+           DECODE(ECR.STATUS, 'RequestFailed', 'Rejected', 'Processing') STATUS,
+           'NA' "WORKGROUP"
+      FROM ELCT_CONTRIB_RQST ECR, ELCT_CONTRIB_SCHEDULE ECS, RKP_ACCOUNT RA
+     WHERE RA.ELCT_ID = ECS.ELCT_ID
+       AND ECS.ID = ECR.ELCTCOSCHD_ID
+       AND ECR.STATUS IN ('Requested', 'RequestFailed')
+       AND RA.EE_ID = inEeId
+       AND ECR.REQUESTED_ON >= SYSDATE - inDays;
+
+  -- Help Ticket Activity
+  CURSOR curHelpTicketActivity(inEeId IN NUMBER,
+                               inDays IN NUMBER) IS
+  
+    SELECT 'Help Ticket' "SOURCE",
+           TO_CHAR(TK.ID) "SOURCE_ID",
+           TK.CREATED_FOR_ID "EE_ID",
+           TO_CHAR(coalesce(TK.REOPEN_RESOLVED_ON,
+                            TK.REOPEN_DATE,
+                            TK.RESOLVED_ON,
+                            TK.ASSIGNED_ON,
+                            TK.CREATED_ON),
+                   'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           '' "PROCESSING_DATE",
+           '' "PROCESSED_DATE",
+           'HLPTKTVIEW' "OBJECT_NAME",
+           'Page' "SECTION",
+           '' "ACTP_CD",
+           'Help Ticket Generated' "ACTIVITY_TYPE",
+           DECODE(TK.STATUS,
+                  'Open',
+                  TO_CHAR(TRUNC(TK.CREATED_ON), 'MON-DD-YYYY'),
+                  'Assigned',
+                  TO_CHAR(TRUNC(TK.ASSIGNED_ON), 'MON-DD-YYYY'),
+                  'Resolved',
+                  TO_CHAR(TRUNC(TK.RESOLVED_ON), 'MON-DD-YYYY')) ACTIVITY_DESCRIPTION,
+           '' "AMOUNT",
+           TK.STATUS "STATUS",
+           'NA' "WORKGROUP"
+      FROM TICKET TK
+     WHERE TK.CREATED_FOR_ID = inEeId
+       AND coalesce(TK.REOPEN_RESOLVED_ON,
+                    TK.REOPEN_DATE,
+                    TK.RESOLVED_ON,
+                    TK.ASSIGNED_ON,
+                    TK.CREATED_ON) >= SYSDATE - inDays;
+
+  -- CIP Documents Upload Activity
+  CURSOR curCIPDocsUploadActivity(inEeId IN NUMBER,
+                                  inDays IN NUMBER) IS
+    WITH CIPWORKGROUP AS
+     (SELECT GETWORKGROUPFORCIPUPLOAD(inAdmnId, inErId, inEeId) AS WORKGROUP
+        FROM DUAL)
+    SELECT 'CIP Document Upload' "SOURCE",
+           '' "SOURCE_ID",
+           CI.EE_ID,
+           TO_CHAR(CI.IMAGE_RECEIVED_ON, 'MM/DD/YYYY HH24:MI:SS') "ACTIVITY_ON",
+           '' "PROCESSING_DATE",
+           '' "PROCESSED_DATE",
+           'HSAROLE' "OBJECT_NAME",
+           'Section' "SECTION",
+           'HSA' "ACTP_CD",
+           'HSA Application' "ACTIVITY_TYPE",
+           'Documentation Uploaded' "ACTIVITY_DESCRIPTION",
+           '' AMOUNT,
+           'Under Review' STATUS,
+           CI.WORKGROUP
+      FROM CLAIMS_IMAGE CI, CIPWORKGROUP CW
+     WHERE CI.STATUS = 'Indexed'
+       AND CI.EE_ID = inEeId
+       AND CI.WORKGROUP = CW.WORKGROUP
+       AND CI.IMAGE_RECEIVED_ON >= SYSDATE - inDays;
+
+BEGIN
+
+  tblAccountUpdateDetail.Delete;
+  IF inEeId IS NULL THEN
+    RAISE eNoInput;
+  END IF;
+
+  IF nUserId IS NULL THEN
+    BEGIN
+      SELECT l.id
+        INTO nUserId
+        FROM login l
+       WHERE l.ee_id = inEeId
+         AND rownum = 1;
+    EXCEPTION
+      WHEN no_data_found THEN
+        RAISE eNoInput;
+      WHEN OTHERS THEN
+        RAISE eNoInput;
+    END;
+  END IF;
+
+  cHasHSAViewPriv := HASVIEWPRIVILEGE(nUserId, 'HSAROLE', 'Section');
+
+  -- Account Closure Activities
+  FOR recElections IN (SELECT EL.EE_ID PPTID,
+                              EL.ID ELCTID,
+                              EL.ERAC_ACTP_CD ACTPCD,
+                              EL.ENROLLMENT_STATUS ENROLLMENTSTATUS,
+                              TO_CHAR(EL.ERAC_ENDS, 'YYYY') PLANYEAR,
+                              EL.ELECTED_AMOUNT ELCT_AMT,
+                              EL.ELECTION_DATE ELCT_DATE
+                         FROM ELECTION EL
+                        WHERE EL.ERAC_ACTP_CD NOT IN
+                              ('NON REIMBURSEMENT', 'NO ELECTION')
+                          AND EL.EE_ID = inEeId) LOOP
+  
+    Clm_ElectionDates(ocresult        => cResult,
+                      ocerrorcategory => cErrorCategory,
+                      onerrorcode     => nerrorcode,
+                      ocerrorarea     => cErrorArea,
+                      ocothermessage  => cOtherMessage,
+                      --
+                      ineeid                 => inEeId,
+                      inelctid               => recElections.Elctid,
+                      inerid                 => inErId,
+                      icactpcd               => recElections.Actpcd,
+                      icDebugMode            => 'No',
+                      odElectionBegins       => dElectionBegins, --What is the start date of the election
+                      odElectionEnds         => dElectionEnds, --What is the end date of the election (incl separation rules)
+                      odServiceBegins        => dServiceBegins, --What is the earliest service date.
+                      odServiceEnds          => dServiceEnds, --What is the latest service date (incl grace)
+                      odMaxFutureServiceEnds => dMaxFutureServiceEnds, --What is the max future service date
+                      odSubmitEnds           => dSubmitEnds, --Last day allowed to submit a claim
+                      ocElectionEndReason    => cElectionEndReason,
+                      ocStackExists          => cStackExists,
+                      idOverRideDate         => NULL);
+  
+    IF cResult != 'OK' THEN
+      RAISE eException;
+    END IF;
+  
+    -- Need to get here actp code from label ????
+    IF (trunc(dSubmitEnds) - dTruncSysdate <= 0) AND
+       (dTruncSysdate - trunc(dSubmitEnds) <= inDays) THEN
+    
+      IF (recElections.Actpcd <> 'HSA' AND
+         TO_CHAR(trunc(SYSDATE, 'YEAR')) = recElections.Planyear) THEN
+        tblAccountUpdateDetail.Extend;
+        tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => 'Closed Account',
+                                                                                         SOURCE_ID            => '',
+                                                                                         EE_ID                => inEeId,
+                                                                                         ACTIVITY_ON          => TO_CHAR(dSubmitEnds,
+                                                                                                                         'MM/DD/YYYY HH24:MI:SS'),
+                                                                                         OBJECT_NAME          => '',
+                                                                                         SECTION              => 'Section',
+                                                                                         ACTP_CD              => recElections.Actpcd,
+                                                                                         ACTIVITY_TYPE        => recElections.Actpcd ||
+                                                                                                                 ' Closed',
+                                                                                         ACTIVITY_DESCRIPTION => 'Account Closure',
+                                                                                         PROCESSING_DATE      => '',
+                                                                                         PROCESSED_DATE       => '',
+                                                                                         AMOUNT               => '',
+                                                                                         STATUS               => 'CLOSED',
+                                                                                         WORKGROUP            => 'NA');
+      ELSIF recElections.Actpcd = 'HSA' AND cHasHSAViewPriv = 'Yes' THEN
+        tblAccountUpdateDetail.Extend;
+        tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => 'Closed Account',
+                                                                                         SOURCE_ID            => '',
+                                                                                         EE_ID                => inEeId,
+                                                                                         ACTIVITY_ON          => TO_CHAR(dSubmitEnds,
+                                                                                                                         'MM/DD/YYYY HH24:MI:SS'),
+                                                                                         OBJECT_NAME          => '',
+                                                                                         SECTION              => 'Section',
+                                                                                         ACTP_CD              => recElections.Actpcd,
+                                                                                         ACTIVITY_TYPE        => recElections.Actpcd ||
+                                                                                                                 ' Closed',
+                                                                                         ACTIVITY_DESCRIPTION => 'Account Closure',
+                                                                                         PROCESSING_DATE      => '',
+                                                                                         PROCESSED_DATE       => '',
+                                                                                         AMOUNT               => '',
+                                                                                         STATUS               => 'CLOSED',
+                                                                                         WORKGROUP            => 'NA');
+      END IF;
+    END IF;
+  
+  END LOOP;
+
+  -- Non Claim Activities(RKP)
+  IF cHasHSAViewPriv = 'Yes' THEN
+    FOR recRKPNonClaimActivity IN curRKPNonClaimActivity(inEeId, inDays) LOOP
+    
+      tblAccountUpdateDetail.Extend;
+      tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recRKPNonClaimActivity.SOURCE,
+                                                                                       SOURCE_ID            => recRKPNonClaimActivity.SOURCE_ID,
+                                                                                       EE_ID                => recRKPNonClaimActivity.EE_ID,
+                                                                                       ACTIVITY_ON          => recRKPNonClaimActivity.ACTIVITY_ON,
+                                                                                       OBJECT_NAME          => 'HSAROLE',
+                                                                                       SECTION              => 'Section',
+                                                                                       ACTP_CD              => recRKPNonClaimActivity.ACTP_CD,
+                                                                                       ACTIVITY_TYPE        => NVL(recRKPNonClaimActivity.TXN_CATEGORY_DISPLAY,
+                                                                                                                   recRKPNonClaimActivity.TXN_TYPE),
+                                                                                       ACTIVITY_DESCRIPTION => NVL(recRKPNonClaimActivity.TXN_CATEGORY_DISPLAY,
+                                                                                                                   recRKPNonClaimActivity.TXN_TYPE),
+                                                                                       PROCESSING_DATE      => recRKPNonClaimActivity.PROCESSING_DATE,
+                                                                                       PROCESSED_DATE       => recRKPNonClaimActivity.PROCESSED_DATE,
+                                                                                       AMOUNT               => recRKPNonClaimActivity.AMOUNT,
+                                                                                       STATUS               => recRKPNonClaimActivity.STATUS,
+                                                                                       WORKGROUP            => 'NA');
+    
+    END LOOP;
+  END IF;
+
+  -- Non Claim Activities(Notional)
+  FOR recNotionalNonClaimActivity IN curNotionalNonClaimActivity(inEeId,
+                                                                 inDays) LOOP
+  
+    IF UPPER(recNotionalNonClaimActivity.Txn_Category) = 'DEPOSIT' THEN
+      -- Need to get here actp code from label ????
+      cActivityType := recNotionalNonClaimActivity.Erac_Actp_Cd ||
+                       ' Contribution';
+    ELSE
+      cActivityType := recNotionalNonClaimActivity.Txn_Category;
+    END IF;
+  
+    tblAccountUpdateDetail.Extend;
+    tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recNotionalNonClaimActivity.SOURCE,
+                                                                                     SOURCE_ID            => recNotionalNonClaimActivity.SOURCE_ID,
+                                                                                     EE_ID                => inEeId,
+                                                                                     ACTIVITY_ON          => recNotionalNonClaimActivity.ACTIVITY_ON,
+                                                                                     OBJECT_NAME          => '',
+                                                                                     SECTION              => 'Section',
+                                                                                     ACTP_CD              => recNotionalNonClaimActivity.ERAC_ACTP_CD,
+                                                                                     PROCESSING_DATE      => recNotionalNonClaimActivity.PROCESSING_DATE,
+                                                                                     PROCESSED_DATE       => recNotionalNonClaimActivity.PROCESSED_DATE,
+                                                                                     ACTIVITY_TYPE        => cActivityType,
+                                                                                     ACTIVITY_DESCRIPTION => recNotionalNonClaimActivity.TXN_CATEGORY,
+                                                                                     AMOUNT               => recNotionalNonClaimActivity.AMOUNT,
+                                                                                     STATUS               => recNotionalNonClaimActivity.STATUS,
+                                                                                     WORKGROUP            => 'NA');
+    dbms_output.put_line('NonHSANonClaim  NonHsaNonCategory  ');
+  END LOOP;
+
+  -- Claims Activity
+  v_claimsdata := clm_getclaimdetails(NULL, NULL, NULL, inEeId);
+  FOR indx IN 1 .. v_claimsdata.COUNT LOOP
+    BEGIN
+      SELECT DECODE(v_claimsdata(indx).ACCOUNT_TYPE, 'HSA', 'HSAROLE', '')
+        INTO cObjectName
+        FROM dual;
+    
+    EXCEPTION
+      WHEN no_data_found THEN
+        cObjectName := '';
+    END;
+  
+    IF v_claimsdata(indx)
+     .activity_date >= SYSDATE - inDays AND v_claimsdata(indx)
+       .claim_status NOT IN ('Void', 'Hold') AND
+        HASVIEWPRIVILEGE(nUserId, cObjectName, 'Section') = 'Yes' THEN
+    
+      IF v_claimsdata(indx).claim_status = 'UsedForOffset' THEN
+        v_claimsdata(indx).claim_status := 'Used For offset';
+      END IF;
+    
+      cProvider     := v_claimsdata(indx).PROVIDER;
+      cActivityDesc := TO_CHAR(TRUNC(v_claimsdata(indx).ACTIVITY_DATE),
+                               'MON-DD-YYYY');
+      IF v_claimsdata(indx)
+       .ACCOUNT_TYPE = 'HSA' AND instr(lower(cProvider), 'liquidate') > 0 THEN
+        cProvider     := 'HSA Distribution';
+        cActivityDesc := 'Account Distribution';
+      END IF;
+    
+      IF v_claimsdata(indx).CLAIM_BATCH_TYPE IN ('Manual', 'Online') THEN
+        cActivityDesc := v_claimsdata(indx).CATEGORY || ' expense';
+      END IF;
+    
+      tblAccountUpdateDetail.Extend;
+      tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => 'Claim',
+                                                                                       SOURCE_ID            => v_claimsdata(indx).ID,
+                                                                                       EE_ID                => inEeId,
+                                                                                       ACTIVITY_ON          => TO_CHAR(v_claimsdata(indx)
+                                                                                                                       .ACTIVITY_DATE,
+                                                                                                                       'MM/DD/YYYY HH24:MI:SS'),
+                                                                                       OBJECT_NAME          => cObjectName,
+                                                                                       SECTION              => 'Section',
+                                                                                       ACTP_CD              => v_claimsdata(indx)
+                                                                                                               .ACCOUNT_TYPE,
+                                                                                       ACTIVITY_TYPE        => cProvider,
+                                                                                       PROCESSING_DATE      => '',
+                                                                                       PROCESSED_DATE       => '',
+                                                                                       ACTIVITY_DESCRIPTION => cActivityDesc,
+                                                                                       AMOUNT               => '-' ||
+                                                                                                               REPLACE(REPLACE(v_claimsdata(indx)
+                                                                                                                               .TOTAL_AMOUNT,
+                                                                                                                               '$'),
+                                                                                                                       ' '),
+                                                                                       STATUS               => v_claimsdata(indx)
+                                                                                                               .CLAIM_STATUS,
+                                                                                       WORKGROUP            => 'NA');
+    END IF;
+  END LOOP;
+  v_claimsdata.delete;
+
+  -- Help Ticket Activity
+  FOR recHelpActivity IN curHelpTicketActivity(inEeId, inDays) LOOP
+    tblAccountUpdateDetail.Extend;
+    tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recHelpActivity.SOURCE,
+                                                                                     SOURCE_ID            => recHelpActivity.SOURCE_ID,
+                                                                                     EE_ID                => recHelpActivity.EE_ID,
+                                                                                     ACTIVITY_ON          => recHelpActivity.ACTIVITY_ON,
+                                                                                     OBJECT_NAME          => recHelpActivity.OBJECT_NAME,
+                                                                                     SECTION              => recHelpActivity.SECTION,
+                                                                                     ACTP_CD              => recHelpActivity.ACTP_CD,
+                                                                                     PROCESSING_DATE      => recHelpActivity.PROCESSING_DATE,
+                                                                                     PROCESSED_DATE       => recHelpActivity.PROCESSED_DATE,
+                                                                                     ACTIVITY_TYPE        => recHelpActivity.ACTIVITY_TYPE,
+                                                                                     ACTIVITY_DESCRIPTION => recHelpActivity.ACTIVITY_DESCRIPTION,
+                                                                                     AMOUNT               => recHelpActivity.AMOUNT,
+                                                                                     STATUS               => recHelpActivity.STATUS,
+                                                                                     WORKGROUP            => recHelpActivity.WORKGROUP);
+  
+  END LOOP;
+
+  -- Debit Card Unsettled Transactions Activity
+  FOR recDebitCardUnsettledActivity IN curDebitCardUnsettledActivity(inEeId,
+                                                                     inDays) LOOP
+  
+    IF (recDebitCardUnsettledActivity.ACTP_CD = 'HSA' AND
+       cHasHSAViewPriv = 'Yes') OR
+       recDebitCardUnsettledActivity.ACTP_CD <> 'HSA' THEN
+    
+      IF HASVIEWPRIVILEGE(nUserId,
+                          recDebitCardUnsettledActivity.OBJECT_NAME,
+                          recDebitCardUnsettledActivity.SECTION) = 'Yes' THEN
+      
+        tblAccountUpdateDetail.Extend;
+        tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recDebitCardUnsettledActivity.SOURCE,
+                                                                                         SOURCE_ID            => recDebitCardUnsettledActivity.SOURCE_ID,
+                                                                                         EE_ID                => recDebitCardUnsettledActivity.EE_ID,
+                                                                                         ACTIVITY_ON          => recDebitCardUnsettledActivity.ACTIVITY_ON,
+                                                                                         OBJECT_NAME          => recDebitCardUnsettledActivity.OBJECT_NAME,
+                                                                                         SECTION              => recDebitCardUnsettledActivity.SECTION,
+                                                                                         ACTP_CD              => recDebitCardUnsettledActivity.ACTP_CD,
+                                                                                         PROCESSING_DATE      => recDebitCardUnsettledActivity.PROCESSING_DATE,
+                                                                                         PROCESSED_DATE       => recDebitCardUnsettledActivity.PROCESSED_DATE,
+                                                                                         ACTIVITY_TYPE        => recDebitCardUnsettledActivity.ACTIVITY_TYPE,
+                                                                                         ACTIVITY_DESCRIPTION => recDebitCardUnsettledActivity.ACTIVITY_DESCRIPTION,
+                                                                                         AMOUNT               => recDebitCardUnsettledActivity.AMOUNT,
+                                                                                         STATUS               => recDebitCardUnsettledActivity.STATUS,
+                                                                                         WORKGROUP            => recDebitCardUnsettledActivity.WORKGROUP);
+      END IF;
+    END IF;
+  
+  END LOOP;
+
+  -- Contribution Schedule activity
+  IF cHasHSAViewPriv = 'Yes' THEN
+    FOR recContribScheduleActivity IN curContribScheduleActivity(inEeId,
+                                                                 inDays) LOOP
+    
+      tblAccountUpdateDetail.Extend;
+      tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recContribScheduleActivity.SOURCE,
+                                                                                       SOURCE_ID            => recContribScheduleActivity.SOURCE_ID,
+                                                                                       EE_ID                => recContribScheduleActivity.EE_ID,
+                                                                                       ACTIVITY_ON          => recContribScheduleActivity.ACTIVITY_ON,
+                                                                                       OBJECT_NAME          => recContribScheduleActivity.OBJECT_NAME,
+                                                                                       SECTION              => recContribScheduleActivity.SECTION,
+                                                                                       ACTP_CD              => recContribScheduleActivity.ACTP_CD,
+                                                                                       PROCESSING_DATE      => recContribScheduleActivity.PROCESSING_DATE,
+                                                                                       PROCESSED_DATE       => recContribScheduleActivity.PROCESSED_DATE,
+                                                                                       ACTIVITY_TYPE        => recContribScheduleActivity.ACTIVITY_TYPE,
+                                                                                       ACTIVITY_DESCRIPTION => recContribScheduleActivity.ACTIVITY_DESCRIPTION,
+                                                                                       AMOUNT               => recContribScheduleActivity.AMOUNT,
+                                                                                       STATUS               => recContribScheduleActivity.STATUS,
+                                                                                       WORKGROUP            => recContribScheduleActivity.WORKGROUP);
+    
+    END LOOP;
+  END IF;
+
+  -- Debit Card Activity
+  FOR recDebitCardActivity IN curDebitCardActivity(inEeId, inDays) LOOP
+    tblAccountUpdateDetail.Extend;
+    tblAccountUpdateDetail(tblAccountUpdateDetail.Count) := tRec_AccountUpdateDetail(SOURCE               => recDebitCardActivity.SOURCE,
+                                                                                     SOURCE_ID            => recDebitCardActivity.SOURCE_ID,
+                                                                                     EE_ID                => recDebitCardActivity.EE_ID,
+                                                                                     ACTIVITY_ON          => recDebitCardActivity.ACTIVITY_ON,
+                                                                                     OBJECT_NAME          => recDebitCardActivity.OBJECT_NAME,
+                                                                                     SECTION              => recDebitCardActivity.SECTION,
+                                                                                     ACTP_CD              => recDebitCardActivity.ACTP_CD,
+                                                                                     PROCESSING_DATE      => recDebitCardActivity.PROCESSING_DATE,
+                                                                                     PROCESSED_DATE       => recDebitCardActivity.PROCESSED_DATE,
+                                                                                     ACTIVITY_TYPE        => recDebitCardActivity.ACTIVITY_TYPE,
+                                                                                     ACTIVITY_DESCRIPTION => recDebitCardActivity.ACTIVITY_DESCRIPTION,
+                                                                                     AMOUNT               => recDebitCardActivity.AMOUNT,
+                                                                                     STATUS               => recDebitCardActivity.STATUS,
+                                                                                     WORKGROUP            => recDebitCardActivity.WORKGROUP);
+  
+  END LOOP;
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  RETURN tblAccountUpdateDetail;
+EXCEPTION
+  WHEN eException THEN
+    RETURN tblAccountUpdateDetail;
+  WHEN eNoInput THEN
+    RETURN tblAccountUpdateDetail;
+  WHEN OTHERS THEN
+    dbms_output.put_line(SQLERRM);
+    RETURN tblAccountUpdateDetail;
+END Recent_txnActivity;
+
+===================================================================================================================================================================================
+
+FOR TESTING
+===========================================================================================
+PL/SQL Developer Test script 3.0
+44
+DECLARE
+  -- Non-scalar parameters require additional processing 
+  RESULT ttab_paymentdetail;
+BEGIN
+  -- Call the function
+  RESULT := getHistory(inclaimid => :inclaimid,
+                                  ineeid    => :ineeid);
+dbms_output.put_line(' coune ' || RESULT.Count );
+  FOR indx IN 1 .. RESULT.COUNT loop
+  dbms_output.put_line('Payment Amount = ' || RESULT(indx).PAYMENT_AMOUNT || ' //n' ||
+                       'Payment Type = ' || RESULT(indx).PAYMENT_TYPE || ' ' ||
+                       'Activity Date = ' || RESULT(indx).ACTIVITY_DATE || ' ' ||
+                       'Payment Status = ' || RESULT(indx).PAYMENT_STATUS || ' ' ||
+                       'Paid On = ' || RESULT(indx).PAID_ON || ' ' ||
+                       'Bank Account No = ' || RESULT(indx).BANK_ACCOUNTNO || ' ' ||
+                       'Debit Card No = ' || RESULT(indx).DEBIT_CARD_NO || ' ' ||
+                       'Cashed On  = ' || RESULT(indx).CASHED_ON || ' ' ||
+                       'Check No = ' || RESULT(indx).CHECK_NO || ' ' ||
+                       'Expected Payment Date = ' || RESULT(indx)
+                       .EXPECTED_PAYMENT_DATE || ' ' ||
+                       'Previoud Check No = ' || RESULT(indx).PREV_CHECK_NO || ' ' ||
+                       'Image Link type = ' || RESULT(indx).CHECK_IMAGE_LINK_TYPE || ' ' ||
+                       'Image Buffer Hrs = ' || RESULT(indx).CHECK_IMAGE_BUFFER_HRS || ' ' ||
+                       'Display Debit Card No = ' || RESULT(indx)
+                       .DISPLAY_DEBIT_CARD_NO);      
+                       
+      dbms_output.put_line('Activity Date = ' || RESULT(indx).ACTIVITY_DATE || ' count ' || RESULT.Count );
+     end loop;                             
+END;
+===========================================
+
