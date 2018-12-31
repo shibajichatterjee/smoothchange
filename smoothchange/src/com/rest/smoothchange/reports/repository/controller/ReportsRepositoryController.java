@@ -471,12 +471,12 @@ public class ReportsRepositoryController {
 			List<PotiBlueprintDto> information= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.INFORMATION);
 			List<PotiBlueprintDto> process= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.PROCESS);
 			List<PotiBlueprintDto> technology= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.TECHNOLOGY);
-			List<PotiBlueprintDto> organization= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.ORGANIZATION);
+			List<PotiBlueprintDto> organizationcom= potiBlueprintService.getPotiBluePrientComponentsByProjectIdAndComponentType(projectId, PotiComponentType.ORGANIZATION);
 
-			uploadFile = generatePOTI(reportTemplateDtoList.get(0), information,process,technology,organization,
+			uploadFile = generatePOTI(reportTemplateDtoList.get(0), information,process,technology,organizationcom,
 					organizationInfoDto, projectBackgroundDto);
 		}
-		if ("Change Readiness Checklist".equalsIgnoreCase(reportType2.getReportType())) {
+		if ("Change Readiness Checklist".equalsIgnoreCase(reportType2.getReportType()) ||"Change Readiness Assessment".equalsIgnoreCase(reportType2.getReportType())) {
 			List<ChangeReadinessCategoriesDto> changeReadinessCategoriesList = changeReadinessCategoriesService
 					.getChangeReadinessCategoriesListByProjectId(projectId);
 			List<ChangeReadinessCategoryReportDto> changeReadinessCategoryReportDtoList =new ArrayList<>();
@@ -676,7 +676,7 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 	}
 	
 	private byte[] generatePOTI(ReportTemplateDto reportTemplateDto,
-			List<PotiBlueprintDto> information,List<PotiBlueprintDto> process,List<PotiBlueprintDto> technology,List<PotiBlueprintDto> organization, OrganizationInfoDto organizationObj,
+			List<PotiBlueprintDto> information,List<PotiBlueprintDto> process,List<PotiBlueprintDto> technology,List<PotiBlueprintDto> organizationcom, OrganizationInfoDto organizationObj,
 			
 			ProjectBackgroundDto projectObj) throws IOException, XDocReportException, ParseException {
 		InputStream targetStream = new ByteArrayInputStream(reportTemplateDto.getTemplateFile());
@@ -685,7 +685,7 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		metadata.load("information", PotiBlueprintDto.class, true);
 		metadata.load("process", PotiBlueprintDto.class, true);
 		metadata.load("technology", PotiBlueprintDto.class, true);
-		metadata.load("organization", PotiBlueprintDto.class, true);
+		metadata.load("organizationcom", PotiBlueprintDto.class, true);
 
 		IContext context = report.createContext();
 		generationPOTIData(projectObj, organizationObj);
@@ -696,6 +696,7 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		context.put("technology", generateSerial(technology));
 
 		context.put("process", generateSerial(process));
+		context.put("organizationcom", generateSerial(organizationcom));
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.process(context, out);

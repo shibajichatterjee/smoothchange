@@ -193,7 +193,7 @@ public class BusinessBenefitMappingController {
 		businessBenefitMappingRequestDto.setId(rdto.getId());
 		businessBenefitMappingRequestDto.setBusiness_benefit_other(rdto.getBusiness_benefit_other());
 		businessBenefitMappingRequestDto.setBusinessBenefit(rdto.getBusinessBenefit());
-		if (rdto.getProjectStakeholders() != null) {
+		/*if (rdto.getProjectStakeholders() != null) {
 			businessBenefitMappingRequestDto.setStakeholderName(rdto.getProjectStakeholders().getStakeholderName());
 			businessBenefitMappingRequestDto.setStakeholderType(rdto.getProjectStakeholders().getStakeholderType());
 			businessBenefitMappingRequestDto.setRole(rdto.getProjectStakeholders().getRole());
@@ -204,7 +204,7 @@ public class BusinessBenefitMappingController {
 					.setEngagementStrategy(rdto.getProjectStakeholders().getEngagementStrategy());
 			businessBenefitMappingRequestDto
 					.setEngagementStrategyOther(rdto.getProjectStakeholders().getEngagementStrategyOther());
-		}
+		}*/
 		return businessBenefitMappingRequestDto;
 	}
 
