@@ -4,8 +4,8 @@ import com.rest.smoothchange.util.Status;
 
 public class CommunicationPlan {
 
-	private String stakeHolder;
-	private String stakeHolderType;
+	private String stakeholder;
+	private String stakeholderType;
 
 
 	private String purpose;
@@ -18,20 +18,22 @@ public class CommunicationPlan {
 
 	private String frequency;
 
-	public String getStakeHolder() {
-		return stakeHolder;
+	
+
+	public String getStakeholder() {
+		return stakeholder;
 	}
 
-	public void setStakeHolder(String stakeHolder) {
-		this.stakeHolder = stakeHolder;
+	public void setStakeholder(String stakeholder) {
+		this.stakeholder = stakeholder;
 	}
 
-	public String getStakeHolderType() {
-		return stakeHolderType;
+	public String getStakeholderType() {
+		return stakeholderType;
 	}
 
-	public void setStakeHolderType(String stakeHolderType) {
-		this.stakeHolderType = stakeHolderType;
+	public void setStakeholderType(String stakeholderType) {
+		this.stakeholderType = stakeholderType;
 	}
 
 	public String getPurpose() {

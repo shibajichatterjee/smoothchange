@@ -481,22 +481,24 @@ public class ReportsRepositoryController {
 					.getChangeReadinessCategoriesListByProjectId(projectId);
 			List<ChangeReadinessCategoryReportDto> changeReadinessCategoryReportDtoList =new ArrayList<>();
 			for (ChangeReadinessCategoriesDto changeReadinessCategoriesDto : changeReadinessCategoriesList) {
-				ChangeReadinessCategoryReportDto changeReadinessCategoryReportDto = new ChangeReadinessCategoryReportDto();
-				changeReadinessCategoryReportDto
-						.setCategory(changeReadinessCategoriesDto.getChangeReadinessCategoryName());
+				
 				List<ReadinessCategoryItemsRequestDto> readinessCategoryItemsRequestDtoList = readinessCategoryItemService
 						.getRedinessCategoryItemDetailByCategoryIdProjectId(changeReadinessCategoriesDto.getId(),
 								projectId);
 				for(ReadinessCategoryItemsRequestDto readinessCategoryItemsRequestDto:readinessCategoryItemsRequestDtoList)
 				{
+					ChangeReadinessCategoryReportDto changeReadinessCategoryReportDto = new ChangeReadinessCategoryReportDto();
+					changeReadinessCategoryReportDto
+					.setCategory(changeReadinessCategoriesDto.getChangeReadinessCategoryName());
 					changeReadinessCategoryReportDto.setApprover(readinessCategoryItemsRequestDto.getChangeReadinessApprover());
 					changeReadinessCategoryReportDto.setDate1(readinessCategoryItemsRequestDto.getChangeReadinessDate1());
 					changeReadinessCategoryReportDto.setDate2(readinessCategoryItemsRequestDto.getChangeReadinessDate2());
 					changeReadinessCategoryReportDto.setItemCode(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemCode());
 					changeReadinessCategoryReportDto.setItemDescription(readinessCategoryItemsRequestDto.getChangeReadinessCategoryItemDescription());
 					changeReadinessCategoryReportDto.setResponsible(readinessCategoryItemsRequestDto.getChangeReadinessResponsible());
+					changeReadinessCategoryReportDtoList.add(changeReadinessCategoryReportDto);
 				}
-				changeReadinessCategoryReportDtoList.add(changeReadinessCategoryReportDto);
+				
 			}
 			uploadFile = generateChangeReadinessChecklist(reportTemplateDtoList.get(0), changeReadinessCategoryReportDtoList,
 					organizationInfoDto, projectBackgroundDto);
@@ -943,9 +945,9 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 			for (int i = 0; i < communicationPlanlist.size(); i++) {
 				CommunicationPlan communication=new CommunicationPlan();
 				communication
-						.setStakeHolder(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderName());
+						.setStakeholder(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderName());
 				communication
-						.setStakeHolderType(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderType());
+						.setStakeholderType(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderType());
 				communication
 						.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal());
 				communication
