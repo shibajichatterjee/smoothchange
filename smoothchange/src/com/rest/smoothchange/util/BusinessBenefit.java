@@ -2,9 +2,9 @@ package com.rest.smoothchange.util;
 
 public enum BusinessBenefit {
 
-	REDUCECOST("Reduce Cost"),INCREASEREVENUE("Increase Revenue"),INCREACECUSTOMERBASE("Increace Customer Base"),
-	IMPROVEPROCESS("Improve Process"), IMPROVEPRODUCTIVITY("Improve Productivity"),ENHANCEUSEREXPERIANCE("Enhance User Experiance"),
-	INCREASECUSTOMERSATISFICTION("Increase Customer Satisfiction"),OTHER("Other");
+	REDUCECOST("Reduce Cost"),INCREASEREVENUE("Increase Revenue"),INCREACECUSTOMERBASE("Increase Customer Base"),
+	IMPROVEPROCESS("Process Improve"), IMPROVEPRODUCTIVITY("Improve Productivity"),ENHANCEUSEREXPERIANCE("Enhance User Experience"),
+	INCREASECUSTOMERSATISFICTION("Increase Customer Satisfaction"),OTHER("Other");
 	
 	private String value;
 	
