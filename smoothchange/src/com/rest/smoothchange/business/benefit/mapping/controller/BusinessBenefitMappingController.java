@@ -67,7 +67,10 @@ public class BusinessBenefitMappingController {
 		}
 
 		getProjectBackGround(id);
-		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
+		BusinessBenefitMappingDto dto =new BusinessBenefitMappingDto();
+		dto = mapRequestToDto(dto,businessBenefitMappingRequestDto);
+		dto.setProjectBackground(new ProjectBackgroundDto());
+
 		dto.setProjectStakeholders(projectStakeholdersDto);
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		businessBenefitMappingService.create(dto);
@@ -80,7 +83,7 @@ public class BusinessBenefitMappingController {
 	@ApiOperation(value = "Modify a Business Benefit Mapping")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyBusinessBenefitMapping", method = RequestMethod.POST)
-	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, 
 			@RequestParam("stackHolderId") long stackHolderId,
 			@RequestBody BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
@@ -95,12 +98,16 @@ public class BusinessBenefitMappingController {
 
 		ProjectStakeholdersDto projectStakeholdersDto = projectStakeholdersService.getById(stackHolderId);
 		if (projectStakeholdersDto == null) {
-			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Stakeholder ID");
 		}
 
-		getProjectBackGround(id);
-		BusinessBenefitMappingDto dto = mapRequestToDto(businessBenefitMappingRequestDto);
-		dto.getProjectBackground().setId(Long.parseLong(id));
+		//getProjectBackGround(id);
+		BusinessBenefitMappingDto dto=businessBenefitMappingService.getById(businessBenefitMappingRequestDto.getId()==null?0:businessBenefitMappingRequestDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Business BenefitMapping ID");
+
+		}
+		dto = mapRequestToDto(dto,businessBenefitMappingRequestDto);
 		dto.setProjectStakeholders(projectStakeholdersDto);
 		businessBenefitMappingService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -108,22 +115,22 @@ public class BusinessBenefitMappingController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "Get Business Benefit Mapping by Id and Project Id")
+	@ApiOperation(value = "Get Business Benefit Mapping by Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetBusinessBenefitMappingByIdandProjectId", method = RequestMethod.GET)
-	public ResponseEntity getBusinessBenefitMappingByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+	@RequestMapping(value = "/GetBusinessBenefitMappingById", method = RequestMethod.GET)
+	public ResponseEntity getBusinessBenefitMappingById(@RequestHeader("API-KEY") String apiKey,
+			 @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
 
-		getProjectBackGround(projectId);
+		//getProjectBackGround(projectId);
 		BusinessBenefitMappingDto dto = new BusinessBenefitMappingDto();
-		dto.setId(Long.parseLong(id));
+		/*dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		dto = businessBenefitMappingService.getBusinessBenefitMappingByIdProjectId(dto);
+		dto.getProjectBackground().setId(Long.parseLong(projectId));*/
+		dto = businessBenefitMappingService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -177,14 +184,12 @@ public class BusinessBenefitMappingController {
 
 	}
 
-	private BusinessBenefitMappingDto mapRequestToDto(
+	private BusinessBenefitMappingDto mapRequestToDto(BusinessBenefitMappingDto businessBenefitMappingDto,
 			BusinessBenefitMappingRequestDto businessBenefitMappingRequestDto) {
-		BusinessBenefitMappingDto businessBenefitMappingDto = new BusinessBenefitMappingDto();
 		businessBenefitMappingDto.setId(businessBenefitMappingRequestDto.getId());
 		businessBenefitMappingDto
 				.setBusiness_benefit_other(businessBenefitMappingRequestDto.getBusiness_benefit_other());
 		businessBenefitMappingDto.setBusinessBenefit(businessBenefitMappingRequestDto.getBusinessBenefit());
-		businessBenefitMappingDto.setProjectBackground(new ProjectBackgroundDto());
 		return businessBenefitMappingDto;
 	}
 
@@ -193,7 +198,9 @@ public class BusinessBenefitMappingController {
 		businessBenefitMappingRequestDto.setId(rdto.getId());
 		businessBenefitMappingRequestDto.setBusiness_benefit_other(rdto.getBusiness_benefit_other());
 		businessBenefitMappingRequestDto.setBusinessBenefit(rdto.getBusinessBenefit());
-		/*if (rdto.getProjectStakeholders() != null) {
+		if (rdto.getProjectStakeholders() != null) {
+			businessBenefitMappingRequestDto.setStake_holder_id(rdto.getProjectStakeholders().getId());
+			/*
 			businessBenefitMappingRequestDto.setStakeholderName(rdto.getProjectStakeholders().getStakeholderName());
 			businessBenefitMappingRequestDto.setStakeholderType(rdto.getProjectStakeholders().getStakeholderType());
 			businessBenefitMappingRequestDto.setRole(rdto.getProjectStakeholders().getRole());
@@ -203,8 +210,8 @@ public class BusinessBenefitMappingController {
 			businessBenefitMappingRequestDto
 					.setEngagementStrategy(rdto.getProjectStakeholders().getEngagementStrategy());
 			businessBenefitMappingRequestDto
-					.setEngagementStrategyOther(rdto.getProjectStakeholders().getEngagementStrategyOther());
-		}*/
+					.setEngagementStrategyOther(rdto.getProjectStakeholders().getEngagementStrategyOther());*/
+		}
 		return businessBenefitMappingRequestDto;
 	}
 

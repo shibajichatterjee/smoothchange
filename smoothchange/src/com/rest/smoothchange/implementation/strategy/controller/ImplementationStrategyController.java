@@ -56,7 +56,10 @@ public class ImplementationStrategyController {
 		}
 
 		getProjectBackGround(id);
-		ImplementationStrategyDto dto = mapRequestToDto(implementationStrategyRequestDto);
+		ImplementationStrategyDto dto =new ImplementationStrategyDto();
+	    dto = mapRequestToDto(dto,implementationStrategyRequestDto);
+		dto.setProjectBackground(new ProjectBackgroundDto());
+
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		implementationStrategyService.create(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -68,7 +71,7 @@ public class ImplementationStrategyController {
 	@ApiOperation(value = "Modify Implementation Strategy")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyImplementationStrategy", method = RequestMethod.POST)
-	public ResponseEntity Modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+	public ResponseEntity Modify(@RequestHeader("API-KEY") String apiKey,
 			@RequestBody ImplementationStrategyRequestDto implementationStrategyRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -81,9 +84,14 @@ public class ImplementationStrategyController {
 		}
 
 
-		getProjectBackGround(id);
-		ImplementationStrategyDto dto = mapRequestToDto(implementationStrategyRequestDto);
-		dto.getProjectBackground().setId(Long.parseLong(id));
+		//getProjectBackGround(id);
+		ImplementationStrategyDto dto=implementationStrategyService.getById(implementationStrategyRequestDto.getId()==null?0:implementationStrategyRequestDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Implementation Strategy ID");
+
+		}
+		dto = mapRequestToDto(dto,implementationStrategyRequestDto);
+		/*dto.getProjectBackground().setId(Long.parseLong(id));*/
 		implementationStrategyService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
@@ -116,21 +124,21 @@ public class ImplementationStrategyController {
 
 	}
 
-	@ApiOperation(value = "Get Implementation Strategy by Id and Project Id")
+	@ApiOperation(value = "Get Implementation Strategy by Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetImplementationStrategyByIdandProjectId", method = RequestMethod.GET)
+	@RequestMapping(value = "/GetImplementationStrategyById", method = RequestMethod.GET)
 	public ResponseEntity getBusinessBenefitMappingByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+			 @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		getProjectBackGround(projectId);
+		//getProjectBackGround(projectId);
 		ImplementationStrategyDto dto = new ImplementationStrategyDto();
-		dto.setId(Long.parseLong(id));
+		/*dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		dto = implementationStrategyService.getImplementationStrategyByIdProjectId(dto);
+		dto.getProjectBackground().setId(Long.parseLong(projectId));*/
+		dto = implementationStrategyService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -161,15 +169,13 @@ public class ImplementationStrategyController {
 
 	}
 
-	private ImplementationStrategyDto mapRequestToDto(
+	private ImplementationStrategyDto mapRequestToDto(ImplementationStrategyDto implementationStrategyDto,
 			ImplementationStrategyRequestDto implementationStrategyRequestDto) {
-		ImplementationStrategyDto implementationStrategyDto = new ImplementationStrategyDto();
 		implementationStrategyDto.setId(implementationStrategyRequestDto.getId());
 		implementationStrategyDto.setActivityEnum(ImplementationActivity.getValue(implementationStrategyRequestDto.getActivity()));
 		implementationStrategyDto.setExpectedResult(implementationStrategyRequestDto.getExpectedResult());
 		implementationStrategyDto.setLeadContactDesignation(implementationStrategyRequestDto.getLeadContactDesignation());
 		implementationStrategyDto.setLeadContactName(implementationStrategyRequestDto.getLeadContactName());
-		implementationStrategyDto.setProjectBackground(new ProjectBackgroundDto());
 		implementationStrategyDto.setEndDate(implementationStrategyRequestDto.getEndDate());
 		implementationStrategyDto.setStartDate(implementationStrategyRequestDto.getStartDate());
 		implementationStrategyDto.setStrategicObjective(implementationStrategyRequestDto.getStrategicObjective());

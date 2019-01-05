@@ -72,7 +72,11 @@ public class ImpactAnalysisController {
 		}
 
 		commonUtil.getProjectBackGround(id);
-		ImpactAnalysisDto dto = mapRequestToDto(impactAnalysisRequestDto);
+		ImpactAnalysisDto dto =new ImpactAnalysisDto();
+		dto = mapRequestToDto(dto,impactAnalysisRequestDto);
+		dto.setProjectBackground(new ProjectBackgroundDto());
+		dto.setProjectStakeholders(new ProjectStakeholdersDto());
+		dto.getProjectStakeholders().setId(impactAnalysisRequestDto.getProjectStakeholdersId());
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		impactAnalysisService.create(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -84,7 +88,7 @@ public class ImpactAnalysisController {
 	@ApiOperation(value = "Modify Impact Analysis")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyImpactAnalysis", method = RequestMethod.POST)
-	public ResponseEntity Modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+	public ResponseEntity Modify(@RequestHeader("API-KEY") String apiKey, 
 			@RequestBody ImpactAnalysisRequestDto impactAnalysisRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -106,9 +110,16 @@ public class ImpactAnalysisController {
 			throw new NoEnumRecordsFoundException("Planned Activity not matched");
 		}
 
-		commonUtil.getProjectBackGround(id);
-		ImpactAnalysisDto dto = mapRequestToDto(impactAnalysisRequestDto);
-		dto.getProjectBackground().setId(Long.parseLong(id));
+		//commonUtil.getProjectBackGround(id);
+		ImpactAnalysisDto dto=impactAnalysisService.getById(impactAnalysisRequestDto.getId()==null?0:impactAnalysisRequestDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Impact Analysis ID");
+
+		}
+		dto = mapRequestToDto(dto,impactAnalysisRequestDto);
+		//dto.getProjectBackground().setId(Long.parseLong(id));
+		dto.setProjectStakeholders(new ProjectStakeholdersDto());
+		dto.getProjectStakeholders().setId(impactAnalysisRequestDto.getProjectStakeholdersId());
 		impactAnalysisService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
@@ -139,21 +150,21 @@ public class ImpactAnalysisController {
 
 	}
 
-	@ApiOperation(value = "Get Impact Analysis by Id and Project Id")
+	@ApiOperation(value = "Get Impact Analysis by Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetImpactAnalysisByIdandProjectId", method = RequestMethod.GET)
-	public ResponseEntity getImpactAnalysisByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+	@RequestMapping(value = "/GetImpactAnalysisById", method = RequestMethod.GET)
+	public ResponseEntity getImpactAnalysisById(@RequestHeader("API-KEY") String apiKey,
+			 @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		commonUtil.getProjectBackGround(projectId);
+		//commonUtil.getProjectBackGround(projectId);
 		ImpactAnalysisDto dto = new ImpactAnalysisDto();
-		dto.setId(Long.parseLong(id));
+		/*dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		dto = impactAnalysisService.getImpactAnalysisByIdProjectId(dto);
+		dto.getProjectBackground().setId(Long.parseLong(projectId));*/
+		dto = impactAnalysisService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -184,16 +195,13 @@ public class ImpactAnalysisController {
 
 	}
 
-	private ImpactAnalysisDto mapRequestToDto(ImpactAnalysisRequestDto impactAnalysisRequestDto) {
-		ImpactAnalysisDto impactAnalysisDto = new ImpactAnalysisDto();
+	private ImpactAnalysisDto mapRequestToDto(ImpactAnalysisDto impactAnalysisDto,ImpactAnalysisRequestDto impactAnalysisRequestDto) {
 		impactAnalysisDto.setOtherImpactType(impactAnalysisRequestDto.getOtherImpactType());
 		impactAnalysisDto.setImpactType(ImpactType.getValue(impactAnalysisRequestDto.getImpactType()));
 		impactAnalysisDto.setLevelOfImpact(LevelOfImpact.getValue(impactAnalysisRequestDto.getLevelOfImpact()));
 		impactAnalysisDto.setPlannedActivity(PlannedActivity.getValue(impactAnalysisRequestDto.getPlannedActivity()));
 		impactAnalysisDto.setId(impactAnalysisRequestDto.getId());
-		impactAnalysisDto.setProjectBackground(new ProjectBackgroundDto());
-		impactAnalysisDto.setProjectStakeholders(new ProjectStakeholdersDto());
-		impactAnalysisDto.getProjectStakeholders().setId(impactAnalysisRequestDto.getProjectStakeholdersId());
+		
 		return impactAnalysisDto;
 	}
 

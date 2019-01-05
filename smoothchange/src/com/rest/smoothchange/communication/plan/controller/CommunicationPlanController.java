@@ -74,7 +74,11 @@ public class CommunicationPlanController {
 			throw new NoEnumRecordsFoundException("Purpose Of Communication not matched");
 		}
 		commonUtil.getProjectBackGround(id);
-		CommunicationPlanDto dto = mapRequestToDto(communicationPlanRequestDto);
+		CommunicationPlanDto dto=new CommunicationPlanDto();
+		dto = mapRequestToDto(dto,communicationPlanRequestDto);
+		dto.setProjectBackground(new ProjectBackgroundDto());
+		dto.setProjectStakeholders(new ProjectStakeholdersDto());
+		dto.getProjectStakeholders().setId(communicationPlanRequestDto.getProjectstakeHolderId());
 		dto.getProjectBackground().setId(Long.parseLong(id));
 		communicationPlanService.create(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -86,7 +90,7 @@ public class CommunicationPlanController {
 	@ApiOperation(value = "Modify Communication Plans")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifyCommunicationPlans", method = RequestMethod.POST)
-	public ResponseEntity update(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
+	public ResponseEntity update(@RequestHeader("API-KEY") String apiKey, 
 			@RequestBody CommunicationPlanRequestDto communicationPlanRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
@@ -114,9 +118,16 @@ public class CommunicationPlanController {
 
 			throw new NoEnumRecordsFoundException("Purpose Of Communication not matched");
 		}
-		commonUtil.getProjectBackGround(id);
-		CommunicationPlanDto dto = mapRequestToDto(communicationPlanRequestDto);
-		dto.getProjectBackground().setId(Long.parseLong(id));
+		//commonUtil.getProjectBackGround(id);
+		CommunicationPlanDto dto=communicationPlanService.getById(communicationPlanRequestDto.getId()==null?0:communicationPlanRequestDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Communication Plan ID");
+
+		}
+		dto = mapRequestToDto(dto,communicationPlanRequestDto);
+		//dto.getProjectBackground().setId(Long.parseLong(id));
+		dto.setProjectStakeholders(new ProjectStakeholdersDto());
+		dto.getProjectStakeholders().setId(communicationPlanRequestDto.getProjectstakeHolderId());
 		communicationPlanService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
@@ -148,21 +159,21 @@ public class CommunicationPlanController {
 
 	}
 
-	@ApiOperation(value = "Get Communication Plans by Id and Project Id")
+	@ApiOperation(value = "Get Communication Plans by Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetCommunicationPlansByIdandProjectId", method = RequestMethod.GET)
-	public ResponseEntity getCommunicationPlansByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+	@RequestMapping(value = "/GetCommunicationPlansById", method = RequestMethod.GET)
+	public ResponseEntity getCommunicationPlansById(@RequestHeader("API-KEY") String apiKey,
+			 @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		commonUtil.getProjectBackGround(projectId);
+		//commonUtil.getProjectBackGround(projectId);
 		CommunicationPlanDto dto = new CommunicationPlanDto();
-		dto.setId(Long.parseLong(id));
+		/*dto.setId(Long.parseLong(id));
 		dto.setProjectBackground(new ProjectBackgroundDto());
-		dto.getProjectBackground().setId(Long.parseLong(projectId));
-		dto = communicationPlanService.getCommunicationPlanByIdProjectId(dto);
+		dto.getProjectBackground().setId(Long.parseLong(projectId));*/
+		dto = communicationPlanService.getById(Long.parseLong(id));
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -193,12 +204,9 @@ public class CommunicationPlanController {
 
 	}
 
-	private CommunicationPlanDto mapRequestToDto(CommunicationPlanRequestDto communicationPlanRequestDto) {
-		CommunicationPlanDto communicationPlanDto = new CommunicationPlanDto();
+	private CommunicationPlanDto mapRequestToDto(CommunicationPlanDto communicationPlanDto,CommunicationPlanRequestDto communicationPlanRequestDto) {
 		communicationPlanDto.setId(communicationPlanRequestDto.getId());
-		communicationPlanDto.setProjectBackground(new ProjectBackgroundDto());
-		communicationPlanDto.setProjectStakeholders(new ProjectStakeholdersDto());
-		communicationPlanDto.getProjectStakeholders().setId(communicationPlanRequestDto.getProjectstakeHolderId());
+		
 		communicationPlanDto.setSentBy(communicationPlanRequestDto.getSentBy());
 		communicationPlanDto.setPurposeOfCommunication(
 				PurposeOfCommunication.getValue(communicationPlanRequestDto.getPurposeOfCommunication()));

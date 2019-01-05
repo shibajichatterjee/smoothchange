@@ -5,8 +5,19 @@ public class BusinessBenefitMappingRequestDto {
    private String businessBenefit;
 	
 	private String business_benefit_other;
+	
+	private Long stake_holder_id;
+	
 
 	
+
+	public Long getStake_holder_id() {
+		return stake_holder_id;
+	}
+
+	public void setStake_holder_id(Long stake_holder_id) {
+		this.stake_holder_id = stake_holder_id;
+	}
 
 	public String getBusinessBenefit() {
 		return businessBenefit;

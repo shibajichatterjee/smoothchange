@@ -18,17 +18,11 @@ import com.rest.framework.constant.MessageEnum;
 import com.rest.framework.exception.NoEnumRecordsFoundException;
 import com.rest.framework.exception.NoRecordsFoundException;
 import com.rest.framework.exception.UnauthorizedException;
-import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysisDto;
-import com.rest.smoothchange.impact.analysis.dto.ImpactAnalysisRequestDto;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
-import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
 import com.rest.smoothchange.support.plan.items.dto.SupportPlanItemsDto;
 import com.rest.smoothchange.support.plan.items.dto.SupportPlanItemsRequestDto;
 import com.rest.smoothchange.support.plan.items.service.SupportPlanItemsService;
 import com.rest.smoothchange.util.CommonUtil;
-import com.rest.smoothchange.util.ImpactType;
-import com.rest.smoothchange.util.LevelOfImpact;
-import com.rest.smoothchange.util.PlannedActivity;
 import com.rest.smoothchange.util.SupportedStackHolderStatus;
 
 import io.swagger.annotations.Api;
@@ -61,9 +55,11 @@ public class SupportPlanItemsController {
 
 			throw new NoEnumRecordsFoundException("Supported StackHolder Status not matched");
 		}
-
+		SupportPlanItemsDto dto=new SupportPlanItemsDto();
 		commonUtil.getProjectBackGround(id);
-		SupportPlanItemsDto dto = mapRequestToDto(supportPlanItemsRequestDto);
+		dto = mapRequestToDto(dto,supportPlanItemsRequestDto);
+		dto.setProjectBackgroundDto(new ProjectBackgroundDto());
+
 		dto.getProjectBackgroundDto().setId(Long.parseLong(id));
 		supportPlanItemService.create(dto);
 		ResponseBean responseBean = new ResponseBean();
@@ -75,8 +71,7 @@ public class SupportPlanItemsController {
 	@ApiOperation(value = "Modify Support Plan")
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/ModifySupportPlan", method = RequestMethod.POST)
-	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestParam("projectId") String id,
-			@RequestBody SupportPlanItemsRequestDto supportPlanItemsRequestDto)
+	public ResponseEntity modify(@RequestHeader("API-KEY") String apiKey, @RequestBody SupportPlanItemsRequestDto supportPlanItemsRequestDto)
 			throws NoEnumRecordsFoundException, UnauthorizedException, NoRecordsFoundException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
@@ -88,9 +83,14 @@ public class SupportPlanItemsController {
 			throw new NoEnumRecordsFoundException("Supported StackHolder Status not matched");
 		}
 
-		commonUtil.getProjectBackGround(id);
-		SupportPlanItemsDto dto = mapRequestToDto(supportPlanItemsRequestDto);
-		dto.getProjectBackgroundDto().setId(Long.parseLong(id));
+		//commonUtil.getProjectBackGround(id);
+		SupportPlanItemsDto dto =supportPlanItemService.getById(supportPlanItemsRequestDto.getId()==null?0:supportPlanItemsRequestDto.getId());
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage()+"For this Support Plan ID");
+
+		}
+		dto = mapRequestToDto(dto,supportPlanItemsRequestDto);
+		//dto.getProjectBackgroundDto().setId(Long.parseLong(id));
 		supportPlanItemService.update(dto);
 		ResponseBean responseBean = new ResponseBean();
 		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
@@ -100,19 +100,19 @@ public class SupportPlanItemsController {
 
 	@ApiOperation(value = "Get Support Plan by Id and Project Id")
 	@SuppressWarnings("unchecked")
-	@RequestMapping(value = "/GetSupportPlanByIdandProjectId", method = RequestMethod.GET)
-	public ResponseEntity getSupportPlanByIdandProjectId(@RequestHeader("API-KEY") String apiKey,
-			@RequestParam("projectId") String projectId, @RequestParam("id") String id)
+	@RequestMapping(value = "/GetSupportPlanById", method = RequestMethod.GET)
+	public ResponseEntity getSupportPlanById(@RequestHeader("API-KEY") String apiKey,
+			 @RequestParam("id") String id)
 			throws NoRecordsFoundException, UnauthorizedException {
 		if (!apiKey.equals(MessageEnum.API_KEY)) {
 			throw new UnauthorizedException(MessageEnum.unathorized);
 		}
-		commonUtil.getProjectBackGround(projectId);
+		//commonUtil.getProjectBackGround(projectId);
 		SupportPlanItemsDto dto = new SupportPlanItemsDto();
 		dto.setId(Long.parseLong(id));
-		dto.setProjectBackgroundDto(new ProjectBackgroundDto());
-		dto.getProjectBackgroundDto().setId(Long.parseLong(projectId));
-		dto = supportPlanItemService.getSupportPlanItemsByIdProjectId(dto);
+		//dto.setProjectBackgroundDto(new ProjectBackgroundDto());
+		//dto.getProjectBackgroundDto().setId(Long.parseLong(projectId));
+		dto = supportPlanItemService.getById(dto.getId());
 		if (dto == null) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
@@ -168,8 +168,7 @@ public class SupportPlanItemsController {
 
 	}
 
-	private SupportPlanItemsDto mapRequestToDto(SupportPlanItemsRequestDto supportPlanItemsRequestDto) {
-		SupportPlanItemsDto supportPlanItemsDto = new SupportPlanItemsDto();
+	private SupportPlanItemsDto mapRequestToDto(SupportPlanItemsDto supportPlanItemsDto,SupportPlanItemsRequestDto supportPlanItemsRequestDto) {
 		supportPlanItemsDto.setSupportActivity(supportPlanItemsRequestDto.getSupportActivity());
 		supportPlanItemsDto.setDuration(supportPlanItemsRequestDto.getDuration());
 		supportPlanItemsDto.setSupportedStackHolderStatusObj(
@@ -177,7 +176,6 @@ public class SupportPlanItemsController {
 		supportPlanItemsDto.setPersonResponsible(supportPlanItemsRequestDto.getPersonResponsible());
 		supportPlanItemsDto.setComments(supportPlanItemsRequestDto.getComments());
 		supportPlanItemsDto.setId(supportPlanItemsRequestDto.getId());
-		supportPlanItemsDto.setProjectBackgroundDto(new ProjectBackgroundDto());
 		return supportPlanItemsDto;
 	}
 
