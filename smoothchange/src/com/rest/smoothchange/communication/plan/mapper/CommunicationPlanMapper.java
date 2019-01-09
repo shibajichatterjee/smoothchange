@@ -37,6 +37,9 @@ public class CommunicationPlanMapper extends AbstractMapper<CommunicationPlanDto
 			communicationPlan.setPreparedBy(dto.getPreparedBy());
 			communicationPlan.setSentBy(dto.getSentBy());
 			communicationPlan.setStatus(dto.getStatus());
+			communicationPlan.setPurposeOfCommunicationOther(dto.getPurposeOfCommunicationOther());
+			communicationPlan.setCommunicationChannelOther(dto.getCommunicationChannelOther());
+			communicationPlan.setFrequencyOther(dto.getFrequencyOther());
 			
 			if(dto.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackground();
@@ -81,6 +84,9 @@ public class CommunicationPlanMapper extends AbstractMapper<CommunicationPlanDto
 			communicationPlan.setPreparedBy(bo.getPreparedBy());
 			communicationPlan.setSentBy(bo.getSentBy());
 			communicationPlan.setStatus(bo.getStatus());
+			communicationPlan.setPurposeOfCommunicationOther(bo.getPurposeOfCommunicationOther());
+			communicationPlan.setCommunicationChannelOther(bo.getCommunicationChannelOther());
+			communicationPlan.setFrequencyOther(bo.getFrequencyOther());
 			
 			if(bo.getProjectBackground()!=null) {
 				projectBackground = new ProjectBackgroundDto();

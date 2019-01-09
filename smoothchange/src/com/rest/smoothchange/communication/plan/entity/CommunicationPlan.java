@@ -56,6 +56,37 @@ public class CommunicationPlan extends AbstractPersistentObject{
 	@Column(name="sent_by")
 	private String sentBy;
 	
+	@Column(name="purpose_of_communication_other")
+	private String purposeOfCommunicationOther;
+	@Column(name="communication_channel_other")
+	private String communicationChannelOther;
+	@Column(name="frequency_other")
+	private String frequencyOther;
+	
+	public String getPurposeOfCommunicationOther() {
+		return purposeOfCommunicationOther;
+	}
+
+	public void setPurposeOfCommunicationOther(String purposeOfCommunicationOther) {
+		this.purposeOfCommunicationOther = purposeOfCommunicationOther;
+	}
+
+	public String getCommunicationChannelOther() {
+		return communicationChannelOther;
+	}
+
+	public void setCommunicationChannelOther(String communicationChannelOther) {
+		this.communicationChannelOther = communicationChannelOther;
+	}
+
+	public String getFrequencyOther() {
+		return frequencyOther;
+	}
+
+	public void setFrequencyOther(String frequencyOther) {
+		this.frequencyOther = frequencyOther;
+	}
+
 	@Enumerated(EnumType.ORDINAL)
 	private Status status;
 	

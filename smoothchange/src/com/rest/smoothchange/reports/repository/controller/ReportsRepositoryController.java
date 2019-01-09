@@ -83,8 +83,10 @@ import com.rest.smoothchange.util.CommonUtil;
 import com.rest.smoothchange.util.DateUtil;
 import com.rest.smoothchange.util.GeneratedOrUploaded;
 import com.rest.smoothchange.util.ImageUtil;
+import com.rest.smoothchange.util.ImpactType;
 import com.rest.smoothchange.util.PotiComponentType;
 import com.rest.smoothchange.util.ReportType;
+import com.rest.smoothchange.util.TypeOfChange;
 
 import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.IXDocReport;
@@ -807,7 +809,11 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 			for (int i = 0; i < impactAnalysisDtolist.size(); i++) {
 				ImpactAnalysis im = new ImpactAnalysis();
 				im.setSerialNumber(Integer.toString(i + 1));
-				im.setTypeOfImpact(impactAnalysisDtolist.get(i).getImpactType().getNumVal());
+				if (impactAnalysisDtolist.get(i).getImpactType().getNumVal().equals(ImpactType.Other.getNumVal())) {
+					im.setTypeOfImpact(impactAnalysisDtolist.get(i).getOtherImpactType());
+				} else {
+					im.setTypeOfImpact(impactAnalysisDtolist.get(i).getImpactType().getNumVal());
+				}
 				im.setLocationOfAffectedStakeholder(
 						impactAnalysisDtolist.get(i).getProjectStakeholders().getLocation());
 				im.setNameOfAffectedStakeholder(impactAnalysisDtolist.get(i).getProjectStakeholders().getStakeholderName());

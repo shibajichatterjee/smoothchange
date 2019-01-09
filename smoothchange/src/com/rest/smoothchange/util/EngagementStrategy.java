@@ -2,7 +2,7 @@ package com.rest.smoothchange.util;
 
 public enum EngagementStrategy {
 
-	Training("Training"), Communication("Communication"), Both("Both"),TrainingAndOther("Training And Other"),CommunicationAndOther("Communication And Other"),BothAndOther("Both And Other");
+	Training("Training"), Communication("Communication"), Both("Both"),TrainingAndOther("Training And Other"),CommunicationAndOther("Communication And Other"),BothAndOther("Both And Other"),Other("Other");
 
 	private String numVal;
 

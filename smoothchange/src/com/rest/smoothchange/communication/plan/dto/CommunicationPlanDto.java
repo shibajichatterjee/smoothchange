@@ -3,6 +3,8 @@
  */
 package com.rest.smoothchange.communication.plan.dto;
 
+import javax.persistence.Column;
+
 import com.rest.framework.dto.AbstractDTO;
 import com.rest.smoothchange.project.background.dto.ProjectBackgroundDto;
 import com.rest.smoothchange.project.stakeholders.dto.ProjectStakeholdersDto;
@@ -50,7 +52,33 @@ public class CommunicationPlanDto extends AbstractDTO {
 	private String sentBy;
 
 	private Status status;
+	private String purposeOfCommunicationOther;
+	private String communicationChannelOther;
+	public String getPurposeOfCommunicationOther() {
+		return purposeOfCommunicationOther;
+	}
 
+	public void setPurposeOfCommunicationOther(String purposeOfCommunicationOther) {
+		this.purposeOfCommunicationOther = purposeOfCommunicationOther;
+	}
+
+	public String getCommunicationChannelOther() {
+		return communicationChannelOther;
+	}
+
+	public void setCommunicationChannelOther(String communicationChannelOther) {
+		this.communicationChannelOther = communicationChannelOther;
+	}
+
+	public String getFrequencyOther() {
+		return frequencyOther;
+	}
+
+	public void setFrequencyOther(String frequencyOther) {
+		this.frequencyOther = frequencyOther;
+	}
+
+	private String frequencyOther;
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
 	}

@@ -218,6 +218,9 @@ public class CommunicationPlanController {
 		communicationPlanDto.setPreparedBy(communicationPlanRequestDto.getPreparedBy());
 		communicationPlanDto.setSentBy(communicationPlanRequestDto.getSentBy());
 		communicationPlanDto.setStatus(Status.getValue(communicationPlanRequestDto.getStatus()));
+		communicationPlanDto.setPurposeOfCommunicationOther(communicationPlanRequestDto.getPurposeOfCommunicationOther());
+		communicationPlanDto.setCommunicationChannelOther(communicationPlanRequestDto.getCommunicationChannelOther());
+		communicationPlanDto.setFrequencyOther(communicationPlanRequestDto.getFrequencyOther());
 		return communicationPlanDto;
 	}
 
@@ -235,6 +238,9 @@ public class CommunicationPlanController {
 		communicationPlanRequestDto.setPreparedBy(communicationPlanDto.getPreparedBy());
 		communicationPlanRequestDto.setSentBy(communicationPlanDto.getSentBy());
 		communicationPlanRequestDto.setStatus(communicationPlanDto.getStatus().getNumVal());
+		communicationPlanRequestDto.setPurposeOfCommunicationOther(communicationPlanDto.getPurposeOfCommunicationOther());
+		communicationPlanRequestDto.setCommunicationChannelOther(communicationPlanDto.getCommunicationChannelOther());
+		communicationPlanRequestDto.setFrequencyOther(communicationPlanDto.getFrequencyOther());
 		return communicationPlanRequestDto;
 	}
 

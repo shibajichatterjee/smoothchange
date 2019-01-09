@@ -1,5 +1,7 @@
 package com.rest.smoothchange.communication.plan.dto;
 
+import javax.persistence.Column;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class CommunicationPlanRequestDto {
@@ -21,6 +23,33 @@ public class CommunicationPlanRequestDto {
 	private String sentBy;
 	
 	private String status;
+	public String getPurposeOfCommunicationOther() {
+		return purposeOfCommunicationOther;
+	}
+
+	public void setPurposeOfCommunicationOther(String purposeOfCommunicationOther) {
+		this.purposeOfCommunicationOther = purposeOfCommunicationOther;
+	}
+
+	public String getCommunicationChannelOther() {
+		return communicationChannelOther;
+	}
+
+	public void setCommunicationChannelOther(String communicationChannelOther) {
+		this.communicationChannelOther = communicationChannelOther;
+	}
+
+	public String getFrequencyOther() {
+		return frequencyOther;
+	}
+
+	public void setFrequencyOther(String frequencyOther) {
+		this.frequencyOther = frequencyOther;
+	}
+
+	private String purposeOfCommunicationOther;
+	private String communicationChannelOther;
+	private String frequencyOther;
 
 	public Long getProjectstakeHolderId() {
 		return projectstakeHolderId;
