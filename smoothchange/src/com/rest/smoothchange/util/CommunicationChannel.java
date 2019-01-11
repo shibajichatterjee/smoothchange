@@ -3,7 +3,7 @@ package com.rest.smoothchange.util;
 public enum CommunicationChannel {
 
 	Facetofacemeeting("Face to face meeting"), Emails("Emails"), Intranet("Intranet"), Website("Website"), SocialMedia(
-			"Social Media"), Postalletters("Postal letters"), Others("Others");
+			"Social Media"), Postalletters("Postal letters"), Other("Other");
 
 	private String numVal;
 

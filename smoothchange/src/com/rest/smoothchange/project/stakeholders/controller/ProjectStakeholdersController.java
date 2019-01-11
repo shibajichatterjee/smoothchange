@@ -191,6 +191,7 @@ public class ProjectStakeholdersController {
 		projectStakeholdersDto.setStakeholderName(rdto.getStakeholderName());
 		projectStakeholdersDto.setStakeholderType(rdto.getStakeholderType());
 		projectStakeholdersDto.setProjectBackground(new ProjectBackgroundDto());
+		projectStakeholdersDto.setEngagementStrategyOther(rdto.getEngagementStrategyOther());
 		return projectStakeholdersDto;
 	}
 
@@ -204,6 +205,8 @@ public class ProjectStakeholdersController {
 		projectStakeholdersDto.setRole(rdto.getRole());
 		projectStakeholdersDto.setStakeholderName(rdto.getStakeholderName());
 		projectStakeholdersDto.setStakeholderType(rdto.getStakeholderType());
+		projectStakeholdersDto.setEngagementStrategyOther(rdto.getEngagementStrategyOther());
+		
 		return projectStakeholdersDto;
 	}
 

@@ -3,7 +3,7 @@ package com.rest.smoothchange.util;
 public enum ImplementationActivity {
 	UndertakeStakeholderAnalysis("Undertake Stakeholder Analysis"), UndertakeImpactAnalysis("Undertake Impact Analysis"), CreateCommunicationPlan("Create Communication Plan"), CreateTrainingPlan("Create Training Plan"),
 	CreateChangeManagementPlan(
-			"Create Change Management Plan"),Others("Others");
+			"Create Change Management Plan"),Other("Other");
 
 	private String numVal;
 

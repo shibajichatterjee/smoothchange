@@ -150,6 +150,7 @@ public class CommunicationPlanController {
 		if (dto == null || dto.size() == 0) {
 			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS.getMessage());
 		}
+		
 		for (CommunicationPlanDto communicationPlanDto : dto) {
 			requestDtoList.add(mapDtotoRequestDto(communicationPlanDto));
 		}

@@ -4,7 +4,7 @@ public enum PurposeOfCommunication {
 
 	Inform("Inform"),
 	SeekApproval("Seek Approval"),
-	Others("Others");
+	Other("Other");
 	
 	private String numVal;
 

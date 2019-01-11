@@ -79,12 +79,17 @@ import com.rest.smoothchange.training.plan.schedule.service.TrainingPlanSchedule
 import com.rest.smoothchange.training.plan.service.TrainingPlanService;
 import com.rest.smoothchange.training.plan.version.history.dto.TrainingPlanVersionHistoryDto;
 import com.rest.smoothchange.training.plan.version.history.service.TrainingPlanVersionHistoryService;
+import com.rest.smoothchange.util.BusinessBenefit;
 import com.rest.smoothchange.util.CommonUtil;
+import com.rest.smoothchange.util.CommunicationChannel;
 import com.rest.smoothchange.util.DateUtil;
+import com.rest.smoothchange.util.EngagementStrategy;
+import com.rest.smoothchange.util.Frequency;
 import com.rest.smoothchange.util.GeneratedOrUploaded;
 import com.rest.smoothchange.util.ImageUtil;
 import com.rest.smoothchange.util.ImpactType;
 import com.rest.smoothchange.util.PotiComponentType;
+import com.rest.smoothchange.util.PurposeOfCommunication;
 import com.rest.smoothchange.util.ReportType;
 import com.rest.smoothchange.util.TypeOfChange;
 
@@ -735,6 +740,11 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 		if (businessBenefitMappingDtolist != null && businessBenefitMappingDtolist.size() > 0) {
 			for (int i = 0; i < businessBenefitMappingDtolist.size(); i++) {
 				businessBenefitMappingDtolist.get(i).setSerialNumber(Integer.toString(i + 1));
+				if(businessBenefitMappingDtolist.get(i).getBusinessBenefit().equals(BusinessBenefit.OTHER.getValue()))
+				{
+					businessBenefitMappingDtolist.get(i).setBusinessBenefit(businessBenefitMappingDtolist.get(i).getBusiness_benefit_other());
+				}
+				
 			}
 		}
 
@@ -759,7 +769,34 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 				stakeHolderDtolist.get(i).setType(stakeHolderDtolist.get(i).getStakeholderType());
 				stakeHolderDtolist.get(i)
 						.setNoOfPersonsImpacted(stakeHolderDtolist.get(i).getNumberImpacted().toString());
-				stakeHolderDtolist.get(i).setStrategyOfEngagement(stakeHolderDtolist.get(i).getEngagementStrategy());
+				if(EngagementStrategy.Both.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Training and Communication");
+				}
+				if(EngagementStrategy.Training.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Training");
+				}
+				if(EngagementStrategy.Communication.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Communication");
+				}
+				if(EngagementStrategy.TrainingAndOther.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Training,*");
+				}
+				if(EngagementStrategy.CommunicationAndOther.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Communication,*");
+				}
+				if(EngagementStrategy.BothAndOther.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("Training,Communication,*");
+				}
+				if(EngagementStrategy.Other.getNumVal().equals(stakeHolderDtolist.get(i).getEngagementStrategy()))
+				{
+					stakeHolderDtolist.get(i).setStrategyOfEngagement("*");
+				}
 			}
 		}
 
@@ -954,11 +991,36 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 						.setStakeholder(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderName());
 				communication
 						.setStakeholderType(communicationPlanlist.get(i).getProjectStakeholders().getStakeholderType());
-				communication
-						.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal());
-				communication
-						.setChannel(communicationPlanlist.get(i).getCommunicationChannel().getNumVal());
-				communication.setFrequency(communicationPlanlist.get(i).getFrequency().getNumVal());
+				if(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal().equals(PurposeOfCommunication.Other.getNumVal()))
+				{
+					communication
+					.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunicationOther());
+				}
+				else
+				{
+					communication
+					.setPurpose(communicationPlanlist.get(i).getPurposeOfCommunication().getNumVal());
+				}
+				
+				if(communicationPlanlist.get(i).getCommunicationChannel().getNumVal().equals(CommunicationChannel.Other.getNumVal()))
+				{
+					communication
+					.setChannel(communicationPlanlist.get(i).getCommunicationChannelOther());
+				}
+				else
+				{
+					communication
+					.setChannel(communicationPlanlist.get(i).getCommunicationChannel().getNumVal());
+				}
+				
+				if(communicationPlanlist.get(i).getFrequency().getNumVal().equals(Frequency.Other.getNumVal()))
+				{
+					communication.setFrequency(communicationPlanlist.get(i).getFrequencyOther());
+				}
+				else
+				{
+					communication.setFrequency(communicationPlanlist.get(i).getFrequency().getNumVal());
+				}
 				communication.setPreparedBy(communicationPlanlist.get(i).getPreparedBy());
 				communication.setSentBy(communicationPlanlist.get(i).getSentBy());
 				communication.setStatus(communicationPlanlist.get(i).getStatus().getNumVal());
