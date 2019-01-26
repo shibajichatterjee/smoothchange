@@ -1,6 +1,8 @@
 package com.rest.smoothchange.project.background.service.impl;
 
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,5 +18,7 @@ import com.rest.smoothchange.project.background.service.ProjectBackgroundService
 @Transactional
 public class ProjectBackgroundServiceImpl extends AbstractService<ProjectBackgroundDao, ProjectBackgroundDto, ProjectBackgroundMapper, ProjectBackground>  implements ProjectBackgroundService{
 
-	
+	public void DeleteAllTransactionProjectBackgroundById(long projectBackgroundId, List<String> listOfQuery) {
+		dao.DeleteAllTransactionProjectBackgroundById(projectBackgroundId, listOfQuery);
+	}
 }

@@ -1,11 +1,13 @@
 package com.rest.smoothchange.project.background.controller;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.transaction.SystemException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,6 +45,9 @@ public class ProjectBckController {
 		String message = "WELCOME TO SMOOTHCHANGE";
 		return message;
 	}
+	
+	@Value("${DELETED_TABLE}")
+	String deletedTable;
 
 	@ApiOperation(value = "Add a project background")
 	@SuppressWarnings("unchecked")
@@ -140,5 +145,55 @@ public class ProjectBckController {
 		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
 
 	}
+	
+	
+	
+	@ApiOperation(value = "Delete All Trancaction By Project Id")
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/DeleteAllTransactionProjectBackgroundById", method = RequestMethod.DELETE)
+	public ResponseEntity deleteAllTransactionProjectBackgroundById(@RequestHeader("API-KEY") String apiKey, @RequestParam("id") String projectId)
+			throws UnauthorizedException, SystemException, NoRecordsFoundException {
+		 if(!apiKey.equals(MessageEnum.API_KEY))
+		{
+		 throw new UnauthorizedException(MessageEnum.unathorized);
+		 }
+		getProjectBackGround(projectId);
+		if (deletedTable != null && !deletedTable.equals("")) {
+			List<String> tableList = Arrays.asList(deletedTable.split(","));
+			projectService.DeleteAllTransactionProjectBackgroundById(Long.parseLong(projectId), tableList);
+		}
+		ResponseBean responseBean = new ResponseBean();
+		responseBean.setBody(MessageEnum.enumMessage.SUCESS.getMessage());
+		return new ResponseEntity(responseBean, org.springframework.http.HttpStatus.OK);
+	}
+	
+	
+	private void getProjectBackGround(String id) throws NoRecordsFoundException {
+		ProjectBackgroundDto dto = projectService.getById(Long.parseLong(id));
+		if (dto == null) {
+			throw new NoRecordsFoundException(MessageEnum.enumMessage.NO_RECORDS_BY_PROJECT_ID.getMessage());
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
