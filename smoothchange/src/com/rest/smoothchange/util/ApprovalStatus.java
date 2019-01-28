@@ -6,7 +6,7 @@ public enum ApprovalStatus {
 	Approved("Approved"),
 	Pending("Pending"),
 	NotInitiated("Not Initiated"),
-	Others("Others");
+	Other("Other");
 	
 	private String numVal;
 

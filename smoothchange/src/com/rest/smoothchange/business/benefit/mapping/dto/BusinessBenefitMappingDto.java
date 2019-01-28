@@ -30,8 +30,18 @@ public class BusinessBenefitMappingDto extends AbstractDTO{
 	
 	//============ For Report Generatio ============
 	private String  SerialNumber;
-	
+	private String affectedStakeholder;
    
+	
+
+	public String getAffectedStakeholder() {
+		return affectedStakeholder;
+	}
+
+	public void setAffectedStakeholder(String affectedStakeholder) {
+		this.affectedStakeholder = affectedStakeholder;
+	}
+
 	public ProjectBackgroundDto getProjectBackground() {
 		return projectBackground;
 	}

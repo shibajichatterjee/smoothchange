@@ -2,7 +2,7 @@ package com.rest.smoothchange.util;
 
 public enum Status {
 
-	Drafted("Drafted"), Sentforapproval("Sent for approval"), Onhold("On hold"),Delivered("Delivered"),Others("Others");
+	Drafted("Drafted"), Sentforapproval("Sent for approval"), Onhold("On hold"),Delivered("Delivered"),Other("Other");
 
 	private String numVal;
 

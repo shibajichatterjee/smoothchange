@@ -743,7 +743,9 @@ private byte[] generateTrainingPlan(ReportTemplateDto reportTemplateDto, Organiz
 				if(businessBenefitMappingDtolist.get(i).getBusinessBenefit().equals(BusinessBenefit.OTHER.getValue()))
 				{
 					businessBenefitMappingDtolist.get(i).setBusinessBenefit(businessBenefitMappingDtolist.get(i).getBusiness_benefit_other());
+					
 				}
+				businessBenefitMappingDtolist.get(i).setAffectedStakeholder(businessBenefitMappingDtolist.get(i).getProjectStakeholders().getStakeholderName());
 				
 			}
 		}

@@ -14,8 +14,7 @@ public class ProjectStackeHolderRequestDto {
 	private String role;
 
 	private String location;
-
-	private Integer numberImpacted;
+	private Integer numberImpacted=0;
 
 	private String LevelOfInfluence;
 
