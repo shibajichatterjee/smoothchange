@@ -1,6 +1,5 @@
 package com.rest.smoothchange.project.background.controller;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -159,7 +158,7 @@ public class ProjectBckController {
 		 }
 		getProjectBackGround(projectId);
 		if (deletedTable != null && !deletedTable.equals("")) {
-			List<String> tableList = Arrays.asList(deletedTable.split(","));
+			List<String> tableList = Arrays.asList(deletedTable.split(";"));
 			projectService.DeleteAllTransactionProjectBackgroundById(Long.parseLong(projectId), tableList);
 		}
 		ResponseBean responseBean = new ResponseBean();
