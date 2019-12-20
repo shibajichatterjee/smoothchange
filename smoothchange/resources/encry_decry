@@ -1,1 +1,532 @@
 
+package com.acclaris.common.util;
+
+import java.io.IOException;
+import java.security.SecureRandom;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.commons.codec.binary.Base32;
+
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
+
+public final class EncryptDecrypt {
+
+	private EncryptDecrypt() {
+
+	}
+
+	/**
+	 * Obfuscates input string
+	 * 
+	 * @param inString
+	 *            - input string to obfuscate
+	 * @return obfuscated and encoded string in base32 format
+	 */
+	public static String obfuscateAndEncod(String inString) {
+		String obfuscateId = obfuscate(inString);
+		return byteToBase32(obfuscateId.getBytes());
+	}
+
+	/**
+	 * Decodes the Base32 string into bytes array and pellucidates it
+	 * 
+	 * @param inString
+	 *            - Base32 string
+	 * @return decoded and pellucidated string, null if input inString is null
+	 */
+	public static String decodeAndPellucidate(String inString) {
+		if (ValidationUtil.isNull(inString)) {
+			return null;
+		}
+		byte[] decodedData = base32ToByte(inString);
+
+		return pellucidate(new String(decodedData));
+	}
+
+	/**
+	 * Encodes input data containing binary data, into a string containing
+	 * characters in the appropriate alphabet. Uses UTF8 encoding.
+	 * 
+	 * @param data
+	 *            - a byte array containing binary data
+	 * @return encoded string
+	 */
+	public static String byteToBase32(byte[] data) {
+		Base32 base32 = new Base32();
+		return base32.encodeAsString(data);
+	}
+
+	/**
+	 * Decodes a String containing characters in the Base-32 alphabet.
+	 * 
+	 * @param data
+	 *            - A String containing Base-N character data
+	 * @return byte array containing the Base-32 data
+	 */
+	public static byte[] base32ToByte(String data) {
+		Base32 base32 = new Base32();
+		return base32.decode(data);
+	}
+
+	/**
+	 * Alternate decode interface that takes a string containing the encoded
+	 * buffer.
+	 * 
+	 * @param data
+	 *            - String in base64 representation
+	 * @return decoded byte array of the input string
+	 * @throws IOException
+	 *             - if I/O exception of some sort has occurred.
+	 */
+	public static byte[] base64ToByte(String data) throws IOException {
+		BASE64Decoder decoder = new BASE64Decoder();
+		return decoder.decodeBuffer(data);
+	}
+
+	/**
+	 * A 'streamless' version of encode that simply takes a buffer of bytes and
+	 * encodes it.
+	 * 
+	 * @param data
+	 *            - the buffer of bytes to encode
+	 * @return a string containing the encoded buffer
+	 */
+	public static String byteToBase64(byte[] data) {
+		BASE64Encoder endecoder = new BASE64Encoder();
+		return endecoder.encode(data);
+	}
+
+	/**
+	 * Decrypt the input string.
+	 * 
+	 * @param input
+	 *            - the string to be decrypted
+	 * @return the decrypted form of the given string
+	 * @throws SystemException
+	 *             - if a database error occurs
+	 */
+	public static String decryptString(String input) throws SystemException {
+		Connection conn = null;
+
+		try {
+			conn = DatabaseUtils.getDBConnection();
+			return EncryptDecryptDAO.pellucidate(conn, input);
+
+		} catch (SQLException e) {
+			throw new SystemException(e);
+		} finally {
+			DatabaseUtils.closeDBConnection(conn);
+		}
+
+	}
+
+	/**
+	 * Encrypts the input password string.
+	 * 
+	 * @param password
+	 *            - the input string which needs to be encrypted
+	 * @return the encrypted string
+	 */
+	public static String obfuscate(String password) {
+
+		Calendar cal = Calendar.getInstance();
+		Date date = cal.getTime();
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("SSSSS");
+		String seconds = dateFormatter.format(date);
+		String lastDigit = seconds.substring(seconds.length() - 1);
+
+		return obfuscateInner(Integer.parseInt(lastDigit), password);
+	}
+
+	private static String obfuscateInner(int lastDigit, String password) {
+
+		String sEncrypt = "";
+		char eachChar;
+		int iAscii;
+		String sRandom;
+		String sRandomBit;
+
+		if (password == null) {
+			return null;
+		} else if (ValidationUtil.isNull(password)) {
+			return "";
+		}
+		int passwordLength = password.length();
+
+		for (int iCnt = 0; iCnt < passwordLength; iCnt++) {
+			eachChar = password.charAt(iCnt);
+			if ((lastDigit % 2) == 0) {
+				Double dFirstPow = Double.valueOf(Math.pow(iCnt + 1, 3));
+				Double dSecondPow = Double.valueOf(Math.pow(lastDigit, 3));
+
+				iAscii = getAsciiFromChar(eachChar) + dFirstPow.intValue()
+						+ passwordLength + 3 + dSecondPow.intValue();
+			} else {
+				Double dFirstPow = Double.valueOf(Math.pow(iCnt + 1, 2));
+				iAscii = getAsciiFromChar(eachChar) + dFirstPow.intValue()
+						+ passwordLength + 4 + (lastDigit * 2);
+			}
+			while (iAscii >= 126) {
+				iAscii = iAscii - 126 + 33;
+			}
+
+			String sNew = getStringFromAscii(iAscii);
+
+			if ("&".equals(sNew)) {
+				sNew = "$~1";
+			} else if ("|".equals(sNew)) {
+				sNew = "$~2";
+			} else if ("~".equals(sNew)) {
+				sNew = "$~3";
+			} else if ("\"".equals(sNew)) {
+				sNew = "$~4";
+			} else if ("+".equals(sNew)) {
+				sNew = "$~5";
+			} else if ("?".equals(sNew)) {
+				sNew = "$~6";
+			}
+
+			sEncrypt = sEncrypt + sNew;
+		}
+
+		SecureRandom sr = new SecureRandom();
+		double dRandom = sr.nextDouble();
+		sRandom = String.valueOf(dRandom);
+		sRandomBit = sRandom.substring(2, 3);
+		sEncrypt = makeReverseShift(sEncrypt, Integer.parseInt(sRandomBit) * 4);
+
+		String sBaseKey = setBaseKeyForObfuscate(lastDigit);
+		String sRotKey = setRotKeyForObfuscate(sRandomBit);
+
+		String sPassw1 = sEncrypt.substring(0, 1);
+		String sPassw2 = sEncrypt.substring(1);
+
+		sEncrypt = sPassw1 + sBaseKey + sRotKey + sPassw2;
+
+		double dRandomNew = sr.nextDouble();
+		String sEndPad = String.valueOf(dRandomNew);
+		sEndPad = sEndPad.substring(0, lastDigit);
+		sEncrypt = sEncrypt + sEndPad;
+
+		return sEncrypt;
+	}
+
+	private static String setBaseKeyForObfuscate(int lastDigit) {
+
+		String sBaseKey;
+
+		switch (lastDigit) {
+			case 0:
+				sBaseKey = "+!@#";
+				break;
+			case 1:
+				sBaseKey = "_@#$";
+				break;
+			case 2:
+				sBaseKey = ")#$%";
+				break;
+			case 3:
+				sBaseKey = "($%^";
+				break;
+			case 4:
+				sBaseKey = "*%^$";
+				break;
+			case 5:
+				sBaseKey = "$^$*";
+				break;
+			case 6:
+				sBaseKey = "^$*(";
+				break;
+			case 7:
+				sBaseKey = "%*()";
+				break;
+			case 8:
+				sBaseKey = "$()-";
+				break;
+			case 9:
+				sBaseKey = "#)-+";
+				break;
+			default:
+				sBaseKey = "";
+		}
+		return sBaseKey;
+	}
+
+	private static String setRotKeyForObfuscate(String sRandomBit) {
+
+		String sRotKey;
+
+		switch (Integer.parseInt(sRandomBit)) {
+			case 0:
+				sRotKey = "+=";
+				break;
+			case 1:
+				sRotKey = "@#";
+				break;
+			case 2:
+				sRotKey = ")%";
+				break;
+			case 3:
+				sRotKey = ">^";
+				break;
+			case 4:
+				sRotKey = "_-";
+				break;
+			case 5:
+				sRotKey = "|!";
+				break;
+			case 6:
+				sRotKey = ";,";
+				break;
+			case 7:
+				sRotKey = "><";
+				break;
+			case 8:
+				sRotKey = "xX";
+				break;
+			case 9:
+				sRotKey = "o0";
+				break;
+			default:
+				sRotKey = "";
+		}
+		return sRotKey;
+	}
+
+	/**
+	 * Decrypts the string input
+	 * 
+	 * @param input
+	 *            - the input string which needs to be decrypted
+	 * @return the decrypted string
+	 */
+	public static String pellucidate(String sInPassw) {
+
+		if (sInPassw == null) {
+			return null;
+		} else if (sInPassw.trim().length() == 0) {
+			return "";
+		}
+
+		return pellucidateInner(sInPassw);
+	}
+
+	private static String pellucidateInner(String sInPassw) {
+
+		StringBuilder sDecrypt = new StringBuilder();
+		String sPassw = sInPassw;
+		char cEachChar;
+		String sEachChar;
+		byte[] bAscii;
+		byte[] bNewAscii = new byte[1];
+		int iNewAscii;
+		String sBaseKey;
+		String sRotKey;
+
+		int iLength = sPassw.length();
+
+		sBaseKey = sPassw.substring(1, 5);
+		sRotKey = sPassw.substring(5, 7);
+
+		int iTime = setTimeForPellucidate(sBaseKey);
+		int iRotate = setRotateForPellucidate(sRotKey);
+
+		sPassw = sPassw.substring(0, iLength - iTime);
+
+		String sPassw1 = sPassw.substring(0, 1);
+		String sPassw2 = sPassw.substring(7);
+		sPassw = sPassw1 + sPassw2;
+		sPassw = makeForwardShift(sPassw, iRotate * 4);
+
+		sPassw = setNewPasswordPellucidateInner(sPassw);
+
+		iLength = sPassw.length();
+
+		for (int i = 0; i < iLength; i++) {
+			cEachChar = sPassw.charAt(i);
+			sEachChar = String.valueOf(cEachChar);
+
+			bAscii = sEachChar.getBytes();
+			if ((iTime % 2) == 0) {
+				iNewAscii = bAscii[0] - (Double.valueOf(Math.pow(i + 1D, 3))).intValue() - iLength - 3
+						- (Double.valueOf(Math.pow(iTime, 3))).intValue();
+			} else {
+				iNewAscii = bAscii[0] - (Double.valueOf(Math.pow(i + 1D, 2))).intValue() - iLength - 4 - (iTime * 2);
+			}
+			while (iNewAscii < 32)// 1.0.2
+			{
+				iNewAscii = iNewAscii + 126 - 33;
+			}
+			bNewAscii[0] = (Integer.valueOf(iNewAscii)).byteValue();
+			sDecrypt = sDecrypt.append((char) bNewAscii[0]);
+		}
+
+		return sDecrypt.toString();
+
+	}
+	
+	private static String setNewPasswordPellucidateInner(String sPassw) {
+		String sNewPassw = sPassw;
+
+		int iRepCnt = 0;
+		int j;
+
+		for (int i = 0; i < sPassw.length(); i = j + 1) {
+			char cThisChar = sPassw.charAt(i);
+			String sThisChar = "";
+
+			if (cThisChar == '$') {
+
+				if (sPassw.indexOf("$~1", i) == i)
+					sThisChar = "&";
+				else if (sPassw.indexOf("$~2", i) == i)
+					sThisChar = "|";
+				else if (sPassw.indexOf("$~3", i) == i)
+					sThisChar = "~";
+				else if (sPassw.indexOf("$~4", i) == i)
+					sThisChar = "\"";
+				else if (sPassw.indexOf("$~5", i) == i)
+					sThisChar = "+";
+				else if (sPassw.indexOf("$~6", i) == i)
+					sThisChar = "?";
+			}
+
+			if (!ValidationUtil.isNull(sThisChar)) {
+				sNewPassw = updatePassword(sPassw, sNewPassw, iRepCnt, i,
+						sThisChar);
+
+				j = i + 2;
+				iRepCnt++;
+			} else {
+				j = i;
+			}
+
+		}
+		return sNewPassw;
+	}
+
+	private static String updatePassword(String sPassw, String sNewPassw,
+			int iRepCnt, int i, String sThisChar) {
+		try {
+			sNewPassw = sNewPassw.substring(0, i - (iRepCnt * 2))
+					+ sThisChar + sPassw.substring(i + 3);
+		} catch (Exception e) {
+
+		}
+		return sNewPassw;
+	}
+
+	private static int setTimeForPellucidate(String sBaseKey) {
+		int iTime = 0;
+
+		switch (sBaseKey) {
+			case "+!@#":
+				iTime = 0;
+				break;
+			case "_@#$":
+				iTime = 1;
+				break;
+			case ")#$%":
+				iTime = 2;
+				break;
+			case "($%^":
+				iTime = 3;
+				break;
+			case "*%^$":
+				iTime = 4;
+				break;
+			case "$^$*":
+				iTime = 5;
+				break;
+			case "^$*(":
+				iTime = 6;
+				break;
+			case "%*()":
+				iTime = 7;
+				break;
+			case "$()-":
+				iTime = 8;
+				break;
+			case "#)-+":
+				iTime = 9;
+				break;
+			default:
+		}
+		return iTime;
+	}
+
+	private static int setRotateForPellucidate(String sRotKey) {
+		int iRotate = 0;
+		switch (sRotKey) {
+			case "+=":
+				iRotate = 0;
+				break;
+			case "@#":
+				iRotate = 1;
+				break;
+			case ")%":
+				iRotate = 2;
+				break;
+			case ">^":
+				iRotate = 3;
+				break;
+			case "_-":
+				iRotate = 4;
+				break;
+			case "|!":
+				iRotate = 5;
+				break;
+			case ";,":
+				iRotate = 6;
+				break;
+			case "><":
+				iRotate = 7;
+				break;
+			case "xX":
+				iRotate = 8;
+				break;
+			case "o0":
+				iRotate = 9;
+				break;
+			default:
+		}
+		return iRotate;
+	}
+
+
+	private static String makeForwardShift(String sInPassw, int iCount) {
+		String sOutPassw = sInPassw;
+		for (int i = 1; i <= iCount; i++) {
+			sOutPassw = sOutPassw.substring(1) + sOutPassw.charAt(0);
+		}
+		return sOutPassw;
+	}
+
+	private static String makeReverseShift(String password, int count) {
+		String output = password;
+		for (int i = 1; i <= count; i++) {
+			output = output.charAt(output.length() - 1)
+					+ output.substring(0, output.length() - 1);
+		}
+		return output;
+	}
+
+	private static int getAsciiFromChar(char inChar) {
+		byte[] bAscii = String.valueOf(inChar).getBytes();
+		return bAscii[0];
+	}
+
+	private static String getStringFromAscii(int iAscii) {
+		byte[] bNewByte = new byte[1];
+		Integer j = Integer.valueOf(iAscii);
+		bNewByte[0] = j.byteValue();
+		return new String(bNewByte);
+	}
+
+}
