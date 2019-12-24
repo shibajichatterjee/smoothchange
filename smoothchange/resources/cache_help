@@ -1,1 +1,216 @@
 
+package com.caching;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+@SuppressWarnings("unchecked")
+public class Cache {
+
+	private static CachingInterface masterCacheInterface;
+	private static CachingInterface masterCacheInterface2;
+	private static CachingInterface userCacheInterface;
+	private static Map<String, CachingInterface> customCaches;
+
+	private AcclarisCache() {
+
+	}
+
+	static {
+		masterCacheInterface = new GuavaImpl(CacheDuration.TIME_HIGH.getDuration(), TimeUnit.HOURS, false);
+		masterCacheInterface2 = new GuavaImpl(CacheDuration.TIME_MEDIUM.getDuration(), TimeUnit.HOURS, false);
+		userCacheInterface = new GuavaImpl(30, TimeUnit.MINUTES, false);
+		customCaches = new HashMap<>();
+	}
+
+	public enum CacheDuration {
+		TIME_HIGH(24), TIME_MEDIUM(6);
+
+		private int duration;
+
+		private CacheDuration(int duration) {
+			this.duration = duration;
+		}
+
+		public int getDuration() {
+			return this.duration;
+		}
+
+	}
+
+	public static void putMasterCache(String cacheType, String key, Object value, CacheDuration cacheDuration) {
+		HashMap<String, Object> cachedData = updateCacheData(cacheType, key, value, cacheDuration);
+		if (null != cacheDuration && CacheDuration.TIME_HIGH.equals(cacheDuration)) {
+			masterCacheInterface.putCacheData(cacheType, cachedData);
+		} else if (null != cacheDuration && CacheDuration.TIME_MEDIUM.equals(cacheDuration)) {
+			masterCacheInterface2.putCacheData(cacheType, cachedData);
+		}
+	}
+
+	private static HashMap<String, Object> updateCacheData(String cacheType, String key, Object value,
+			CacheDuration cacheDuration) {
+		HashMap<String, Object> cachedData;
+		if (masterCacheInterface.getCacheData(cacheType) != null && cacheDuration.equals(CacheDuration.TIME_HIGH)) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface.getCacheData(cacheType);
+		} else if (masterCacheInterface2.getCacheData(cacheType) != null
+				&& cacheDuration.equals(CacheDuration.TIME_MEDIUM)) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface2.getCacheData(cacheType);
+		} else {
+			cachedData = new HashMap<>();
+		}
+		cachedData.put(key, value);
+		return cachedData;
+	}
+
+	public static Object getMasterDataFromCache(String cacheType, String key) {
+		HashMap<String, Object> cachedData = new HashMap<>();
+		if (masterCacheInterface.getCacheData(cacheType) != null) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface.getCacheData(cacheType);
+		} else if (masterCacheInterface2.getCacheData(cacheType) != null) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface2.getCacheData(cacheType);
+		}
+		return cachedData != null ? cachedData.get(key) : "";
+	}
+
+	public static void putUserCache(String eeID, String key, Object value) {
+		HashMap<String, Object> cachedData = (HashMap<String, Object>) userCacheInterface.getCacheData(eeID);
+		if (cachedData == null) {
+			cachedData = new HashMap<>();
+		}
+		cachedData.put(key, value);
+		userCacheInterface.putCacheData(eeID, cachedData);
+	}
+
+	public static Object getUserDataFromCache(String eeID, String key) {
+		return getUserDataFromCache(eeID, key, false);
+	}
+	
+	public static Object getUserDataFromCache(String eeID, String key, boolean canReturnNull) {
+		HashMap<String, Object> cachedData = (HashMap<String, Object>) userCacheInterface.getCacheData(eeID);
+		if (cachedData != null) {
+			return cachedData.get(key);
+		}
+		if (canReturnNull) {
+			return null;
+		} else { 
+			return "";
+		}
+	}
+
+	public static void remove(String key) {
+		if (masterCacheInterface.getCacheData(key) != null) {
+			masterCacheInterface.remove(key);
+		} else if (masterCacheInterface2.getCacheData(key) != null) {
+			masterCacheInterface2.remove(key);
+		} else if (userCacheInterface.getCacheData(key) != null) {
+			userCacheInterface.remove(key);
+		}
+	}
+
+	public static void remove(String key, String cacheType) {
+		HashMap<String, Object> cachedData;
+		if (masterCacheInterface.getCacheData(cacheType) != null) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface.getCacheData(cacheType);
+			cachedData.remove(key);
+			masterCacheInterface.putCacheData(cacheType, cachedData);
+		} else if (masterCacheInterface2.getCacheData(cacheType) != null) {
+			cachedData = (HashMap<String, Object>) masterCacheInterface2.getCacheData(cacheType);
+			cachedData.remove(key);
+			masterCacheInterface2.putCacheData(cacheType, cachedData);
+		} else if (userCacheInterface.getCacheData(cacheType) != null) {
+			cachedData = (HashMap<String, Object>) userCacheInterface.getCacheData(cacheType);
+			cachedData.remove(key);
+			userCacheInterface.putCacheData(cacheType, cachedData);
+		}
+	}
+
+	private static CachingInterface createCustomCache(String cacheName, int durationInMinutes,
+			boolean expireAfterAccess) {
+		CachingInterface cachingInterface = customCaches.getOrDefault(cacheName,
+				new GuavaImplementation(durationInMinutes, TimeUnit.MINUTES, expireAfterAccess));
+		customCaches.put(cacheName, cachingInterface);
+		return cachingInterface;
+	}
+
+	public static void putInCustomCache(String cacheName, String cacheKey, Object data, int durationInMinutes,
+			boolean expireAfterAccess) {
+		createCustomCache(cacheName, durationInMinutes, expireAfterAccess).putCacheData(cacheKey, data);
+	}
+
+	public static Object getFromCustomCache(String cacheName, String cacheKey) {
+		if (customCaches.get(cacheName) != null)
+			return customCaches.get(cacheName).getCacheData(cacheKey);
+		else
+			return null;
+	}
+
+	public static void clear() {
+		masterCacheInterface.clearCache();
+		masterCacheInterface2.clearCache();
+		userCacheInterface.clearCache();
+		customCaches.entrySet().stream().parallel().forEach(e -> e.getValue().clearCache());
+		customCaches.clear();
+	}
+
+}
+=========================================================================================================
+package com.caching;
+
+import java.util.concurrent.TimeUnit;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
+public class GuavaImpl implements CachingInterface {
+	
+	private Cache<String, Object> productCache; 
+
+	public GuavaImplementation(int duration, TimeUnit unit,
+			boolean expireAfterAccess) {
+		if (expireAfterAccess) {
+			productCache = CacheBuilder.newBuilder()
+					.expireAfterAccess(duration, unit).build();
+		} else {
+			productCache = CacheBuilder.newBuilder()
+					.expireAfterWrite(duration, unit).build();
+		}
+
+	}
+
+	@Override
+	public Object getCacheData(String key) {
+		return productCache.getIfPresent(key);
+	}
+
+	@Override
+	public void putCacheData(String key, Object value) {
+		productCache.put(key, value);
+	}
+
+	@Override
+	public void remove(String key) {
+		productCache.invalidate(key);
+	}
+
+	@Override
+	public void clearCache() {
+		productCache.invalidateAll();
+	}
+
+}
+==========================================================================
+
+using example
+----------------------------------
+String cacheDemogValue = (String) Cache.getMasterDataFromCache(
+				CacheDataType.MasterCacheType.ER_ADMIN_DEMOG.getCacheType(), userDtls.getAdmnIDAsString() + SEPARATOR
+						+ userDtls.getErIDAsString() + SEPARATOR + actpCd + SEPARATOR + demogType);
+
+
+Cache.putMasterCache(CacheDataType.MasterCacheType.ER_ADMIN_DEMOG.getCacheType(),
+							userDtls.getAdmnIDAsString() + SEPARATOR + userDtls.getErIDAsString() + SEPARATOR + actpCd
+									+ SEPARATOR + demogType,
+							demogValue, CacheDuration.TIME_MEDIUM);						
+						
+
