@@ -1,1 +1,1113 @@
 
+
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
+
+import javax.xml.datatype.XMLGregorianCalendar;
+
+
+public final class DUtil {
+
+	private static final String DATE_FORMAT_WITH_DASH = "MM-dd-yyyy";
+	private static final String DATE_NON_US_FORMAT_WITH_DASH = "yyyy-MM-dd";
+	private static final String DATE_FORMAT_WITH_FORWARD_SLASH = "MM/dd/yyyy";
+	private static final String TIMESTAMP_NON_US_FORMAT_WITH_DASH = "yyyy-MM-dd HH:mm:ss";
+	private static final String TIMESTAMP_FORMAT_WITH_FORWARD_SLASH = "MM/dd/yyyy HH:mm:ss";
+	private static final String EXCEPTION_MESSAGE = "Input date is empty.";
+
+	private DUtil() {
+
+	}
+
+	/**
+	 * Format current date time using given format.
+	 * 
+	 * @param inDateFormat
+	 *            -Required date format
+	 * @return formatted Date as String
+	 */
+	public static String getCurrentDateTimeAsFormat(String inDateFormat) {
+		SimpleDateFormat df = new SimpleDateFormat(inDateFormat);
+		Calendar rightNow = Calendar.getInstance();
+		java.util.Date nd = rightNow.getTime();
+		return df.format(nd);
+	}
+
+	/**
+	 * Parses string input to produce a Date as "yyyy-MM-dd" format.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed.
+	 * @return A Date parsed from the String.If String input is null,then return
+	 *         null.
+	 * @throws SystemException
+	 *             - if the String input cannot be parsed.
+	 * 
+	 */
+	public static java.sql.Date getSQLDate(String inDate) throws SystemException {
+		if (ValidationUtil.isNull(inDate)) {
+			return null;
+		}
+		try {
+			SimpleDateFormat df = new SimpleDateFormat(DATE_FORMAT_WITH_FORWARD_SLASH);
+			java.util.Date dInDate = df.parse(inDate);
+			SimpleDateFormat dfOut = new SimpleDateFormat(DATE_NON_US_FORMAT_WITH_DASH);
+			String dtOut = dfOut.format(dInDate);
+			return java.sql.Date.valueOf(dtOut);
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Parses the string input to produce a date, according to the given source
+	 * format and return the formatted date according to the given format.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed
+	 * @param fromFormat
+	 *            -the format describing String input to be parsed to Date
+	 * @param toFormat
+	 *            -the format describing Date to be formatted to String
+	 * @return the formatted String
+	 * @throws SystemException
+	 *             - if the String input cannot be parsed.
+	 */
+	public static String getFormattedDate(String inDate, String fromFormat, String toFormat) throws SystemException {
+		try {
+			SimpleDateFormat df = new SimpleDateFormat(ConversionUtil.stringNoNull(fromFormat));
+			java.util.Date date = df.parse(ConversionUtil.stringNoNull(inDate));
+			SimpleDateFormat dfOut = new SimpleDateFormat(ConversionUtil.stringNoNull(toFormat));
+			return dfOut.format(date);
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Determine date string between range
+	 * 
+	 * @param date
+	 *            -String should be parsed ,not null
+	 * @param minDate
+	 *            -String should be parsed ,not null
+	 * @param maxDate
+	 *            -String should be parsed ,not null
+	 * @param format
+	 *            -the pattern to use, not null
+	 * @return true if first argument is present between second and third
+	 *         argument or equal
+	 * @throws SystemException
+	 *             - if the String input cannot be parsed.
+	 */
+	public static boolean isDateInRange(String date, String minDate, String maxDate, String format)
+			throws SystemException {
+
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+			LocalDate inputDate = LocalDate.parse(date, formatter);
+			LocalDate startDate = LocalDate.parse(minDate, formatter);
+			LocalDate endDate = LocalDate.parse(maxDate, formatter);
+			return !(inputDate.isBefore(startDate) || inputDate.isAfter(endDate));
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	/**
+	 * Parses string input to extract a day as String, according to specified
+	 * pattern, Example: Given date: '2018-08-06' and 'yyyy-MM-dd', result will
+	 * be - 'Monday'
+	 * 
+	 * @param date
+	 *            -String should be parsed ,not null
+	 * @param format
+	 *            - the pattern to use, not null
+	 * @return -the formatted day as String.
+	 * @throws SystemException
+	 *             - if the String input cannot be parsed.
+	 */
+	public static String getDayOfTheWeekFromString(String date, String format) throws SystemException {
+		try {
+			return LocalDate.parse(date, DateTimeFormatter.ofPattern(format)).getDayOfWeek()
+					.getDisplayName(TextStyle.FULL_STANDALONE, Locale.US);
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Parses string input to extract first day as String, according to
+	 * specified pattern. Example: Given date: '07-19-2018(MM-DD-YYYY)',result
+	 * will be - '01-01-2018(MM-DD-YYYY)'
+	 * 
+	 * @param date
+	 *            -String should be parsed ,not null
+	 * @param format
+	 *            - the pattern to use, not null
+	 * @return -the formatted first day of year as String.
+	 * @throws SystemException-
+	 *             if the String input cannot be parsed.
+	 */
+	public static String getFirstDateOfTheYear(String date, String format) throws SystemException {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+			return LocalDate.parse(date, formatter).with(TemporalAdjusters.firstDayOfYear()).format(formatter);
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	public static String getFirstDateOfTheMonth(String date, String format) throws SystemException {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+			return LocalDate.parse(date, formatter).with(TemporalAdjusters.firstDayOfMonth()).format(formatter);
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Format Timestamp of the given date string in "yyyy-MM-dd HH:mm:ss"
+	 * format. Example: Given date: '08/06/2018 14:42:00' ,then return result
+	 * will be - '2018-08-06 14:42:00'
+	 * 
+	 * @param inTimestamp
+	 *            -String should be formatted ,not null
+	 * @return formatted Timestamp,null if String input is null.
+	 * @throws SystemException
+	 *             -if the String input cannot be parsed.
+	 */
+	public static java.sql.Timestamp getSQLTimestamp(String inTimestamp) throws SystemException {
+		if (ValidationUtil.isNull(inTimestamp)) {
+			return null;
+		}
+		try {
+
+			SimpleDateFormat df = new SimpleDateFormat(TIMESTAMP_FORMAT_WITH_FORWARD_SLASH);
+			java.util.Date dInTimestamp = df.parse(inTimestamp);
+			SimpleDateFormat dfOut = new SimpleDateFormat(TIMESTAMP_NON_US_FORMAT_WITH_DASH);
+			String tmOut = dfOut.format(dInTimestamp);
+			return java.sql.Timestamp.valueOf(tmOut);
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Extract month and day from String input and specified format ,Example:
+	 * '2018-08-06' and 'yyyy-MM-dd',result will be - 'August Monday'
+	 * 
+	 * @param inputDateString
+	 *            -String should be parsed ,not null
+	 * @param inputDateFormat
+	 *            - the formatter to use, not null
+	 * @return day and month as String
+	 * @throws SystemException
+	 *             -if the String input cannot be parsed.
+	 */
+	public static String getMonthAndDayFromDateStr(String inputDateString, String inputDateFormat)
+			throws SystemException {
+		if (ValidationUtil.isNull(inputDateString)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String dateFormat = inputDateFormat;
+			if (ValidationUtil.isNull(dateFormat)) {
+				dateFormat = DATE_FORMAT_WITH_DASH;
+			}
+			return getMonthFromDateString(inputDateString, dateFormat) + " "
+					+ getDayFromDateString(inputDateString, dateFormat);
+
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Parses string input to extract year as int ,Example - If input is
+	 * '07-19-2018', return 2018;
+	 * 
+	 * @param dateStr
+	 *            -String should be parsed ,not null
+	 * @param format
+	 *            -the formatter to use, not null
+	 * @return year value as int
+	 * @throws SystemException
+	 *             -if String input null or cannot be parsed.
+	 */
+	public static int getYearFromDateStr(String dateStr, String format) throws SystemException {
+		if (ValidationUtil.isNull(dateStr)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String inputFomat = format;
+			if (ValidationUtil.isNull(inputFomat)) {
+				inputFomat = DATE_FORMAT_WITH_DASH;
+			}
+			return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(inputFomat)).getYear();
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Parses string input to extract month as int, Example- If input is
+	 * '12-19-2018(MM-dd-yyyy)',return 12.
+	 * 
+	 * @param dateStr
+	 *            -String should be parsed ,not null
+	 * @param format
+	 *            - the formatter to use, not null
+	 * @return month value as int
+	 * @throws SystemException
+	 *             -if String input null or cannot be parsed.
+	 */
+	public static int getMonthFromDateStr(String dateStr, String format) throws SystemException {
+		if (ValidationUtil.isNull(dateStr)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String inputDateFormat = format;
+			if (ValidationUtil.isNull(inputDateFormat)) {
+				inputDateFormat = DATE_FORMAT_WITH_DASH;
+			}
+			return LocalDate.parse(dateStr, DateTimeFormatter.ofPattern(inputDateFormat)).getMonthValue();
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	/**
+	 * Calculate the no of day between two given String inputs. Example - If
+	 * inputs are - '07-19-2018(MM-dd-yyyy)' and '07-21-2018(MM-dd-yyyy)',return
+	 * 2.
+	 * 
+	 * @param inToDate
+	 *            -String should be parsed ,not null
+	 * @param inFromDate
+	 *            -String should be parsed ,not null
+	 * @param inDateFormat
+	 *            - the formatter to use, not null
+	 * @return
+	 * @throws SystemException
+	 *             -if String inputs are null or cannot be parsed.
+	 */
+	public static int findDaysBetween(String inToDate, String inFromDate, String inDateFormat) throws SystemException {
+
+		if (ValidationUtil.isNull(inToDate) || ValidationUtil.isNull(inFromDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String dateFormat = inDateFormat;
+			if (ValidationUtil.isNull(dateFormat)) {
+				dateFormat = DATE_FORMAT_WITH_DASH;
+			}
+
+			LocalDate fromDate = LocalDate.parse(inFromDate, DateTimeFormatter.ofPattern(dateFormat));
+			LocalDate toDate = LocalDate.parse(inToDate, DateTimeFormatter.ofPattern(dateFormat));
+			Long daysDifference = ChronoUnit.DAYS.between(fromDate, toDate);
+			return Integer.parseInt(daysDifference.toString());
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	/**
+	 * Determine the last date of a month from the given String input.
+	 * 
+	 * Example: If the input is '07-19-2018(MM-dd-yyyy)',return '07-31-2018
+	 * 00:00:00'.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed ,not null
+	 * @param dateFormat
+	 *            - the pattern to use, not null
+	 * @return last date as String
+	 * @throws SystemException
+	 *             -if String input is null or cannot be parsed.
+	 */
+	public static String getLastDayOfMonth(String inDate, String dateFormat) throws SystemException {
+
+		if (ValidationUtil.isNull(inDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String inputDateFormat = dateFormat;
+			if (ValidationUtil.isNull(inputDateFormat)) {
+				inputDateFormat = DATE_FORMAT_WITH_FORWARD_SLASH;
+			}
+			LocalDate localDate = LocalDate.parse(inDate, DateTimeFormatter.ofPattern(inputDateFormat));
+			localDate = localDate.withDayOfMonth(localDate.getMonth().length(localDate.isLeapYear()));
+
+			return DateTimeFormatter.ofPattern(DATE_FORMAT_WITH_FORWARD_SLASH).format(localDate) + " 00:00:00";
+
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	/**
+	 * Determine the last date of the year from the given String input.
+	 * 
+	 * Example: If input is '07/19/2018(MM/dd/yyyy)'. return value will be
+	 * '12/31/2018 23:59:59'.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed ,not null
+	 * @return last date of the year as String
+	 * @throws SystemException
+	 *             -if string input is null.
+	 */
+	public static String getLastDayOfYear(String inDate) throws SystemException {
+		if (ValidationUtil.isNull(inDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		Calendar calender = Calendar.getInstance();
+		calender.setTime(getSQLDate(inDate));
+		calender.set(Calendar.DAY_OF_YEAR, calender.getActualMaximum(Calendar.DAY_OF_YEAR));
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT_WITH_FORWARD_SLASH);
+		dateFormat.setLenient(false);
+		return dateFormat.format(calender.getTime()) + " 23:59:59";
+	}
+
+	/**
+	 * Determine the least date between two given String input
+	 * 
+	 * Example: If inputs are '07-19-2018' and '07-21-2018', return
+	 * '07-19-2018'.
+	 * 
+	 * @param inDate1
+	 *            -String should be parsed ,not null
+	 * @param inDate2
+	 *            -String should be parsed ,not null
+	 * @return least date as String
+	 * @throws SystemException
+	 *             -ff string inputs are null
+	 */
+	public static String getLeastDate(String inDate1, String inDate2) throws SystemException {
+		Timestamp dateTime1 = getSQLTimestamp(inDate1);
+		Timestamp dateTime2 = getSQLTimestamp(inDate2);
+		if (dateTime1 == null || dateTime2 == null) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		return dateTime1.before(dateTime2) ? inDate1 : inDate2;
+	}
+
+	/**
+	 * Determine date string present between date range
+	 * 
+	 * @param date
+	 *            -String should be parsed ,not null
+	 * @param minDate
+	 *            -String should be parsed ,not null
+	 * @param maxDate
+	 *            -String should be parsed ,not null
+	 * 
+	 * @return true if first argument is present between second and third
+	 *         argument or equal
+	 * @throws SystemException
+	 *             - if the string inputs are null or cannot be parsed.
+	 */
+	public static boolean checkDateBetween(String date, String minDate, String maxDate) throws SystemException {
+		if (ValidationUtil.isNull(date) || ValidationUtil.isNull(minDate) || ValidationUtil.isNull(maxDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		Timestamp dateTime = getSQLTimestamp(date);
+		if (dateTime == null) {
+			return false;
+		}
+		Timestamp minDateTime = getSQLTimestamp(minDate);
+		Timestamp maxDateTime = getSQLTimestamp(maxDate);
+		return dateTime.compareTo(minDateTime) >= 0 && dateTime.compareTo(maxDateTime) <= 0;
+
+	}
+
+	/**
+	 * Adding no of month with given string input
+	 * 
+	 * Example: If given date string is '07-19-2018' and need to add '1' month
+	 * with this date string , then the return value will be '08-19-2018'.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed ,not null
+	 * @param months
+	 *            -valid int value,not null
+	 * @param inDateFormat
+	 *            - the pattern to use, not null
+	 * @return
+	 * @throws SystemException
+	 *             - if the String input is null or cannot be parsed.
+	 */
+	public static String addMonths(String inDate, int months, String inDateFormat) throws SystemException {
+		if (ValidationUtil.isNull(inDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		String dateFormat = inDateFormat;
+		if (ValidationUtil.isNull(dateFormat)) {
+			dateFormat = DATE_FORMAT_WITH_DASH;
+		}
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
+		java.util.Date beginsDt = getSQLDate(inDate);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(beginsDt);
+		cal.add(Calendar.MONTH, months);
+		simpleDateFormat.setLenient(false);
+		return simpleDateFormat.format(cal.getTime());
+
+	}
+
+	/**
+	 * Format Date to produce date string with given date format. If the pattern
+	 * is not provided then default date format will be 'MM/dd/yyyy'.
+	 * 
+	 * @param date
+	 *            -String should be parsed ,not null
+	 * @param dateFormat
+	 *            - the pattern to use, not null
+	 * @return if pattern is null ,it will use default date format
+	 * @throws SystemException
+	 *             - if the String input is null or cannot be parsed.
+	 */
+	public static String formatDate(Date date, String dateFormat) {
+		if (date == null) {
+			return null;
+		}
+		String inDateFormat = dateFormat;
+		if (ValidationUtil.isNull(inDateFormat)) {
+			inDateFormat = DATE_FORMAT_WITH_FORWARD_SLASH;
+		}
+		return new SimpleDateFormat(inDateFormat).format(date);
+	}
+
+	/**
+	 * Convert the given java.util.Date to java.sql.Date
+	 * 
+	 * @param inDate
+	 * @return sql.Date,null if input date is null
+	 */
+	public static java.sql.Date getSQLDate(java.util.Date inDate) {
+		if (inDate == null) {
+			return null;
+		}
+		return new java.sql.Date(inDate.getTime());
+	}
+
+	/**
+	 * 
+	 * Formats Date into date string with default formatting style 'MM-dd-yyyy'.
+	 * 
+	 * @param inDate
+	 *            -Should be valid,not null
+	 * @return String in 'MM-dd-yyyy' format,null if input date is null
+	 */
+	public static String getUSFormattedDate(java.sql.Date inDate) {
+		if (inDate == null) {
+			return null;
+		}
+		DateFormat arrivedDtFrmt = new SimpleDateFormat(DATE_FORMAT_WITH_DASH);
+		return arrivedDtFrmt.format(inDate);
+	}
+
+	/**
+	 * Return the current date as java.sql.Timestamp and the date format will be
+	 * 'yyyy-MM-dd HH:mm:ss'.
+	 * 
+	 * @return java.sql.Timestamp
+	 */
+	public static java.sql.Timestamp getCurrentDateTimeAsTimestamp() {
+		String currentDateTime = getCurrentDateTimeAsFormat(TIMESTAMP_NON_US_FORMAT_WITH_DASH);
+		return java.sql.Timestamp.valueOf(currentDateTime);
+	}
+
+	/**
+	 * Calculate the years between two date.
+	 * 
+	 * Example: If the given date are '07-19-2018' and '07-21-2019' then it will
+	 * return '1'.
+	 * 
+	 * @param inToDate
+	 *            -String should be parsed ,not null
+	 * @param inFromDate
+	 *            -String should be parsed ,not null
+	 * @param inFormat
+	 *            - the pattern to use, not null
+	 * @return an int value, compare two date string input
+	 * @throws SystemException
+	 *             -if the String inputs are null or cannot be parsed.
+	 */
+	public static int findYearsBetween(String inToDate, String inFromDate, String inFormat) throws SystemException {
+
+		if (ValidationUtil.isNull(inToDate) || ValidationUtil.isNull(inFromDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String format = inFormat;
+			if (ValidationUtil.isNull(format)) {
+				format = DATE_FORMAT_WITH_DASH;
+			}
+			LocalDate fromDate = LocalDate.parse(inFromDate, DateTimeFormatter.ofPattern(format));
+			LocalDate toDate = LocalDate.parse(inToDate, DateTimeFormatter.ofPattern(format));
+			Long yearsBetween = ChronoUnit.YEARS.between(toDate, fromDate);
+			return Integer.parseInt(yearsBetween.toString());
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Formats Date into date string with 'MMM dd, yyyy' format. Example : 'Jul
+	 * 19, 2018' is the return value of current date for LOCAL.US .
+	 * 
+	 * @param inDate
+	 *            - the Date value to be formatted into a date string.
+	 * @param locale
+	 *            -the given locale
+	 * @return the formatted date as String,null if input date is null
+	 */
+	public static String getMMMddFormat(java.sql.Date inDate, Locale locale) {
+		if (inDate == null) {
+			return null;
+		}
+		return new SimpleDateFormat("MMM dd, yyyy", locale).format(inDate);
+	}
+
+	/**
+	 * Parses the given date string to add with no of days.
+	 * 
+	 * Example: If the given date string is '07-19-2018' and need to add '1' day
+	 * with this date, then the return value will be '08-19-2018'.
+	 * 
+	 * @param inDate
+	 *            -String should be parsed ,not null
+	 * @param days
+	 *            -no of days
+	 * @param inputDateFormat
+	 *            - the pattern to use, not null
+	 * @return formatted date as String
+	 * @throws SystemException
+	 *             -if the String inputs are null or cannot be parsed.
+	 */
+	public static String addDays(String inDate, int days, String inputDateFormat) throws SystemException {
+		if (ValidationUtil.isNull(inDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		String inDateFormate = inputDateFormat;
+		if (ValidationUtil.isNull(inDateFormate)) {
+			inDateFormate = DATE_FORMAT_WITH_FORWARD_SLASH;
+		}
+		SimpleDateFormat df = new SimpleDateFormat(inDateFormate);
+		java.util.Date beginsDt = getSQLDate(inDate);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(beginsDt);
+		cal.add(Calendar.DATE, days);
+		df.setLenient(false);
+		return df.format(cal.getTime());
+	}
+
+	/**
+	 * Parses the input date string with given format to extract Day of Month,
+	 * Example:if the input dateString is 07/24/2018 and input dateFormat is
+	 * MM/dd/yyyy,then return 24
+	 * 
+	 * @param dateString
+	 *            -String should be parsed ,not null
+	 * @param dateFormat
+	 *            - the pattern to use, not null
+	 * @return -int value of day of month
+	 */
+	public static int getDayFromDateString(String dateString, String dateFormat) {
+		return LocalDate.parse(dateString, DateTimeFormatter.ofPattern(dateFormat)).getDayOfMonth();
+	}
+
+	/**
+	 * Parses the input date string with given format to extract Month, Example:
+	 * if the input dateString is 07/24/2018 and input dateFormat is
+	 * MM-dd-yyyy,then return 07
+	 * 
+	 * @param dateString
+	 *            -String should be parsed ,not null
+	 * @param dateFormat
+	 *            - the pattern to use, not null
+	 * @return -int value of the month
+	 */
+	public static String getMonthFromDateString(String dateString, String dateFormat) {
+		return LocalDate.parse(dateString, DateTimeFormatter.ofPattern(dateFormat)).getMonth()
+				.getDisplayName(TextStyle.SHORT, Locale.US);
+	}
+
+	/**
+	 * Parses the two input date string to compare maximum or minimum, example:
+	 * If first argument new Date(07-20-2018) and second argument new
+	 * Date(07-24-2018) compare with'>' ,it will return true,else false
+	 * 
+	 * @param dt1
+	 *            -String should be parsed ,not null
+	 * @param dt2
+	 *            -String should be parsed ,not null
+	 * @param compare
+	 * @param inDateFormat
+	 *            - the pattern to use, not null
+	 * @return
+	 * @throws SystemException
+	 *             -if the String inputs are null or cannot be parsed.
+	 */
+	public static boolean compareDate(String dt1, String dt2, String compare, String inDateFormat)
+			throws SystemException {
+		if (ValidationUtil.isNull(dt1) || ValidationUtil.isNull(dt2)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		try {
+			String dateFormat = inDateFormat;
+			if (ValidationUtil.isNull(dateFormat)) {
+				dateFormat = DATE_FORMAT_WITH_FORWARD_SLASH;
+			}
+			SimpleDateFormat df = new SimpleDateFormat(dateFormat);
+			java.util.Date d1 = df.parse(dt1);
+			java.util.Date d2 = df.parse(dt2);
+			if ((">").equals(compare)) {
+				return compareDateForGreaterThanValue(d1, d2);
+			} else if (("<").equals(compare)) {
+				return compareDateForLessThanValue(d1, d2);
+			} else if (("=").equals(compare)) {
+				return compareDateForEqualValue(d1, d2);
+			}
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+		return false;
+	}
+
+	/**
+	 * Return true or false. For Example: Return true, if input is inDate with
+	 * new Date(07-20-2018) and input inDate2 with new Date(07-24-2018). Return
+	 * false, if input is inDate with new Date(07-24-2018) and input inDate2
+	 * with new Date(07-20-2018).
+	 * 
+	 * @param inDate
+	 * @param inDate2
+	 * @return
+	 */
+	private static boolean compareDateForGreaterThanValue(Date inDate, Date inDate2) {
+		if (inDate.after(inDate2)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Return true or false. For Example: Return false, if input is inDate with
+	 * new Date(07-20-2018) and input inDate2 with new Date(07-24-2018). Return
+	 * true, if input is inDate with new Date(07-24-2018) and input inDate2 with
+	 * new Date(07-20-2018).
+	 * 
+	 * @param inDate
+	 * @param inDate2
+	 * @return
+	 */
+	private static boolean compareDateForLessThanValue(Date inDate, Date inDate2) {
+		if (inDate.before(inDate2)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Return true or false. For Example: Return true, if input is inDate with
+	 * new Date(07-24-2018) and input inDate2 with new Date(07-24-2018). Return
+	 * false, if input is inDate with new Date(07-24-2018) and input inDate2
+	 * with new Date(07-20-2018).
+	 * 
+	 * @param inDate
+	 * @param inDate2
+	 * @return
+	 */
+	private static boolean compareDateForEqualValue(Date inDate, Date inDate2) {
+		if ((inDate.compareTo(inDate2)) == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 
+	 * Parses the date string with given format to substract the no of months
+	 * ,example if input date string is 07/24/2018 and input months is '7' and
+	 * input inFormat is MM/dd/yyyy,then result will be 12/24/2017
+	 * 
+	 * @param inputDate
+	 *            -String should be parsed ,not null
+	 * @param months
+	 *            -int should be valid,not null
+	 * @param inFormat
+	 *            - the pattern to use, not null
+	 * @return -formatted date as String
+	 * @throws SystemException
+	 *             -if the String inputs are null or cannot be parsed.
+	 */
+	public static String substractMonths(String inputDate, int months, String inFormat) throws SystemException {
+		if (ValidationUtil.isNull(inputDate)) {
+			throw new SystemException(EXCEPTION_MESSAGE);
+		}
+		String format = inFormat;
+		if (ValidationUtil.isNull(format)) {
+			format = DATE_FORMAT_WITH_FORWARD_SLASH;
+		}
+		java.sql.Date beginsDt = getSQLDate(inputDate);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(beginsDt);
+		cal.add(Calendar.MONTH, -months);
+		SimpleDateFormat df = new SimpleDateFormat(format);
+		df.setLenient(false);
+		return df.format(cal.getTime());
+	}
+
+	/**
+	 * Remove Time fields from a calendar instance Return
+	 * java.util.GregorianCalendar[time=?,areFieldsSet=false,areAllFieldsSet=true,lenient=true,
+	 * zone=sun.util.calendar.ZoneInfo[id="Asia/Calcutta",offset=19800000,dstSavings=0,useDaylight=false,transitions=7,lastRule=null],
+	 * firstDayOfWeek=1,minimalDaysInFirstWeek=1,ERA=1,YEAR=2018,MONTH=6,WEEK_OF_YEAR=30,WEEK_OF_MONTH=4,DAY_OF_MONTH=24,DAY_OF_YEAR=205,
+	 * DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=4,AM_PM=1,HOUR=0,HOUR_OF_DAY=0,MINUTE=0,SECOND=0,MILLISECOND=0,ZONE_OFFSET=19800000,DST_OFFSET=0]
+	 * if input inCalendar is Calendar.getInstance()
+	 * 
+	 * @param inCalendar
+	 *            -Calender should be not null
+	 * @return -a new Calendar instance
+	 */
+	public static Calendar removeTimeFieldsFromCalendar(Calendar inCalendar) {
+		final Calendar truncatedCal = Calendar.getInstance();
+		truncatedCal.setTime(inCalendar.getTime());
+		truncatedCal.set(Calendar.HOUR_OF_DAY, 0);
+		truncatedCal.set(Calendar.MINUTE, 0);
+		truncatedCal.set(Calendar.SECOND, 0);
+		truncatedCal.set(Calendar.MILLISECOND, 0);
+		return truncatedCal;
+	}
+
+	/**
+	 * Returns date in format specified and timezone specified
+	 * 
+	 * @param dateformat
+	 * @param timezoneId
+	 * @param dt
+	 * @return
+	 */
+	public static String getDateForTimeZone(String dateformat, String timezoneId, Date dt) {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat(dateformat);
+		dateFormat.setTimeZone(TimeZone.getTimeZone(timezoneId));
+		String result;
+		if (dt == null) {
+			result = dateFormat.format(new Date());
+		} else {
+			result = dateFormat.format(dt);
+		}
+		return result;
+	}
+
+	/**
+	 * Returns date in format specified and timezone specified after XML date
+	 * parsing
+	 * 
+	 * @param xmlGregorianCalendar
+	 * @return
+	 */
+	public static String getFormattedDateTimeAfterParsingXMLDate(XMLGregorianCalendar xmlGregorianCalendar) {
+
+		String formatDateTime = null;
+		LocalDateTime localDateTime = xmlGregorianCalendar.toGregorianCalendar().toZonedDateTime().toLocalDateTime();
+		if (localDateTime != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+			formatDateTime = localDateTime.format(formatter);
+		}
+		return formatDateTime;
+	}
+
+	/**
+	 * Returns difference in days between two dates
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @param format
+	 * @return
+	 * @throws SystemException
+	 */
+	public static long getDiffBetweenDates(String date1, String date2, String format) throws SystemException {
+
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+			LocalDate inputDate1 = LocalDate.parse(date1, formatter);
+			LocalDate inputDate2 = LocalDate.parse(date2, formatter);
+			return ChronoUnit.DAYS.between(inputDate1, inputDate2);
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+
+	}
+
+	/**
+	 * Returns Date in the specified format
+	 * 
+	 * @param xmlGregorianCalendar
+	 * @param dateFormat
+	 * @return
+	 */
+
+	public static String getFormattedDateAfterParsingXMLDateToSpecifiedFormat(XMLGregorianCalendar xmlGregorianCalendar,
+			String dateFormat) {
+
+		String formatDateTime = null;
+		LocalDate localDate = xmlGregorianCalendar.toGregorianCalendar().toZonedDateTime().toLocalDate();
+		String inDateFormat = dateFormat;
+		if (ValidationUtil.isNull(inDateFormat)) {
+			inDateFormat = DATE_FORMAT_WITH_FORWARD_SLASH;
+		}
+		if (localDate != null) {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(inDateFormat);
+			formatDateTime = localDate.format(formatter);
+		}
+		return formatDateTime;
+	}
+
+	/**
+	 * Returns list of date in LocalDate format
+	 * 
+	 * @param dateList
+	 * @param dateFormat
+	 * @return
+	 * @throws SystemException
+	 */
+	public static List<LocalDate> convertListOfStringToLocalDate(List<String> dateList, String dateFormat)
+			throws SystemException {
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+			return dateList.stream().filter(dt -> !ValidationUtil.isNull(dt)).map(d -> LocalDate.parse(d, formatter))
+					.collect(Collectors.toList());
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Returns nearest future or past date from a reference date
+	 * 
+	 * @param dateList
+	 * @param targetDate
+	 * @param checkFuture
+	 * @param dateFormat
+	 * @return
+	 * @throws SystemException
+	 */
+	public static Map<String, Object> getClosestOrObsoleteDate(List<LocalDate> dateList, String targetDate,
+			boolean checkFuture, String dateFormat) throws SystemException {
+		LocalDate closestDate;
+		LocalDate obsoleteDate = LocalDate.of(1980, 1, 1);
+		Map<String, Object> dateCheckerMap = new HashMap<>();
+		try {
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+			LocalDate inTargetDate = LocalDate.parse(targetDate, formatter);
+			if (checkFuture) {
+				closestDate = dateList.stream().filter(d -> d.isAfter(inTargetDate) || d.isEqual(inTargetDate))
+						.min(Comparator.naturalOrder()).orElse(obsoleteDate);
+			} else {
+				closestDate = dateList.stream().filter(d -> d.isBefore(inTargetDate) || d.isEqual(inTargetDate))
+						.max(Comparator.naturalOrder()).orElse(obsoleteDate);
+			}
+			dateCheckerMap.put("closestDate", closestDate.format(formatter));
+			dateCheckerMap.put("isObsolete", closestDate.isEqual(obsoleteDate));
+			return dateCheckerMap;
+		} catch (DateTimeParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Return first date of the year, passing year as parameter
+	 * 
+	 * @param year
+	 * @return
+	 */
+
+	public static String getFirstDateOfTheYear(int year) {
+		return "01/01/".concat(String.valueOf(year));
+
+	}
+
+	/**
+	 * Return last date of the year, passing year as parameter
+	 * 
+	 * @param year
+	 * @return
+	 */
+
+	public static String getLastDateOfTheYear(int year) {
+		return "12/31/".concat(String.valueOf(year));
+
+	}
+
+	public static java.util.Date getDate(String inDate, String inDateFormat) throws SystemException {
+		if (ValidationUtil.isNull(inDate)) {
+			return null;
+		}
+		try {
+			String dateFormat = inDateFormat;
+			if (ValidationUtil.isNull(dateFormat)) {
+				dateFormat = DATE_FORMAT_WITH_FORWARD_SLASH;
+			}
+			SimpleDateFormat df = new SimpleDateFormat(dateFormat);
+			return df.parse(inDate);
+
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	public static LocalDate convertDateFromStringtoLocalDate(String inTargetDate, String dateFormat) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+		return LocalDate.parse(inTargetDate, formatter);
+	}
+
+	public static String getFutureDate(String inTargetDate, String dateFormat, DateIncrementUnits units,
+			long incrementByParam) throws SystemException {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+		LocalDate date = DateUtil.convertDateFromStringtoLocalDate(inTargetDate, dateFormat);
+		LocalDate newDate = null;
+		switch (units.getDateIncrementUnit()) {
+		case "DAYS":
+			newDate = date.plus(incrementByParam, ChronoUnit.DAYS);
+			break;
+		case "MONTHS":
+			newDate = date.plus(incrementByParam, ChronoUnit.MONTHS);
+			break;
+		case "YEARS":
+			newDate = date.plus(incrementByParam, ChronoUnit.YEARS);
+			break;
+		case "WEEKS":
+			newDate = date.plus(incrementByParam, ChronoUnit.WEEKS);
+			break;
+		default:
+			break;
+		}
+		if (newDate != null) {
+			return newDate.format(formatter);
+		} else {
+			throw new SystemException("Invalid Date Increment Type");
+		}
+	}
+
+	public static String getPastDate(String inTargetDate, String dateFormat, DateIncrementUnits units,
+			long decrementByParam) throws SystemException {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+		LocalDate date = DateUtil.convertDateFromStringtoLocalDate(inTargetDate, dateFormat);
+		LocalDate newDate = null;
+		switch (units.getDateIncrementUnit()) {
+		case "DAYS":
+			newDate = date.minus(decrementByParam, ChronoUnit.DAYS);
+			break;
+		case "MONTHS":
+			newDate = date.minus(decrementByParam, ChronoUnit.MONTHS);
+			break;
+		case "YEARS":
+			newDate = date.minus(decrementByParam, ChronoUnit.YEARS);
+			break;
+		case "WEEKS":
+			newDate = date.minus(decrementByParam, ChronoUnit.WEEKS);
+			break;
+		default:
+			break;
+		}
+		if (newDate != null) {
+			return newDate.format(formatter);
+		} else {
+			throw new SystemException("Invalid Date Increment Type");
+		}
+	}
+
+	/**
+	 * Converts date value in String format and calls further unit to get the
+	 * monthsGap between two dates.
+	 * 
+	 * @param startDateStr
+	 * @param endDateStr
+	 * @return monthsGap
+	 * @throws CommonException
+	 */
+	public static int monthsBetween(String startDateStr, String endDateStr) throws SystemException {
+		Date startDate;
+		Date endDate;
+		try {
+			startDate = new SimpleDateFormat(DATE_FORMAT_WITH_FORWARD_SLASH).parse(startDateStr);
+			endDate = new SimpleDateFormat(DATE_FORMAT_WITH_FORWARD_SLASH).parse(endDateStr);
+		} catch (ParseException e) {
+			throw new SystemException(e);
+		}
+		return monthsBetween(startDate, endDate);
+	}
+
+	/**
+	 * This method is created to get months between two service dates, while
+	 * working with premium claims. Example, Start Date : 01/25/2017, End Date :
+	 * 01/27/2017; Return 1; Start Date : 01/25/2017. End Date : 02/01/2017;
+	 * Return 1; * Start Date : 01/01/2017, End Date : 04/02/2018; Return 16;
+	 * Start Date : 01/01/2017, End Date : 04/01/2018; Return 15;
+	 * 
+	 * @param startDate
+	 * @param endDate
+	 * @return motnhsGap
+	 */
+
+	public static int monthsBetween(Date startDate, Date endDate) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(startDate);
+		int startYear = cal.get(Calendar.YEAR);
+		int startMonth = cal.get(Calendar.MONTH);
+		cal.setTime(endDate);
+		int endYear = cal.get(Calendar.YEAR);
+		int endMonth = cal.get(Calendar.MONTH);
+		if (cal.get(Calendar.DAY_OF_MONTH) == 1) {
+			if (startYear == endYear) {
+				if (startMonth != endMonth) {
+					return endMonth - startMonth;
+				} else {
+					return endMonth - startMonth + 1;
+				}
+			} else if (startYear < endYear) {
+				return endMonth - startMonth + (endYear - startYear) * 12;
+			} else {
+				return 0;
+			}
+		} else {
+			if (startYear == endYear) {
+				return endMonth - startMonth + 1;
+			} else if (startYear < endYear) {
+				return endMonth - startMonth + 1 + (endYear - startYear) * 12;
+			} else {
+				return 0;
+			}
+		}
+	}
+
+}
