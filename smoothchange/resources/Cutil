@@ -1,1 +1,1671 @@
 
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.sql.Clob;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+
+
+public final class CUtil {
+	private static final String EMPTY="";
+	private CUtil() {
+
+	}
+
+	/**
+	 * Create the map of administrator and employer based on user details.
+	 * 
+	 * @param userDtls
+	 *            - user details
+	 * @return Get all the unique map Id's. The format will be like AD_XXXXXX_EN
+	 *         for administrator and ER_XXXXXX_EN for Employer. This is need to
+	 *         get the labels from hierarchy.
+	 */
+	public static Queue<String> generateMapIds(UserDetailsBn userDtls) {
+		Queue<String> mapIds = new LinkedList<>();
+		// get default language as English, if not present for user
+		String langCd = null != userDtls.getLangCd()
+				? userDtls.getLangCd()
+				: "eng";
+		AdminBn adminBn = userDtls.getParentAdmin();
+
+		if (null != adminBn) {
+			generateAdminId(mapIds, langCd, adminBn);
+		}
+		if (null != userDtls.getErID()) {
+			mapIds.add("ER_" + userDtls.getErID() + "_" + langCd);
+		}
+
+		return mapIds;
+	}
+
+	private static void generateAdminId(Queue<String> mapIds, String langCd,
+			AdminBn adminBn) {
+		if (null != adminBn.getAdminId()) {
+			mapIds.add("AD_" + adminBn.getAdminId() + "_" + langCd);
+		}
+		if (null != adminBn.getSubAdmin()) {
+			generateAdminId(mapIds, langCd, adminBn.getSubAdmin());
+		}
+	}
+
+	/**
+	 * Convert the given Clob to String.
+	 * 
+	 * @param clob
+	 *            - the input clob to be converted
+	 * @return the String, null if null clob input
+	 * @throws SystemException
+	 *             - when I/O exception of some sort has occurred or database
+	 *             error occurs
+	 */
+	public static String convertClobToString(Clob clob) throws SystemException {
+
+		if (clob == null) {
+			return "";
+		}
+
+		try (BufferedReader br = new BufferedReader(
+				clob.getCharacterStream())) {
+
+			StringBuilder outputString = new StringBuilder();
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				outputString.append(line);
+
+			}
+			return outputString.toString();
+
+		} catch (IOException | SQLException e) {
+			throw new SystemException(e);
+		}
+	}
+
+	/**
+	 * Strips any of a set of characters from the start of a String.
+	 * 
+	 * A null input String returns null. An empty string ("") input returns the
+	 * empty string.
+	 * 
+	 * If the stripCharacters String is null, whitespace is stripped as defined
+	 * by Character.isWhitespace(char).
+	 * 
+	 * @param inputString
+	 *            - the String to remove characters from, may be null
+	 * @param stripCharacters
+	 *            - the characters to remove, null treated as whitespace.
+	 * 
+	 * @return the stripped String, null if null String input
+	 */
+
+	public static String stripStart(String inputString,
+			String stripCharacters) {
+		return StringUtils.stripStart(inputString, stripCharacters);
+	}
+
+	/**
+	 * Masks the given input string, if the character in the string is "-" the
+	 * mask will be "-" else for any character other than "-" it will be masked
+	 * with "*".
+	 * 
+	 * @param inString
+	 *            - input string to mask
+	 * @param strLen
+	 *            - the integer count to be masked
+	 * @param isMasked
+	 *            - whether input string should be masked or not
+	 * @return masked format of input string, if it is not null
+	 */
+	public static String getMaskedNumber(String inString, int strLen,
+			String isMasked) {
+		StringBuilder paddingString = new StringBuilder("");
+		if (!ValidationUtil.isNull(inString) && strLen > 0
+				&& "Yes".equalsIgnoreCase(isMasked)) {
+			String paddingChars = "";
+			for (int j = 0; j < strLen; j++) {
+				paddingString.append(
+						paddingCharacter(inString.charAt(j), paddingChars));
+			}
+		}
+		return paddingString.toString();
+	}
+
+	private static String paddingCharacter(char character,
+			String paddingChars) {
+		String paddingChar = paddingChars;
+		if (character == '-') {
+			paddingChar = paddingChar + "-";
+		} else {
+			paddingChar = paddingChar + "*";
+		}
+		return paddingChar;
+	}
+
+	/**
+	 * Splits the provided text into an array, separators specified, preserving
+	 * all tokens, including empty tokens created by adjacent separators. This
+	 * is an alternative to using StringTokenizer.
+	 * 
+	 * The separator is not included in the returned String array. Adjacent
+	 * separators are treated as separators for empty tokens. For more control
+	 * over the split use the StrTokenizer class.
+	 * 
+	 * A null input String returns null. A null delimiter splits on whitespace.
+	 * For Example: split("ab:cd:ef:", ":") = ["ab", "cd", "ef", ""]
+	 * 
+	 * @param input
+	 *            - the String to parse, may be null
+	 * @param delimiter
+	 *            - the characters used as the delimiters, null splits on
+	 *            whitespace
+	 * @return an array of parsed Strings, null if null String input
+	 */
+	public static String[] split(String input, String delimiter) {
+		return StringUtils.splitPreserveAllTokens(input, delimiter);
+	}
+
+	/**
+	 * Returns either the passed in String, or if the String is whitespace,
+	 * empty ("") or null, the value of inNullString.
+	 * 
+	 * For Example: valueIfNull("bat", "NULL") = "bat" if inString is "bat" and
+	 * inNullString is "NULL".
+	 * 
+	 * @param inString
+	 *            - the String to check, may be null
+	 * @param inNullString
+	 *            - the default String to return if the input is whitespace,
+	 *            empty ("") or null, may be null
+	 * @return the passed in String, or the default
+	 */
+	public static String valueIfNull(String inString, String inNullString) {
+		return StringUtils.defaultIfBlank(inString, inNullString);
+	}
+
+	/**
+	 * Returns either the passed in String, or if the String is "null", an empty
+	 * String ("").
+	 * 
+	 * For Example: stringNoNull(null) = "" if String is "" stringNoNull("bat")
+	 * = "bat" if String is "bat"
+	 * 
+	 * @param inputString
+	 *            - the String to check, may be null
+	 * @return the passed in String, or the empty String if it was null
+	 */
+	public static String stringNoNull(String inputString) {
+		if ("null".equalsIgnoreCase(inputString)) {
+			return "";
+		}
+
+		return StringUtils.defaultString(inputString);
+	}
+	
+	/**
+	 * Removes a substring only if it is at the beginning of a source string,
+	 * otherwise returns the source string.
+	 * 
+	 * A null source string will return null. An empty ("") source string will
+	 * return the empty string. A null search string will return the source
+	 * string.
+	 * 
+	 * @param text
+	 *            - the source String to search, may be null
+	 * @param remove
+	 *            - the String to search for and remove, may be null
+	 * @return the substring with the string removed if found, null if null
+	 *         String input
+	 */
+	public static String removeStart(String text, String remove) {
+		return StringUtils.removeStart(text, remove);
+	}
+	
+	/**
+	 * Joins the elements of the provided list of strings into a single String
+	 * containing the provided elements.
+	 * 
+	 * No delimiter is added before or after the list. Null objects or empty
+	 * strings within the iteration are represented by empty strings.
+	 * 
+	 * @param strList
+	 *            - the list of strings providing the values to join together,
+	 *            may be null
+	 * @param element
+	 *            - the separator string to use
+	 * @return the joined String, null if null iterator input
+	 */
+	public static String join(List<String> strList, String element) {
+		return StringUtils.join(strList, element);
+	}
+	
+	/**
+	 * Preparing the map of string separated by comma, and each string is
+	 * splitting with colon to get the key value pair.
+	 * 
+	 * @param inputText
+	 *            - the input text to be splitted
+	 * @return map representation of splitted strings
+	 */
+	public static Map<String, String> getHashMapFromText(
+			String inputText) {
+
+		Map<String, String> map = new HashMap<>();
+		String[] values = inputText.split(",");
+		for (String str : values) {
+			map.put(str.split(":")[0], str.split(":")[1]);
+		}
+
+		return map;
+	}
+	
+	/**
+	 * Prepare map of key value of input JSONObject.
+	 * 
+	 * @param json
+	 *            - reference of JSONObject object
+	 * @return map object created after converting JSON
+	 * @throws JSONException
+	 *             - if input object is not in JSON format
+	 */
+	public static Map<String, String> getHashMapFromJson(JSONObject json)
+			throws JSONException {
+
+		Map<String, String> map = new HashMap<>();
+		Iterator<?> keys = json.keys();
+
+		while (keys.hasNext()) {
+			String key = (String) keys.next();
+			String value = json.getString(key);
+			map.put(key, value);
+		}
+		return map;
+	}
+
+	/**
+	 * Joins two non empty or non null strings with delimiter.
+	 * 
+	 * @param oldValue
+	 *            - one of the input string to be concatenated
+	 * @param newValue
+	 *            - another input string to be concatenated
+	 * @param delimiter
+	 *            - the delimiter to be used between each string
+	 * @return concatenated string separated by given delimiter
+	 */
+	public static String joinTwoStrings(String oldValue, String newValue,
+			String delimiter) {
+		return Stream.of(oldValue, newValue)
+				.filter(s -> !ValidationUtil.isNull(s))
+				.collect(Collectors.joining(delimiter));
+
+	}
+
+	/**
+	 * Convert two non empty or non null list into Map
+	 * 
+	 * @param keys
+	 *            -input list to be iterated to generate map keys
+	 * @param values
+	 *            -input list to be iterated to generate map values
+	 * @return
+	 * 
+	 * @throws -
+	 *             Exception ,if the both input list size not matched
+	 */
+	public static Map<String, String> convertListsToMap(List<String> keys,
+			List<String> values) {
+		if (!ValidationUtil.isNull(keys) && !ValidationUtil.isNull(values)) {
+			Iterator<String> keyIter = keys.iterator();
+			Iterator<String> valIter = values.iterator();
+			return IntStream.range(0, keys.size()).boxed().collect(
+					Collectors.toMap(x -> keyIter.next(), x -> valIter.next()));
+		}
+		return null;
+	}
+	/**
+	 * Extracted the non empty or non null strings with given delimiter to
+	 * convert a list
+	 * 
+	 * @param value
+	 *            -input string to be extracted
+	 * @param delimiter
+	 *            -the delimiter to be used for extraction
+	 * @return List as a type of String
+	 */
+	public static List<String> convertStringToListWithDelimiter(String value,
+			String delimiter) {
+		return new ArrayList<>(
+				Arrays.asList(ConversionUtil.split(value, delimiter)));
+	}
+
+	/**
+	 * Converts stack trace into string after appending the stack trace elements
+	 * representing the stack dump of this thread
+	 * 
+	 * @param currentThread
+	 * @return concatenated string
+	 */
+	public static String getStackTraceAsString(Thread currentThread) {
+		StackTraceElement[] allElements = currentThread.getStackTrace();
+		StringBuilder traceElements = new StringBuilder();
+		for (StackTraceElement thisElement : allElements) {
+			traceElements.append(thisElement.toString() + "\n");
+		}
+		return traceElements.toString();
+	}
+	/**
+	 * Generate well formed phone or fax no with given inputs
+	 * 
+	 * @param area
+	 *            - one of the input string to be concatenated,not null
+	 * @param rest
+	 *            -another input string to be concatenated,not null
+	 * @param delimiter
+	 *            - the delimiter to be used between each string
+	 * @return concatenated string separated by given delimiter
+	 */
+	public static String getFormattedTelephoneOrFaxNo(String area, String rest,
+			String delimeter) {
+		String formattedNo = null;
+		if (!ValidationUtil.isNull(rest)) {
+			if (rest.length() >= 7) {
+				formattedNo = rest.substring(0, 3) + delimeter
+						+ rest.substring(3, 7);
+			} else {
+				formattedNo = rest;
+			}
+		}
+
+		return joinTwoStrings(area, formattedNo, delimeter);
+
+	}
+
+	/**
+	 * Removes the content between the start tag and end tag from the input
+	 * string including the start and and end tags
+	 * 
+	 * @param input
+	 *            - string input from which substring needs to be removed
+	 * @param startTag
+	 *            - start string of the substring
+	 * @param EndTag
+	 *            - end string of the substring
+	 * @return final string after removal of tags and the substring within those
+	 *         tags
+	 */
+	public static String removeEnclosedString(String input, String startTag, String endTag) {
+
+		Pattern pattern = Pattern.compile(startTag + "([^<]*)" + endTag);
+		Matcher matcher = pattern.matcher(input);
+		return matcher.replaceAll(Matcher.quoteReplacement(EMPTY));
+
+	}
+
+	/**
+	 * 
+	 * @param input-
+	 *            input List of String to be concatenated
+	 * @param delimeter-
+	 *            the delimiter to be used between each string
+	 * @return concatenated List element by given delimiter
+	 */
+
+	public static String joinListToString(List<String> input, String delimeter) {
+
+		return input.stream().filter(p -> !ValidationUtil.isNull(p)).collect(Collectors.joining(delimeter));
+
+	}
+
+	/**
+	 * 
+	 * @param input-string
+	 *            input from which duplicate content to be removed
+	 * @param delimeter-
+	 *            the delimiter to be used between each string
+	 * @return preparing distinct string content separated by (,)
+	 */
+	public static String uniqueString(String input, String delimeter) {
+		String[] aList = split(input, delimeter);
+		aList = Arrays.stream(aList).distinct().toArray(String[]::new);
+		List<String> l = Arrays.asList(aList);
+		return l.stream().filter(p -> !ValidationUtil.isNull(p)).collect(Collectors.joining(delimeter));
+	}
+
+	/**
+	 * Join varargs as String with delimiter.
+	 * 
+	 * @param inputs
+	 *            - input string to be concatenated
+	 * 
+	 * @param delimiter
+	 *            - the delimiter to be used between each string
+	 * @return concatenated string separated by given delimiter
+	 */
+	public static String joinStrings(String delimeter, String... inputs) {
+		List<String> l = Arrays.asList(inputs);
+		return joinListToString(l, delimeter);
+	}
+	
+	/**
+	 * @param delimeterStr
+	 * @param wrapStr
+	 * @param inputs
+	 * @return delimited string with wrapping the input elements
+	 */
+	public static String joinWrapStrings(String wrapStr, String delimeterStr, String... inputs) {
+
+		if(inputs.length == 0) 
+			return StringUtils.EMPTY;
+		else if(inputs.length == 1) 
+			return !ValidationUtil.isNull(inputs[0]) ? StringUtils.wrap(inputs[0], wrapStr) : StringUtils.EMPTY;
+		else 
+			return joinListToString(Arrays.asList(inputs)
+						.stream()
+						.filter(input -> !ValidationUtil.isNull(input))
+						.map(input -> StringUtils.wrap(input, wrapStr))
+						.collect(Collectors.toList()), delimeterStr);
+	}
+	
+	/**
+	 * @param inParams
+	 * @return the string having formatted sql in parameters
+	 */
+	public static String convertToSqlQueryInParams(String... inParams) {
+		return joinWrapStrings("'", ", ", inParams);
+	}
+
+
+public static boolean isInputContainsDigit(String value) {
+		char[] inputArray = value.toCharArray();
+		for (char c : inputArray) {
+			if (Character.isDigit(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if the String contains only unicode letters and space (' ').
+	 * 
+	 * @param value
+	 *            - the String to check, may be null
+	 * @return true if only contains letters and space, and is non-null
+	 */
+
+	public static boolean isInputAlphaOrSpace(String value) {
+
+		return StringUtils.isAlphaSpace(value);
+	}
+
+	/**
+	 * Checks if the String contains only unicode digits.
+	 * 
+	 * A decimal point is not a unicode digit and returns false.
+	 * 
+	 * @param value
+	 *            - the String to check, may be null
+	 * @return true if only contains digits, and is non-null
+	 * 
+	 */
+
+	public static boolean isInputNumeric(String value) {
+
+		return StringUtils.isNumeric(value);
+	}
+
+	/**
+	 * Validates email, for blank email and invalid email.
+	 * 
+	 * @param conn
+	 *            - database connection
+	 * @param email
+	 *            - email to be validated
+	 * @param blankEmailAllowed
+	 *            - whether blank email is allowed
+	 * @return collection of error details such as blank email and invalid
+	 *         email, if validation fails
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+
+	public static List<ErrorBn> validateEmail(Connection conn, String email, boolean blankEmailAllowed)
+			throws SQLException {
+		List<ErrorBn> errorList = new ArrayList<>();
+		ConversionUtil.stringNoNull(email);
+		if (!blankEmailAllowed && ValidationUtil.isNull(email)) {
+			errorList.add(new ErrorBn(PortalError.BLANK_EMAIL).updateField("email"));
+		} else if (!ValidationUtil.isNull(email) && !isEmailValid(conn, email)) {
+
+			errorList.add(new ErrorBn(PortalError.INVALID_EMAIL).updateField("email"));
+		}
+		return errorList;
+	}
+
+	/**
+	 * Validates phone details such as phone area, phone number and phone
+	 * extension.
+	 * 
+	 * @param inPhoneArea
+	 *            - phone area code to be validated
+	 * @param inPhoneNum
+	 *            - phone number to be validated
+	 * @param inPhoneExt
+	 *            - phone extension to be validated
+	 * @param fieldPrefix
+	 *            - field prefix to be added
+	 * 
+	 * @return collection of error details such as blank phone area, incorrect
+	 *         phone area code length, incorrect phone number length, blank
+	 *         phone number ,invalid phone extension code and incorrect phone
+	 *         extension code length, if validation fails
+	 */
+
+	public static List<ErrorBn> validatePhone(String inPhoneArea, String inPhoneNum, String inPhoneExt,
+			String fieldPrefix) {
+
+		List<ErrorBn> errorLists = new ArrayList<>();
+		validatePhoneArea(inPhoneArea, inPhoneNum, errorLists, fieldPrefix);
+
+		validatePhoneNumber(inPhoneArea, inPhoneNum, errorLists, fieldPrefix);
+
+		validatePhoneExtn(inPhoneExt, errorLists, fieldPrefix);
+
+		return errorLists;
+	}
+
+	/**
+	 * Validates phone details such as phone area and phone number.
+	 * 
+	 * @param inPhoneArea
+	 *            - phone area code to be validated
+	 * @param inPhoneNum
+	 *            - phone number to be validated
+	 * 
+	 * @return collection of error details related to phone area code and phone
+	 *         number, if validation fails.
+	 */
+	public static List<ErrorBn> validateNotifctnMobileNo(String inPhoneArea, String inPhoneNum) {
+
+		List<ErrorBn> errorLists = new ArrayList<>();
+		validateNotifctnPhoneArea(inPhoneArea, inPhoneNum, errorLists);
+
+		validateNotifctnPhoneNumber(inPhoneArea, inPhoneNum, errorLists);
+
+		return errorLists;
+	}
+
+	/**
+	 * Validates phone details such as phone area, phone number and phone
+	 * extension.
+	 * 
+	 * @param inPhoneArea
+	 *            - phone area code to be validated
+	 * @param inPhoneNum
+	 *            - phone number to be validated
+	 * @param inPhoneExt
+	 *            - phone extension to be validated
+	 * @return collection of error details related to phone area code, phone
+	 *         number and phone extension, if validation fails
+	 */
+
+	public static List<ErrorBn> validatePhone(String inPhoneArea, String inPhoneNum, String inPhoneExt) {
+
+		return validatePhone(inPhoneArea, inPhoneNum, inPhoneExt, "");
+	}
+
+	private static void validatePhoneExtn(String inPhoneExt, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (!ValidationUtil.isNull(inPhoneExt)) {
+			if (inPhoneExt.length() > Integer.parseInt(PropertiesHelper.getProperty("PHONE_EXT_LENGTH", "5"))) {
+				errBn = new ErrorBn(PortalError.PHONE_EXT_CODE_LENGTH_INCORRECT);
+				errBn.setField(fieldPrefix.concat("phoneExt"));
+				errorLists.add(errBn);
+			}
+			if (!isInputNumeric(inPhoneExt)) {
+				errBn = new ErrorBn(PortalError.INVALID_PHONE_EXT_CODE);
+				errBn.setField(fieldPrefix.concat("phoneExt"));
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	private static void validatePhoneNumber(String inPhoneArea, String inPhoneNum, List<ErrorBn> errorLists,
+			String fieldPrefix) {
+		ErrorBn errBn;
+		if (!ValidationUtil.isNull(inPhoneNum)) {
+			if (inPhoneNum.length() != Integer.parseInt(PropertiesHelper.getProperty("PHONE_NUMBER_LENGTH", "7"))
+					|| !isInputNumeric(inPhoneNum)) {
+				errBn = new ErrorBn(PortalError.PHONE_NUMBER_LENGTH_INCORRECT);
+				errBn.setField(fieldPrefix.concat("phoneNum"));
+				errorLists.add(errBn);
+			}
+			if (ValidationUtil.isNull(inPhoneArea)) {
+				errBn = new ErrorBn(PortalError.BLANK_PHONE_AREA_CODE);
+				errBn.setField(fieldPrefix.concat("phoneArea"));
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	private static void validateNotifctnPhoneNumber(String inPhoneArea, String inPhoneNum, List<ErrorBn> errorLists) {
+		ErrorBn errBn;
+		if (!ValidationUtil.isNull(inPhoneNum)) {
+			if (inPhoneNum.length() != Integer.parseInt(PropertiesHelper.getProperty("PHONE_NUMBER_LENGTH", "7"))
+					|| !isInputNumeric(inPhoneNum)) {
+				errBn = new ErrorBn(PortalError.INVALID_MOBILE_NUMBER);
+				errBn.setField(ACTIVATIONCODE);
+				errorLists.add(errBn);
+			}
+			if (ValidationUtil.isNull(inPhoneArea)) {
+				errBn = new ErrorBn(PortalError.INVALID_MOBILE_NUMBER);
+				errBn.setField(ACTIVATIONCODE);
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	private static void validatePhoneArea(String inPhoneArea, String inPhoneNum, List<ErrorBn> errorLists,
+			String fieldPrefix) {
+		ErrorBn errBn;
+		if (!ValidationUtil.isNull(inPhoneArea)) {
+			if (inPhoneArea.length() != Integer.parseInt(PropertiesHelper.getProperty("PHONE_AREA_LENGTH", "3"))
+					|| !isInputNumeric(inPhoneArea)) {
+				errBn = new ErrorBn(PortalError.PHONE_AREA_CODE_LENGTH_INCORRECT);
+				errBn.setField(fieldPrefix.concat("phoneArea"));
+				errorLists.add(errBn);
+			}
+			if (ValidationUtil.isNull(inPhoneNum)) {
+				errBn = new ErrorBn(PortalError.BLANK_PHONE_NUMBER);
+				errBn.setField(fieldPrefix.concat("phoneNum"));
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	private static void validateNotifctnPhoneArea(String inPhoneArea, String inPhoneNum, List<ErrorBn> errorLists) {
+		ErrorBn errBn;
+		if (!ValidationUtil.isNull(inPhoneArea)) {
+			if (inPhoneArea.length() != Integer.parseInt(PropertiesHelper.getProperty("PHONE_AREA_LENGTH", "3"))
+					|| !isInputNumeric(inPhoneArea)) {
+				errBn = new ErrorBn(PortalError.INVALID_MOBILE_NUMBER);
+				errBn.setField(ACTIVATIONCODE);
+				errorLists.add(errBn);
+			}
+			if (ValidationUtil.isNull(inPhoneNum)) {
+				errBn = new ErrorBn(PortalError.INVALID_MOBILE_NUMBER);
+				errBn.setField(ACTIVATIONCODE);
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	/**
+	 * Validates address details such as address line 1, address line 2, city,
+	 * state, zip, country, phone area, phone number, ssn and country fields.
+	 * 
+	 * @param refAddressBn
+	 *            - address details
+	 * @param isMandatoryFileds
+	 *            - whether fields are mandatory or not
+	 * @param conn
+	 *            - database connection
+	 * @param fieldPrefix
+	 *            - field prefix to be added
+	 * @return collection of error details related to address line 1, address
+	 *         line 2, city, state, zip, country, phone area, phone number, SSN
+	 *         and country fields, if validation fails.
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static List<ErrorBn> validateAddress(AddressDTO refAddressBn, boolean isMandatoryFileds, Connection conn,
+			String fieldPrefix) throws SQLException {
+
+		List<ErrorBn> errorLists = new ArrayList<>();
+		final String stateLabel = "state";
+		ErrorBn errBn;
+
+		if (isMandatoryFileds || isAddressEntered(refAddressBn)) {
+
+			validateAddressLine1(refAddressBn, errorLists, fieldPrefix);
+
+			validateAddressLine2(refAddressBn, errorLists, fieldPrefix);
+
+			validateAddressLine3(refAddressBn, errorLists, fieldPrefix);
+
+			validateCity(refAddressBn, errorLists, fieldPrefix);
+
+			validateState(refAddressBn, errorLists, stateLabel, fieldPrefix);
+
+			validateZIP(refAddressBn, errorLists, fieldPrefix);
+
+			validateCountry(refAddressBn, errorLists, stateLabel, fieldPrefix);
+
+			validatePhoneArea(refAddressBn.getPhoneArea(), refAddressBn.getPhoneRest(), errorLists, fieldPrefix);
+
+			validatePhoneNumber(refAddressBn.getPhoneArea(), refAddressBn.getPhoneRest(), errorLists, fieldPrefix);
+
+			validateSSN(refAddressBn.getSsn(), refAddressBn.getIsSSNRequired(), errorLists, fieldPrefix);
+
+			if (refAddressBn.getCountryCode().matches(ConfigUtil.REGEX_OF_LIST_OF_COUNTRY_CODES)) {
+				if (!ValidationDAO.validateStateForCountry(conn, refAddressBn)) {
+					errBn = new ErrorBn(PortalError.INVALID_STATE_FOR_COUNTRY);
+					errBn.setField(fieldPrefix.concat(stateLabel));
+					errorLists.add(errBn);
+				}
+			} else {
+				if (errorLists.isEmpty())
+					setAndInsertStateCountry(conn, refAddressBn);
+			}
+
+		}
+
+		return errorLists;
+	}
+
+	private static boolean isAddressEntered(AddressDTO addressBn) {
+		boolean isEntered = false;
+
+		if (!ValidationUtil.isNull(addressBn.getAddressLineOne())
+				|| !ValidationUtil.isNull(addressBn.getAddressLineTwo())
+				|| !ValidationUtil.isNull(addressBn.getAddressLineThree())) {
+			isEntered = true;
+		}
+
+		if (!ValidationUtil.isNull(addressBn.getCity()) || !ValidationUtil.isNull(addressBn.getStateCode())
+				|| !ValidationUtil.isNull(addressBn.getZipCode())
+				|| !ValidationUtil.isNull(addressBn.getCountryCode())) {
+			isEntered = true;
+		}
+
+		return isEntered;
+	}
+
+	private static void setAndInsertStateCountry(Connection conn, AddressDTO addrBn) throws SQLException {
+		conn.setAutoCommit(false);
+		if (!ValidationDAO.isCountryPresent(conn, addrBn.getCountryCode())) {
+			ValidationDAO.insertDataIntoCountry(conn, addrBn.getCountryCode());
+		}
+		if (!ValidationDAO.validateStateForCountry(conn, addrBn)) {
+			ValidationDAO.insertDataIntoState(conn, addrBn.getCountryCode(), addrBn.getStateCode());
+		}
+		conn.commit();
+	}
+
+	/**
+	 * Validates address details such as address line 1, address line 2, city,
+	 * state, zip, country, phone area, phone number, ssn and country fields.
+	 * 
+	 * @param refAddressBn
+	 *            - address details
+	 * @param isMandatoryFileds
+	 *            - whether fields are mandatory or not
+	 * @param conn
+	 *            - database connection
+	 * @return collection of error details related to address line 1, address
+	 *         line 2, city, state, zip, country, phone area, phone number, SSN
+	 *         and country fields, if validation fails.
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static List<ErrorBn> validateAddress(AddressDTO refAddressBn, boolean isMandatoryFileds, Connection conn)
+			throws SQLException {
+
+		return validateAddress(refAddressBn, isMandatoryFileds, conn, "");
+	}
+
+	private static void validateCountry(AddressDTO refAddressBn, List<ErrorBn> errorLists, final String stateLabel,
+			String fieldPrefix) {
+		ErrorBn errBn;
+
+		if (ValidationUtil.isNull(refAddressBn.getCountryCode())) {
+			errBn = new ErrorBn(PortalError.BLANK_COUNTRY);
+			errBn.setField(fieldPrefix.concat("country"));
+			errorLists.add(errBn);
+		}
+
+		if (!ValidationUtil.isNull(refAddressBn.getCountryCode())
+				&& !ValidationUtil.isNull(refAddressBn.getStateCode())) {
+			if (!"OTH".equalsIgnoreCase(refAddressBn.getStateCode())
+					&& "OTH".equalsIgnoreCase(refAddressBn.getCountryCode())) {
+				errBn = new ErrorBn(PortalError.INVALID_STATE_FOR_OTHERS);
+				errBn.setField(fieldPrefix.concat(stateLabel));
+				errorLists.add(errBn);
+			}
+
+			if ("OTH".equalsIgnoreCase(refAddressBn.getCountryCode())
+					&& "OTH".equalsIgnoreCase(refAddressBn.getStateCode())
+					&& refAddressBn.getAddressLineThree().trim().length() == 0) {
+				errBn = new ErrorBn(PortalError.BLANK_ADDRESS_LINE_3_FOR_OTHERS);
+				errBn.setField(fieldPrefix.concat("addressLine3"));
+				errorLists.add(errBn);
+			}
+		}
+	}
+
+	private static void validateZIP(AddressDTO refAddressBn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (ValidationUtil.isNull(refAddressBn.getZipCode())) {
+			errBn = new ErrorBn(PortalError.BLANK_ZIP);
+			errBn.setField(fieldPrefix.concat("zip"));
+			errorLists.add(errBn);
+		}
+
+		if (!ValidationUtil.isNull(refAddressBn.getCountryCode())
+				&& refAddressBn.getCountryCode().matches(ConfigUtil.REGEX_OF_LIST_OF_COUNTRY_CODES)
+				&& !isZipCodeValidForUSA(refAddressBn.getZipCode())) {
+			errBn = new ErrorBn(PortalError.INVALID_ZIP_FOR_USA);
+			errBn.setField(fieldPrefix.concat("zip"));
+			errorLists.add(errBn);
+		}
+
+		if (!ValidationUtil.isNull(refAddressBn.getCountryCode())
+				&& !refAddressBn.getCountryCode().matches(ConfigUtil.REGEX_OF_LIST_OF_COUNTRY_CODES)
+				&& !validateLength(refAddressBn.getZipCode(), 20)) {
+			errBn = new ErrorBn(PortalError.ZIP_LENGTH_INCORRECT);
+			errBn.setField(fieldPrefix.concat("zip"));
+			errorLists.add(errBn);
+		}
+	}
+
+	private static boolean isZipCodeValidForUSA(String zipCode) {
+
+		boolean isValid = true;
+
+		if (isNull(zipCode)) {
+			return false;
+		}
+
+		char[] inputZipArray = zipCode.toCharArray();
+
+		String tempZipCode = zipCode.trim();
+
+		if (tempZipCode.length() != 5 && tempZipCode.length() != 9 && tempZipCode.length() != 10) {
+
+			return false;
+		}
+
+		int hyphencount = 0;
+
+		for (int i = 0; i < inputZipArray.length; i++) {
+			if (!Character.isDigit(inputZipArray[i]) && inputZipArray[i] != '-') {
+				isValid = false;
+			}
+
+			if (inputZipArray[i] == '-') {
+				hyphencount = hyphencount + 1;
+			}
+		}
+
+		if (!isValid || hyphencount == inputZipArray.length || hyphencount > 1) {
+			return false;
+		}
+
+		return isValidZipCode(inputZipArray, tempZipCode, isValid);
+	}
+
+	private static boolean isValidZipCode(char[] inputZipArray, String tempZipCode, boolean isZipValid) {
+
+		int sequentialChars = 0;
+
+		if (inputZipArray.length >= 10) {
+			return isZipLengthGreaterThanOrEqualToTen(inputZipArray, isZipValid);
+		}
+
+		if (inputZipArray.length <= 5) {
+			sequentialChars = sequentialCharsInZipWithFiveOrLessChars(inputZipArray, sequentialChars);
+		} else if (inputZipArray.length >= 5) {
+			sequentialChars = sequentialCharsInZipWithFiveOrMoreChars(inputZipArray, sequentialChars, tempZipCode);
+		}
+
+		if ((sequentialChars > 0 && sequentialChars < 5) || (tempZipCode.startsWith("-"))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private static boolean isZipLengthGreaterThanOrEqualToTen(char[] inputZipArray, boolean isZipValid) {
+		boolean isZipLengthValid = isZipValid;
+
+		if (inputZipArray.length >= 10) {
+			isZipLengthValid = false;
+			for (int i = 0; i < inputZipArray.length; i++) {
+				if (inputZipArray[i] == '-') {
+					isZipLengthValid = true;
+				}
+			}
+			if (!isZipLengthValid) {
+				return false;
+			}
+		}
+		return isZipLengthValid;
+	}
+
+	private static int sequentialCharsInZipWithFiveOrLessChars(char[] inputZipArray, int consecutiveChars) {
+		int sequentialChars = consecutiveChars;
+		if (inputZipArray.length <= 5) {
+			for (int i = 0; i < inputZipArray.length; i++) {
+				if (Character.isDigit(inputZipArray[i])) {
+					sequentialChars = sequentialChars + 1;
+				} else {
+					sequentialChars = 1;
+				}
+			}
+		}
+		return sequentialChars;
+	}
+
+	private static int sequentialCharsInZipWithFiveOrMoreChars(char[] inputZipArray, int consecutiveChars,
+			String tempZipCode) {
+		int sequentialChars = consecutiveChars;
+		if (inputZipArray.length >= 5) {
+			String tmpstr = tempZipCode.substring(0, 5);
+			char[] tmpArray = tmpstr.toCharArray();
+			for (int i = 0; i < tmpArray.length; i++) {
+				if ((tmpArray.length <= 5) && (Character.isDigit(tmpArray[i]))) {
+					sequentialChars = sequentialChars + 1;
+				} else {
+					sequentialChars = 1;
+				}
+			}
+		}
+		return sequentialChars;
+	}
+
+	private static void validateState(AddressDTO refAddressBn, List<ErrorBn> errorLists, final String stateLabel,
+			String fieldPrefix) {
+		ErrorBn errBn;
+		if (ValidationUtil.isNull(refAddressBn.getStateCode())) {
+			errBn = new ErrorBn(PortalError.BLANK_STATE);
+			errBn.setField(fieldPrefix.concat(stateLabel));
+			errorLists.add(errBn);
+		}
+	}
+
+	private static void validateCity(AddressDTO refAddressBn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (ValidationUtil.isNull(refAddressBn.getCity())) {
+			errBn = new ErrorBn(PortalError.BLANK_CITY);
+			errBn.setField(fieldPrefix.concat("city"));
+			errorLists.add(errBn);
+		}
+
+		if (!validateLength(refAddressBn.getCity(), 255)) {
+			errBn = new ErrorBn(PortalError.CITY_LENGTH_INCORRECT);
+			errBn.setField(fieldPrefix.concat("city"));
+			errorLists.add(errBn);
+		}
+
+		boolean cityRegexValidation = refAddressBn.getCity().matches("[a-zA-Z]+(?:[\\s,'.-]*[a-zA-Z.]+)*");
+		if (!cityRegexValidation || isInputNumeric(refAddressBn.getCity())) {
+			errBn = new ErrorBn(PortalError.INVALID_CITY);
+			errBn.setField(fieldPrefix.concat("city"));
+			errorLists.add(errBn);
+		}
+	}
+
+	private static void validateAddressLine3(AddressDTO refAddressBn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (!validateLength(refAddressBn.getAddressLineThree(), 255)) {
+			errBn = new ErrorBn(PortalError.ADDRESS_LINE_3_LENGTH_INCORRECT);
+			errBn.setField(fieldPrefix.concat("addressLine3"));
+			errorLists.add(errBn);
+		}
+	}
+
+	private static void validateAddressLine2(AddressDTO refAddressBn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (!validateLength(refAddressBn.getAddressLineTwo(), 255)) {
+			errBn = new ErrorBn(PortalError.ADDRESS_LINE_2_LENGTH_INCORRECT);
+			errBn.setField(fieldPrefix.concat("addressLine2"));
+			errorLists.add(errBn);
+		}
+	}
+
+	private static void validateAddressLine1(AddressDTO refAddressBn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		if (ValidationUtil.isNull(refAddressBn.getAddressLineOne())) {
+			errBn = new ErrorBn(PortalError.BLANK_ADDRESS_LINE_1);
+			errBn.setField(fieldPrefix.concat("addressLine1"));
+			errorLists.add(errBn);
+		}
+
+		if (!ValidationUtil.isNull(refAddressBn.getAddressLineOne())
+				&& !validateLength(refAddressBn.getAddressLineOne(), 255)) {
+			errBn = new ErrorBn(PortalError.ADDRESS_LINE_1_LENGTH_INCORRECT);
+			errBn.setField(fieldPrefix.concat("addressLine1"));
+			errorLists.add(errBn);
+		}
+	}
+
+	/**
+	 * Validates if the length of the given field value is greater than maximum
+	 * field length
+	 * 
+	 * @param fieldValue
+	 *            - input field value
+	 * @param fieldMaxLen
+	 *            - maximum field length
+	 * @return false if given field value length is greater than maximum field
+	 *         length, else true
+	 */
+	public static boolean validateLength(String fieldValue, int fieldMaxLen) {
+
+		int tempLength = ConversionUtil.stringNoNull(fieldValue).trim().length();
+		if (tempLength > fieldMaxLen) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Validates basic details such as first name, last name and date of birth.
+	 * 
+	 * @param basicInfo
+	 *            - basic details to be validated
+	 * @return - collection of error details related to basic details such as
+	 *         first name, last name and date of birth, if validation fails
+	 * @throws SystemException
+	 *             - if the basic details like date of birth cannot be parsed.
+	 */
+	public static List<ErrorBn> validateBasicInfo(BasicInfoDTO basicInfo) throws SystemException {
+		List<ErrorBn> errorLists = new ArrayList<>();
+
+		if (ValidationUtil.isNull(basicInfo.getFirstName())) {
+			errorLists.add(new ErrorBn(PortalError.BLANK_FIRST_NAME).updateField(FIRST_NAME));
+		} else if (!validateLength(basicInfo.getFirstName(), 255)) {
+			errorLists.add(new ErrorBn(PortalError.FIRST_NAME_LENGTH_INCORRECT).updateField(FIRST_NAME));
+		} else if (isInputContainsDigit(basicInfo.getFirstName())) {
+			errorLists.add(new ErrorBn(PortalError.INVALID_FIRST_NAME).updateField(FIRST_NAME));
+		}
+
+		if (ValidationUtil.isNull(basicInfo.getLastName())) {
+			errorLists.add(new ErrorBn(PortalError.BLANK_LAST_NAME).updateField(LAST_NAME));
+		} else if (!validateLength(basicInfo.getLastName(), 255)) {
+			errorLists.add(new ErrorBn(PortalError.LAST_NAME_LENGTH_INCORRECT).updateField(LAST_NAME));
+		} else if (isInputContainsDigit(basicInfo.getLastName())) {
+			errorLists.add(new ErrorBn(PortalError.INVALID_LAST_NAME).updateField(LAST_NAME));
+		}
+
+		if (ValidationUtil.isNull(basicInfo.getDateOfBirth())) {
+			errorLists.add(new ErrorBn(PortalError.BLANK_DATE_OF_BIRTH).updateField(DATE_OF_BIRTH));
+
+		} else if (!isDateFormatValid(basicInfo.getDateOfBirth(), US_DATE_FORMAT)) {
+
+			errorLists.add(new ErrorBn(PortalError.INVALID_DATE_OF_BIRTH_FORMAT).updateField(DATE_OF_BIRTH));
+
+		} else if (!DateUtil.isDateInRange(basicInfo.getDateOfBirth(), "01/01/1900",
+				DateUtil.getCurrentDateTimeAsFormat(US_DATE_FORMAT), US_DATE_FORMAT)) {
+
+			errorLists.add(new ErrorBn(PortalError.INVALID_DATE_OF_BIRTH).updateField(DATE_OF_BIRTH));
+
+		}
+
+		return errorLists;
+	}
+
+	/**
+	 * Validate SSN for blank SSN and non numeric SSN.
+	 * 
+	 * @param ssn
+	 *            - social security number to validate
+	 * @param isMandatory
+	 *            - whether input string is mandatory or not
+	 * @param errorLists
+	 *            - populates collection of error details related to SSN such as
+	 *            blank SSN and non numeric SSN, if validation fails
+	 */
+
+	public static void validateSSN(String ssn, boolean isMandatory, List<ErrorBn> errorList) {
+
+		validateSSN(ssn, isMandatory, errorList, "");
+
+	}
+
+	/**
+	 * Validates SSN for blank SSN and non numeric SSN.
+	 * 
+	 * @param ssn
+	 *            - social security number to validate
+	 * @param isMandatory
+	 *            - whether input string is mandatory or not
+	 * @param errorList
+	 *            - populates collection of error details related to SSN such as
+	 *            blank SSN and non numeric SSN, if validation fails
+	 * @param fieldPrefix
+	 *            - field prefix to be added
+	 */
+	public static void validateSSN(String ssn, boolean isMandatory, List<ErrorBn> errorList, String fieldPrefix) {
+		ErrorBn errBn;
+
+		if (isMandatory) {
+			if (ValidationUtil.isNull(ssn)) {
+				errBn = new ErrorBn(PortalError.BLANK_SSN).updateField(SSN);
+				errBn.setField(fieldPrefix.concat("ssn"));
+				errorList.add(errBn);
+			} else if (!isInputNumeric(ssn.replace('-', '0'))) {
+				errBn = new ErrorBn(PortalError.NON_NUMERIC_SSN).updateField(SSN);
+				errBn.setField(fieldPrefix.concat("ssn"));
+				errorList.add(errBn);
+			} else
+				validatedSSNFormat(ssn, errorList, fieldPrefix);
+		} else {
+			if (!ValidationUtil.isNull(ssn)) {
+				if (!isInputNumeric(ssn.replace('-', '0'))) {
+					errBn = new ErrorBn(PortalError.NON_NUMERIC_SSN).updateField(SSN);
+					errBn.setField(fieldPrefix.concat("ssn"));
+					errorList.add(errBn);
+				} else {
+					validatedSSNFormat(ssn, errorList, fieldPrefix);
+				}
+			}
+		}
+
+	}
+
+	/**
+	 * Validate SSN format based on regular expression pattern.
+	 * 
+	 * @param ssn
+	 *            - social security number to validate
+	 * @param errorLists
+	 *            - error details related to SSN format such as invalid SSN
+	 *            format, consecutive repeated character and consecutive
+	 *            sequential character, if validation related to regular
+	 *            expression pattern fails
+	 * @param fieldPrefix
+	 *            - field prefix to be added
+	 */
+	public static void validatedSSNFormat(String ssn, List<ErrorBn> errorLists, String fieldPrefix) {
+		ErrorBn errBn;
+		int maxConsecutiveRepeatCount = ValidationUtil.isNull(MAX_REPEAT_COUNT) ? 8
+				: Integer.parseInt(MAX_REPEAT_COUNT);
+
+		int maxConsecutiveSequentialCount = ValidationUtil.isNull(MAX_SEQ_COUNT) ? 8 : Integer.parseInt(MAX_SEQ_COUNT);
+
+		if (("Provider - ").equalsIgnoreCase(fieldPrefix)) {
+			Pattern ssnTaxIdPattern = Pattern.compile("^[0-9](-?[0-9]){8}$");
+			Matcher matcher = ssnTaxIdPattern.matcher(ssn);
+
+			if (!matcher.matches()) {
+				errBn = new ErrorBn(PortalError.INVALID_SSN_FORMAT).updateField(SSN);
+				errBn.setField(fieldPrefix.concat("ssn"));
+				errorLists.add(errBn);
+			}
+
+		} else {
+			Pattern ssnPattern = Pattern.compile("^\\d{3}[- ]?\\d{2}[- ]?\\d{4}$");
+			Matcher matcher = ssnPattern.matcher(ssn);
+
+			if (!matcher.matches()) {
+				errBn = new ErrorBn(PortalError.INVALID_SSN_FORMAT).updateField(SSN);
+				errBn.setField(fieldPrefix.concat("ssn"));
+				errorLists.add(errBn);
+			}
+
+		}
+		if (isConsecutiveRepeatedChars(ssn.replace("-", ""), maxConsecutiveRepeatCount)) {
+			errBn = new ErrorBn(PortalError.CONSECUTIVE_REPEATED_CHARACTER).updateField(SSN);
+			errBn.setField(fieldPrefix.concat("ssn"));
+			errorLists.add(errBn);
+		} else if (isConsecutiveSequentialChars(ssn.replace("-", ""), maxConsecutiveSequentialCount)) {
+			errBn = new ErrorBn(PortalError.CONSECUTIVE_SEQUENTIAL_CHARACTER).updateField(SSN);
+			errBn.setField(fieldPrefix.concat("ssn"));
+			errorLists.add(errBn);
+		}
+	}
+
+	/**
+	 * Validate if the value consists a character or digit repeatedly.
+	 * 
+	 * @param valueStr
+	 *            - input value string
+	 * @param maxConsecutiveRepeatCount
+	 *            - maximum allowed consecutive repeated count
+	 * @return true if the given string consists of character or digit
+	 *         repeatedly
+	 */
+	public static boolean isConsecutiveRepeatedChars(String valueStr, int maxConsecutiveRepeatCount) {
+
+		for (int i = 0; i < valueStr.length(); i++) {
+			int count = 1;
+			for (int j = i + 1; j < valueStr.length(); j++) {
+				if (valueStr.charAt(i) == valueStr.charAt(j)) {
+					count++;
+				} else {
+					break;
+				}
+			}
+			if (count > maxConsecutiveRepeatCount) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Validate if the value consists of consecutive sequential characters.
+	 * 
+	 * @param valueStr
+	 *            - input value string
+	 * @param maxConsecutiveSequentialCount
+	 *            - maximum allowed sequential count
+	 * @return - true if the string input consists of consecutive sequential
+	 *         characters
+	 */
+	public static boolean isConsecutiveSequentialChars(String valueStr, int maxConsecutiveSequentialCount) {
+
+		for (int i = 0; i < valueStr.length(); i++) {
+			int count = 1;
+			boolean isAscending = false;
+			int iValue = (int) valueStr.charAt(i);
+			for (int j = i + 1; j < valueStr.length(); j++) {
+				int jValue = (int) valueStr.charAt(j);
+				if ((iValue - jValue == (j - i) && !isAscending) || (iValue - jValue == (i - j) && isAscending)) {
+					count++;
+				} else if (iValue - jValue == (i - j) && count == 1) {
+					count++;
+					isAscending = true;
+				} else {
+					break;
+				}
+			}
+			if (count > maxConsecutiveSequentialCount) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Validate length of middle initial
+	 * 
+	 * @param middleInitial
+	 *            - middle initial to validate
+	 * @param errorLists
+	 *            - populates collection of error details related to middle
+	 *            initial, if validation fails
+	 */
+	public static void validateMiddleInitial(String middleInitial, List<ErrorBn> errorList) {
+		if (!ValidationUtil.isNull(middleInitial)) {
+			if (!validateLength(middleInitial, 1)) {
+				errorList.add(new ErrorBn(PortalError.MIDDLE_INITIAL_LENGTH_INCORRECT).updateField("middleInitial"));
+			} else if (isInputContainsDigit(middleInitial)) {
+				errorList.add(new ErrorBn(PortalError.INVALID_MIDDLE_INITIAL).updateField("middleInitial"));
+			}
+		}
+	}
+
+	/**
+	 * Validate prefix
+	 * 
+	 * @param prefix
+	 *            - prefix to be validated
+	 * @param errorList
+	 *            - populates collection of error details related to prefix, if
+	 *            validation fails
+	 * @param validPrefixes
+	 *            - list of valid prefixes
+	 */
+	public static void validatePrefix(String prefix, List<ErrorBn> errorList, List<String> validPrefixes) {
+
+		if (!ValidationUtil.isNull(prefix) && !validPrefixes.contains(prefix)) {
+
+			errorList.add(new ErrorBn(PortalError.INVALID_PREFIX).updateField("prefix"));
+		}
+	}
+
+	/**
+	 * Validate suffix
+	 * 
+	 * @param suffix
+	 *            - suffix to be validated
+	 * @param errorLists
+	 *            - populates collection of error details related to suffix, if
+	 *            validation fails
+	 * @param validSuffixes
+	 *            - list of valid suffixes
+	 */
+	public static void validateSuffix(String suffix, List<ErrorBn> errorList, List<String> validSuffixes) {
+
+		if (!ValidationUtil.isNull(suffix) && !validSuffixes.contains(suffix)) {
+			errorList.add(new ErrorBn(PortalError.INVALID_SUFFIX).updateField("suffix"));
+		}
+	}
+
+	/**
+	 * Check if the input date is in valid given format
+	 * 
+	 * @param date
+	 *            - input date to be parsed
+	 * @param format
+	 *            - format in which input date should be parsed
+	 * @return true if date is valid according to the input date format based on
+	 *         input criteria, else false
+	 */
+	public static boolean isDateFormatValid(String date, String format) {
+
+		SimpleDateFormat formatter = new SimpleDateFormat(format);
+
+		formatter.setLenient(false);
+
+		try {
+			formatter.parse(date);
+		} catch (ParseException e) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Validates input date based on input criteria
+	 * 
+	 * @param date
+	 *            - input date to be parsed
+	 * @param dateFormat
+	 *            - format in which input date should be parsed
+	 * @param allowFutureDate
+	 *            - whether future date is allowed or not
+	 * @return true if date is valid according to the input date format based on
+	 *         input criteria, else false
+	 * @throws SystemException
+	 *             - if the String input cannot be parsed
+	 */
+	public static boolean isWebDateValid(String date, String dateFormat, boolean allowFutureDate)
+			throws SystemException {
+
+		String updatedDateFormat = ValidationUtil.isNull(dateFormat) ? US_DATE_FORMAT : dateFormat;
+
+		boolean isDateFormatValid = isDateFormatValid(date, updatedDateFormat);
+
+		if (isDateFormatValid) {
+
+			if (allowFutureDate) {
+				return DateUtil.isDateInRange(DateUtil.getFormattedDate(date, updatedDateFormat, US_DATE_FORMAT),
+						LEGITIMATE_MIN_DATE, LEGITIMATE_MAX_DATE, US_DATE_FORMAT);
+			} else {
+				return DateUtil.isDateInRange(DateUtil.getFormattedDate(date, updatedDateFormat, US_DATE_FORMAT),
+						LEGITIMATE_MIN_DATE, DateUtil.getCurrentDateTimeAsFormat(US_DATE_FORMAT), US_DATE_FORMAT);
+			}
+		} else {
+			return false;
+		}
+
+	}
+
+	/**
+	 * Validates input email id
+	 * 
+	 * @param conn
+	 *            - database connection
+	 * @param email
+	 *            - input email
+	 * @return true if email is valid, else false
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static boolean isEmailValid(Connection conn, String email) throws SQLException {
+		EmailValidator e = EmailValidator.getInstance();
+		if (e.isValid(email))
+			return ValidationDAO.isEmailValid(conn, email);
+		else
+			return false;
+	}
+
+	/**
+	 * Checks if a String is whitespace, empty ("") or null.
+	 * 
+	 * @param input
+	 *            - the String to check, may be null
+	 * @return true if the String is null, empty or whitespace
+	 * 
+	 */
+	public static boolean isNull(String input) {
+		return StringUtils.isBlank(input);
+	}
+
+	/**
+	 * Checks if a String is not empty ("") and not null.
+	 * 
+	 * @param input
+	 *            - the String to check, may be null
+	 * @return true if the String is not empty and not null
+	 */
+	public static boolean isNotEmpty(String input) {
+		return StringUtils.isNotEmpty(input);
+	}
+
+	/**
+	 * 
+	 * Checks if a String is empty ("") or null.
+	 * 
+	 * @param input
+	 *            - the String collection to check, may be null
+	 * @return true if the String collection is empty or null
+	 */
+	public static boolean isNull(@SuppressWarnings("rawtypes") Collection input) {
+		return CollectionUtils.isEmpty(input);
+	}
+
+	/**
+	 * 
+	 * Checks if a Map is empty ("") or null.
+	 * 
+	 * @param input
+	 *            - the Map to check, may be null
+	 * @return true if the Map is empty or null
+	 */
+	public static boolean isNull(Map<?, ?> input) {
+		return MapUtils.isEmpty(input);
+	}
+
+	/**
+	 * Check if the given input bank routing number is bank routing number or
+	 * not
+	 * 
+	 * @param conn
+	 *            - database connection
+	 * @param bankRoutingNumber
+	 *            - bank routing number
+	 * @return string based on bank routing number is valid or not, "OK" if
+	 *         valid else error message
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static String validateBankRoutingNumber(Connection conn, String bankRoutingNumber) throws SQLException {
+
+		return ValidationDAO.validateBankRoutingNumber(conn, bankRoutingNumber);
+	}
+
+	/**
+	 * Check if the given input account clearing house account number is account
+	 * clearing house account number or not
+	 * 
+	 * @param conn
+	 *            - database connection
+	 * @param achAccountNumber
+	 *            - account clearing house account number
+	 * @return string based on account clearing house account number is valid or
+	 *         not, "OK" if valid else error message
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static String validateACHAccountNumber(Connection conn, String achAccountNumber) throws SQLException {
+
+		return ValidationDAO.validateACHAccountNumber(conn, achAccountNumber);
+	}
+
+	/**
+	 * Check if the given account number is omnibus account or direct deposit
+	 * account or not
+	 * 
+	 * @param conn
+	 *            - database connection
+	 * @param accountNo
+	 *            - account number
+	 * @param routingNo
+	 *            - routing number
+	 * @param userDtls
+	 *            - user details
+	 * @return true if either the account number is an omnibus account or direct
+	 *         deposit account else false
+	 * @throws SQLException
+	 *             - if a database access error occurs
+	 */
+	public static boolean isOmnibusOrDirectDepositAccount(Connection conn, String accountNo, String routingNo,
+			UserDetailsBn userDtls) throws SQLException {
+
+		return ValidationDAO.isOmnibusOrDirectDepositAccount(conn, accountNo, routingNo, userDtls);
+	}
+
+	/**
+	 * 
+	 * @param c
+	 * @return
+	 */
+	public static boolean validAlphaOrNoChar(char c) {
+		boolean isValid = false;
+		for (int j = 0; j < validNoAndAlphaChars.length; j++) {
+			if (c == validNoAndAlphaChars[j]) {
+				isValid = true;
+				break;
+			}
+		}
+		return isValid;
+	}
+
+	public static boolean isMailingAddressChange(AddressDTO newAddressDTO, AddressDTO oldAddressDTO) {
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineOne()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineOne()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineTwo()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineTwo()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineThree()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineThree()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getCity()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getCity()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getCountryCode()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getCountryCode()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getStateCode()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getStateCode()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getZipCode()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getZipCode()).trim())) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isResidentialAddressChange(AddressDTO newAddressDTO, AddressDTO oldAddressDTO) {
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineOne()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineOne()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineTwo()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineTwo().trim()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getAddressLineThree()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getAddressLineThree()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getCity()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getCity().trim()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getCountryCode()).trim()
+				.equals(ConversionUtil.stringNoNull(oldAddressDTO.getCountryCode()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getStateCode()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getStateCode()).trim())) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newAddressDTO.getZipCode()).trim()
+				.equalsIgnoreCase(ConversionUtil.stringNoNull(oldAddressDTO.getZipCode()).trim())) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static boolean isPhoneNoChange(PhoneDTO newPhoneDTO, PhoneDTO oldPhoneDTO) {
+		if (!ConversionUtil.stringNoNull(newPhoneDTO.getPhoneArea())
+				.equals(ConversionUtil.stringNoNull(oldPhoneDTO.getPhoneArea()))) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newPhoneDTO.getPhoneExtn())
+				.equals(ConversionUtil.stringNoNull(oldPhoneDTO.getPhoneExtn()))) {
+			return true;
+		}
+		if (!ConversionUtil.stringNoNull(newPhoneDTO.getPhoneRest())
+				.equals(ConversionUtil.stringNoNull(oldPhoneDTO.getPhoneRest()))) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Checks the input string for numeric value and formats
+	 * 	to two decimal places.
+	 * 
+	 * @param value
+	 * 		- the String to check, may be null
+	 * @return 
+	 * 		a formatted string to two decimals if the input value 
+	 * 	is a valid number. Else, returns the input string.
+	 */
+	
+	
+	public static String formatNumber(String value) {
+		
+		DecimalFormat df = new DecimalFormat("0.00");
+		String formattedValue;
+		
+		if (NumberUtils.isNumber(value)) {
+			formattedValue = df.format(Double.parseDouble(value));
+			if (formattedValue.equals("-0.00")) {
+				formattedValue = "0.00";
+			}
+		} else {
+			formattedValue = value;
+		}
+		
+		return formattedValue;
+	}
+
+}
