@@ -1,1 +1,214 @@
 
+
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@Schema(name="ResponseBn", description = "Common content for all succesful responses with a body in it's response.")
+public class ResponseBn<T> {
+       private T body;
+       private List<Link> links;
+       private List<LabelDTO> labels;
+       private List<AssistBn> assists;
+       private Set<UserPreferenceDTO> preferences;
+
+       public ResponseBn() {
+              
+       }
+       public ResponseBn(T body, List<Link> links, List<LabelDTO> labels) {
+              this.body = body;
+              this.links = links;
+              this.labels = labels;
+              this.assists = Collections.emptyList();
+       }
+
+       public ResponseBn(T body, List<Link> links, List<LabelDTO> labels,
+                     List<AssistBn> assists) {
+              this.body = body;
+              this.links = links;
+              this.labels = labels;
+              this.assists = assists;
+       }
+       
+       public ResponseBn(T body, List<Link> links, List<LabelDTO> labels, Set<UserPreferenceDTO> preferences) {
+              this(body, links, labels);
+              this.preferences = preferences;
+       }
+
+}
+
+
+
+
+
+import java.util.Arrays;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+
+@Component
+public class ExternalServiceCaller {
+
+
+       private static final String Y_PARAM_KEY = "_y_";
+
+       private static final String QUESTION_MARK = "?";
+
+       private static final String EQUALS = "=";
+
+       private static final String AMPERSAND = "&";
+
+       @Autowired
+       private AccountOtherServicesConfig otherServiceConfig;
+
+       @Autowired
+       private RestTemplate restTemplate;
+
+       public BalanceDTO getAccountBalanceFromVendor(String yParam, CommonAccountDetailDTO acctDtlDTO,
+                     String isCumulativeJRABalance,
+                     String willShowCachedBalance) {
+
+              String apiUrl = otherServiceConfig.debitCardGetBalanceUrl + QUESTION_MARK + Y_PARAM_KEY + EQUALS + yParam
+                           + AMPERSAND + "electionKey={electionKey}" + AMPERSAND
+                           + "isCumulativeJRABalance={isCumulativeJRABalance}"
+                           + AMPERSAND + "willShowCachedBalance={willShowCachedBalance}";
+
+              LOGGER.info("Calling external service with URL :- {}", apiUrl);
+
+              ParameterizedTypeReference<ResponseBn<BalanceDTO>> typeRef = new ParameterizedTypeReference<ResponseBn<BalanceDTO>>() {};
+
+              ResponseEntity<ResponseBn<BalanceDTO>> response = restTemplate.exchange(apiUrl, HttpMethod.GET, null, typeRef,
+                           acctDtlDTO.getElectID() + "~" + acctDtlDTO.getEncrElctID(), isCumulativeJRABalance,
+                           willShowCachedBalance);
+
+              ResponseBn<BalanceDTO> balance = response.getBody();
+
+              LOGGER.info("External service calling completed and response received.");
+
+              return balance.getBody();
+
+       }
+
+       public SaveBankInfoResponseDTO saveCommuterBankInfo(CommuterBankInfoDTO commuterBankInfoDTO, String yParam) {
+
+              String apiUrl = otherServiceConfig.userDetailSaveBankInfoUrl + QUESTION_MARK + Y_PARAM_KEY + EQUALS + yParam;
+              
+              HttpHeaders headers = new HttpHeaders();
+              headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+              headers.setContentType(MediaType.APPLICATION_JSON);
+
+              HttpEntity<CommuterBankInfoDTO> requestEntity = new HttpEntity<>(commuterBankInfoDTO, headers);
+              
+              LOGGER.info("Calling external service with URL:- {}", apiUrl);
+
+              ParameterizedTypeReference<ResponseBn<SaveBankInfoResponseDTO>> typeRef = new ParameterizedTypeReference<ResponseBn<SaveBankInfoResponseDTO>>() {};
+
+              ResponseEntity<ResponseBn<SaveBankInfoResponseDTO>> response = restTemplate.exchange(apiUrl, HttpMethod.POST,
+                           requestEntity, typeRef);
+
+              ResponseBn<SaveBankInfoResponseDTO> bankInfo = response.getBody();
+              
+              LOGGER.info("External service calling completed and response received.");
+
+              return bankInfo.getBody();
+       }
+
+       public String deleteCommuterBankInfo(CommuterAcccountDetailsDTO commuterAcccountDetails, String yParam) {
+
+              String apiUrl = otherServiceConfig.debitCardGetBalanceUrl + QUESTION_MARK + Y_PARAM_KEY + EQUALS + yParam
+                           + AMPERSAND + "accountForCode={accountForCode}" + AMPERSAND + "bankId={bankId}" + AMPERSAND
+                           + "hashBankId={hashBankId}";
+              
+              LOGGER.info("Calling external service with URL:- {}", apiUrl);
+
+              ParameterizedTypeReference<ResponseBn<String>> typeRef = new ParameterizedTypeReference<ResponseBn<String>>() {};
+
+              String accountForCode = commuterAcccountDetails.getBank().getAccountForCode();
+              String bankId = commuterAcccountDetails.getBankId();
+              String hashBankId = commuterAcccountDetails.getEncryptedBankId();
+
+              ResponseEntity<ResponseBn<String>> response = restTemplate.exchange(apiUrl, HttpMethod.DELETE, null, typeRef,
+                           accountForCode, bankId, hashBankId);
+
+              ResponseBn<String> bankInfoResponseBn = response.getBody();
+              
+              LOGGER.info("External service calling completed and response received");
+
+              return bankInfoResponseBn.getBody();
+       }
+
+       public String saveCommuterContribution(PurseDTO<CommuterContributionDetailsDTO> commuterContributionDetailsPurse,
+                     String yParam) {
+
+              String apiUrl = otherServiceConfig.saveContibutionDetailsUrl + QUESTION_MARK + Y_PARAM_KEY + EQUALS + yParam;
+              
+              HttpHeaders headers = new HttpHeaders();
+              headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+              headers.setContentType(MediaType.APPLICATION_JSON);
+
+              HttpEntity<PurseDTO<CommuterContributionDetailsDTO>> requestEntity = new HttpEntity<>(
+                           commuterContributionDetailsPurse, headers);
+              
+              LOGGER.info("Calling external service with URL :- {}", apiUrl);
+
+              ParameterizedTypeReference<ResponseBn<String>> typeRef = new ParameterizedTypeReference<ResponseBn<String>>() {};
+
+              ResponseEntity<ResponseBn<String>> response = restTemplate.exchange(apiUrl, HttpMethod.POST, requestEntity,
+                           typeRef);
+
+              ResponseBn<String> contributionInfo = response.getBody();
+              
+              LOGGER.info("External service calling completed and response received");
+
+              return contributionInfo.getBody();
+       }
+
+}
+
+
+<dependency>
+                     <groupId>org.springframework.boot</groupId>
+                     <artifactId>spring-boot-starter-web</artifactId>
+                     <exclusions>
+                           <exclusion>
+                                  <groupId>org.springframework.boot</groupId>
+                                  <artifactId>spring-boot-starter-logging</artifactId>
+                           </exclusion>
+                           <exclusion>
+                       <groupId>org.codehaus.jackson</groupId>
+                       <artifactId>jackson-core</artifactId>
+                   </exclusion>
+                   <exclusion>
+                       <groupId>org.codehaus.jackson</groupId>
+                       <artifactId>jackson-databind</artifactId>
+                   </exclusion>
+                   <exclusion>
+                       <groupId>org.codehaus.jackson</groupId>
+                       <artifactId>jackson-annotations</artifactId>
+                   </exclusion>
+                   <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+                     </exclusions>
+              </dependency>
+
+
+
